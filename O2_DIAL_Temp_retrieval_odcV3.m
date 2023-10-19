@@ -10,8 +10,8 @@ date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 date_start = datetime(2022,6,22,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,6,22,'TimeZone','UTC');%yyyy,mm,dd
 
-date_start = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
+date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
 
 span_days = date_start:date_end;
 
