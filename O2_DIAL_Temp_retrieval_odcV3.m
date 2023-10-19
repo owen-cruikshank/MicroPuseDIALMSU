@@ -381,10 +381,13 @@ for jjjj = 1:iter
     %==============Set Model WV to DIAL======
     
     %Purturbative WV
-    load(fullfile('CalibrationData','TransmittanceData.mat'))
-    T_etalon_on = double(interp1(double(OnlineWavelength)*10^9,OnlineCombinedTransmittance,Spectrum.lambda_scan_3D_short));
-    T_etalon_off = double(interp1(double(OfflineWavelength)*10^9,OfflineCombinedTransmittance,Spectrum.lambda_scan_3D_short_off));
-    
+    % load(fullfile('CalibrationData','TransmittanceData.mat'))
+    % T_etalon_on = double(interp1(double(OnlineWavelength)*10^9,OnlineCombinedTransmittance,Spectrum.lambda_scan_3D_short));
+    % T_etalon_off = double(interp1(double(OfflineWavelength)*10^9,OfflineCombinedTransmittance,Spectrum.lambda_scan_3D_short_off));
+    % 
+    T_etalon_on = HSRL.onlineCombinedTransmission./max(HSRL.onlineCombinedTransmission);
+
+
     %altitude in km
     altitude = 1.5719;
     

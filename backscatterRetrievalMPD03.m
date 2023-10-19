@@ -14,6 +14,13 @@ load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data\NC
 
 offlineMolecularTransmission = interp1(10^7./CalInfo.ScanData.O2OfflineMol.Wavelength, CalInfo.ScanData.O2OfflineMol.Transmission, Spectrum.nu_scan_3D_short_off);
 offlineCombinedTransmission = interp1(10^7./CalInfo.ScanData.O2OfflineComb.Wavelength, CalInfo.ScanData.O2OfflineComb.Transmission, Spectrum.nu_scan_3D_short_off);
+onlineMolecularTransmission = interp1(10^7./CalInfo.ScanData.O2OnlineMol.Wavelength, CalInfo.ScanData.O2OnlineMol.Transmission, Spectrum.nu_scan_3D_short);
+onlineCombinedTransmission = interp1(10^7./CalInfo.ScanData.O2OnlineComb.Wavelength, CalInfo.ScanData.O2OnlineComb.Transmission, Spectrum.nu_scan_3D_short);
+
+HSRL.offlineMolecularTransmission = offlineMolecularTransmission;
+HSRL.offlineCombinedTransmission = offlineCombinedTransmission;
+HSRL.onlineMolecularTransmission = onlineMolecularTransmission;
+HSRL.onlineCombinedTransmission = onlineCombinedTransmission;
 
 etam = (mean(CalInfo.ScanData.O2OnlineComb.Transmission./CalInfo.ScanData.O2OnlineMol.Transmission)+1)^-1;
 etac = 1-etam;
