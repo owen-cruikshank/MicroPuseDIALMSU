@@ -768,7 +768,7 @@ end
 % Temperature.T_final_test_cut = fillmissing(Temperature.T_final_test_cut,'linear');
 
 %Appy cloud mask before smoothing
-Temperature.T_final_test_cut(cloud_SDm_above) = NaN;          % Replace mask with NaNs
+%Temperature.T_final_test_cut(cloud_SDm_above) = NaN;          % Replace mask with NaNs
 
 
 %Temperature.T_final_testf(isnan(gg)) = NaN;
@@ -789,8 +789,8 @@ Temperature.T_final_tests = nanconv(Temperature.T_final_test(:,:,end),k,'edge','
 Temperature.T_final_testfs = zeros(size(Temperature.T_final_tests,1),size(Temperature.T_final_tests,2),iter);
 Temperature.T_final_testgs = zeros(size(Temperature.T_final_tests,1),size(Temperature.T_final_tests,2),iter);
 for iii = 1:size(Temperature.T_final_testf,3)
-Temperature.T_final_testfs(:,:,iii) = nanconv(Temperature.T_final_testf(:,:,1),k,'edge','nanout');
-Temperature.T_final_testgs(:,:,iii) = nanconv(Temperature.T_final_testg(:,:,1),k,'edge','nanout');
+    Temperature.T_final_testfs(:,:,iii) = nanconv(Temperature.T_final_testf(:,:,iii),k,'edge','nanout');
+    Temperature.T_final_testgs(:,:,iii) = nanconv(Temperature.T_final_testg(:,:,iii),k,'edge','nanout');
 end
 
 Temperature.TempStd = zeros(size(Temperature.T_final_tests));
@@ -820,28 +820,17 @@ end
 
 tempStds = sqrt((1/(2*(B-1))) *sum((Temperature.T_final_testfs-Temperature.T_final_testgs).^2,3) );
 
-
 tempStd = sqrt((1./(2.*(permute(1:B,[1 3 2])-1))) .*cumsum((Temperature.T_final_testf-Temperature.T_final_testg).^2,3) );
 
-tempStdDiff = diff(tempStd,1,3);
 
 %%
 %=== apply mask
-Temperature.T_finalm(:,:,jjjj) = Temperature.T_final_tests ;
-%Temperature.T_finalm(cloud_SDm_above,end) = NaN;
-Temperature.T_finalm2 =Temperature.T_finalm;
-Temperature.T_finalm = Temperature.T_finalm(:,:,jjjj);
+Temperature.T_finalm = Temperature.T_final_tests ;
 Temperature.T_finalm(cloud_SDm_above) = NaN;
 
 Temperature.T_final_tests0 = Temperature.T_final_test0;
 Temperature.T_final_tests0(cloud_SDm_above) = nan;
 Temperature.T_final_tests0 = nanconv(Temperature.T_final_tests0,k,'edge','nanout');
-
-% %=== apply mask
-% Temperature.T_finalm = Temperature.T_final_tests ;
-% Temperature.T_finalm(cloud_SDm_above) = NaN;
-
-
 
 %%
 
