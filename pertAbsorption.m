@@ -67,7 +67,7 @@ c=3e8;
     %%
     %Calculate RB spectrum by PCA
 else
-    [doppler_O2_ret] = RB_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short);  
+    [doppler_O2_ret] = RB_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short,Spectrum);  
 end
     %%
   

@@ -1,4 +1,4 @@
-function [sponts6] = RB_O2_770_PCA(T,P,nu_Range)
+function [sponts6] = RB_O2_770_PCA(T,P,nu_Range,Spectrum)
 %File: absorption_O2_770_model_wavenumber.m
 %Date: 02/28/2020
 %Author: Owen Cruikshank
@@ -30,8 +30,14 @@ function [sponts6] = RB_O2_770_PCA(T,P,nu_Range)
 
 
 %load('PCA_10_06_23singleRayleighBrillion_offline.mat','muY','M','muT','muP','sigmaT','sigmaP','nu')
-load(fullfile('CalibrationData','PCA_10_10_23singleRayleighBrillion_offline.mat'),'muY','M','muT','muP','sigmaT','sigmaP','nu')
+%load(fullfile('CalibrationData','PCA_10_10_23singleRayleighBrillion_offline.mat'),'muY','M','muT','muP','sigmaT','sigmaP','nu')
 
+muY = Spectrum.RBoffline.muY;
+M = Spectrum.RBoffline.M;
+muT = Spectrum.RBoffline.muT;
+muP = Spectrum.RBoffline.muP;
+sigmaT = Spectrum.RBoffline.sigmaT;
+sigmaP = Spectrum.RBoffline.sigmaP;
 
 %order
 No = 20;
@@ -47,7 +53,7 @@ for n = 1:No
 end
 
 thetapermute = permute(theta(:,:,:),[3 2 1]);
-sponts6I = ones(length(nu),length(T(1,:)),length(T(:,1)));
+sponts6I = ones(length(Spectrum.nu_scan_3D_short),length(T(1,:)),length(T(:,1)));
 for j = 1:length(T(:,1))
     for i = 1:length(T(1,:))
         %sponts6I(:,i,j) = muY + M*thetapermute(:,i,j);  

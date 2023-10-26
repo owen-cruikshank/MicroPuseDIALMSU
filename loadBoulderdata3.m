@@ -487,10 +487,14 @@ Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offlin
 
 [~,Spectrum.online_indexwv] = min(abs(Spectrum.nu_wvon - Spectrum.nu_scanwv_3D_short),[],3);%finding index of online wavenumber
 
+%%
 Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
 %Model.transmission = exp(-cumtrapz(Range.rm,Model.absorption));
 Model.absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
 
+
+%%
+[Spectrum] = PCAconstrunctionRB2(Spectrum);
 %%
 %Count filtering
 k = ones(Options.oversample,Options.t_avg)./(Options.oversample*Options.t_avg);     % Kernel

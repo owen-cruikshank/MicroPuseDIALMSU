@@ -3,14 +3,22 @@ Model.T= 240;
 Model.P = 71*0.00986923;
 
 %[sponts6] = RB_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short);
-[sponts6_off] = RB_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short_off);
+[sponts6_off] = RB_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short_off,Spectrum);
 
 %[sponts6_off] = RB_O2_770_PCA(Model.Tlong,Model.Plong,Spectrum.nu_scan_3D_short_off);
 sponts6_off = sponts6_off./trapz(permute(Spectrum.nu_scan_3D_short_off,[3 2 1]),sponts6_off,3);
 
-load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data\NCAR Boulder Data\MPD03ScanData.mat')
-% CalInfo.ScanData.O2OfflineMol.Wavelength = CalInfo.ScanData.O2OfflineMol.Wavelength+Spectrum.WavemeterOffset;
-% CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength+Spectrum.WavemeterOffset;
+%load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data\NCAR Boulder Data\MPD03ScanData.mat')
+load(fullfile('CalibrationData','MPD03ScanData.mat'))
+ CalInfo.ScanData.O2OfflineMol.Wavelength = CalInfo.ScanData.O2OfflineMol.Wavelength+Spectrum.WavemeterOffset;
+ CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength+Spectrum.WavemeterOffset;
+  CalInfo.ScanData.O2OnlineMol.Wavelength = CalInfo.ScanData.O2OnlineMol.Wavelength+Spectrum.WavemeterOffset;
+ CalInfo.ScanData.O2OnlineComb.Wavelength = CalInfo.ScanData.O2OnlineComb.Wavelength+Spectrum.WavemeterOffset;
+
+ %  CalInfo.ScanData.O2OfflineMol.Wavelength = CalInfo.ScanData.O2OfflineMol.Wavelength-Spectrum.WavemeterOffset;
+ % CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength-Spectrum.WavemeterOffset;
+ %  CalInfo.ScanData.O2OnlineMol.Wavelength = CalInfo.ScanData.O2OnlineMol.Wavelength-Spectrum.WavemeterOffset;
+ % CalInfo.ScanData.O2OnlineComb.Wavelength = CalInfo.ScanData.O2OnlineComb.Wavelength-Spectrum.WavemeterOffset;
 
 offlineMolecularTransmission = interp1(10^7./CalInfo.ScanData.O2OfflineMol.Wavelength, CalInfo.ScanData.O2OfflineMol.Transmission, Spectrum.nu_scan_3D_short_off);
 offlineCombinedTransmission = interp1(10^7./CalInfo.ScanData.O2OfflineComb.Wavelength, CalInfo.ScanData.O2OfflineComb.Transmission, Spectrum.nu_scan_3D_short_off);

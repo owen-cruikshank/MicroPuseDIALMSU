@@ -583,6 +583,8 @@ Spectrum.del_lambda = Spectrum.lambda_scan_3D_short-Spectrum.lambda_online;
 [~,Spectrum.online_indexwv] = min(abs(Spectrum.nu_wvon - Spectrum.nu_scanwv_3D_short),[],3);%finding index of online wavenumber
 
 
+
+
 %%
 %===== Calculate Model absorption from Model T and P =======
 %%%%Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
