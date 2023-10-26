@@ -158,10 +158,12 @@ end
 
 
     o2absorption_off = zeros(size(absorption_f));
+    o2absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV);
     %%
     %Create lineshape function
     for i = 1:Time.i_time
         absorption_f(:,i,:) = absorption_f(:,i,:) ./ absorption_f(:,i,Spectrum.online_index(1));  %[none] Normalize lineshape function
+       % absorption_f(:,i,:) = absorption_f(:,i,:) ./ max(absorption_f(:,i,:),3);  %[none] Normalize lineshape function
     end
 
 % % %     absorption_f_err = abs(0.02*absorption_f); %error for absorption model

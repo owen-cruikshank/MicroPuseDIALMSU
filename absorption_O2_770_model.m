@@ -38,13 +38,22 @@ P0 = 1.0;                               %[atm]
  O2_parameters=[7	1	12990.4577700000	4.88900000000000e-26	0.0219200000000000	0.0312000000000000	0.0340000000000000	1420.76310000000	0.630000000000000	-0.00930000000000000;
  7	1	12990.5018320000	3.74900000000000e-27	0.0171900000000000	0.0491000000000000	0.0490000000000000	1635.06590000000	0.740000000000000	-0.00730000000000000];
 
+
+ O2_parameters=[
+7 1	12990.45777	 4.889e-26 0.02192 0.0312 0.034	1420.7631 0.63 -0.0093;
+7 1	12990.501832 3.749e-27 0.01719 0.0491 0.049	1635.0659 0.74 -0.0073;
+7 1 12988.722523 5.059e-26 0.02287 0.0312 0.034 1422.4983 0.63 -0.0093;
+7 1 12984.267206 2.674e-27 0.01352 0.0507 0.052 1600.1301 0.73 -0.0061;
+7 1 12986.261218 3.404e-27 0.01705 0.0507 0.052 1598.1361 0.73 -0.0071];
+
+
 % O2_parameters=[7	1	12990.4577700000	4.88900000000000e-26	0.0219200000000000	0.0312000000000000	0.0340000000000000	1420.76310000000	0.630000000000000	-0.00930000000000000]
 
-% parameters = fopen(fullfile('CalibrationData','O2_line_parametersfull.out'),'r');   %open file containing HITRAN information
+% parameters = fopen(fullfile('CalibrationData','O2_line_parameters.out'),'r');   %open file containing HITRAN information
 % fmt = '%1d %1d %f %e %e %f %f %f %f %f';          %format of HITRAN file
 % O2_parameters =fscanf(parameters,fmt,[10 inf]);     %place HITRAN parameters in vector a
 % fclose(parameters);                                 %close file
-%O2_parameters = O2_parameters';                     %transpose matrix to correct format
+% O2_parameters = O2_parameters';                     %transpose matrix to correct format
 
 
 [rL, tL] = size(T);                                 %length of range vector x length of time vector
