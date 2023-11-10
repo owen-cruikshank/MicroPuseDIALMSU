@@ -53,7 +53,7 @@ for n = 1:No
 end
 
 thetapermute = permute(theta(:,:,:),[3 2 1]);
-sponts6I = ones(length(Spectrum.nu_scan_3D_short),length(T(1,:)),length(T(:,1)));
+sponts6I = ones(length(Spectrum.nu_scan_3D_short_off),length(T(1,:)),length(T(:,1)));
 for j = 1:length(T(:,1))
     for i = 1:length(T(1,:))
         %sponts6I(:,i,j) = muY + M*thetapermute(:,i,j);  

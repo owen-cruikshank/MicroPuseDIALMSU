@@ -417,12 +417,21 @@ Counts.NBins = Data.MCS.Channel0.NBins.*2;
 %lambda_online = interp1(Options.TimeGrid,Data.Laser.O2Online.WavelengthActual,Time.ts/60/60);
 %lambda_offline = interp1(Options.TimeGrid,Data.Laser.O2Offline.WavelengthActual,Time.ts/60/60);
 
-Spectrum.WavemeterOffset = 0.00024;%[nm]
+Spectrum.WavemeterOffset = -0.00024;%[nm]
+%Spectrum.WavemeterOffset = 0.00024;%[nm]
 %Spectrum.WavemeterOffset = 0;%[nm]
 
 
-Spectrum.lambda_online = 769.7958 *ones(size(Time.ts));
-Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts));
+% Spectrum.lambda_online = 769.7958 *ones(size(Time.ts));
+% Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts));
+o2lambdaCentralon = 769.7958;
+o2lambdaCentraloff = 770.1085;
+o2nuCentralon = 10^7/o2lambdaCentralon;
+o2nuCentraloff = 10^7/o2lambdaCentraloff;
+
+
+Spectrum.lambda_online = double(fillmissing(filloutliers(Data.Laser.O2Online.WavelengthActual,'linear','movmedian',5),'linear'));
+Spectrum.lambda_offline = double(fillmissing(filloutliers(Data.Laser.O2Offline.WavelengthActual,'linear','movmedian',5),'linear'));
 
 % Spectrum.lambda_wvon = 828.1959 *ones(size(Time.ts));
 % Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
@@ -444,18 +453,20 @@ Spectrum.nu_offline = 10^7./Spectrum.lambda_offline;                  %[cm-1] Of
 Spectrum.nu_wvon = 10^7./Spectrum.lambda_wvon;                    %[cm-1] Online wavenumber
 Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offline wavenumber
 
-nuMin = Spectrum.nu_online-0.334;                                 %[cm-1] Scan lower bound
-nuMax = Spectrum.nu_online+0.334;                                 %[cm-1] Scan upper bound
+nuMin = o2nuCentralon-0.334;                                 %[cm-1] Scan lower bound
+nuMax = o2nuCentralon+0.334;                                 %[cm-1] Scan upper bound
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
+Spectrum.nuBin = 0.00222/2;   
 nu_scan = (nuMin:Spectrum.nuBin:nuMax);                      %[cm-1](1 x nu) Scan vector
 
 nuwvMin = wvnuCentralon-0.334;                                 %[cm-1] Scan lower bound
 nuwvMax = wvnuCentralon+0.334;                                 %[cm-1] Scan upper bound
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
+Spectrum.nuBin = 0.00222/2;
 nu_scanwv = (nuwvMin:Spectrum.nuBin:nuwvMax);                      %[cm-1](1 x nu) Scan vector
 
-nuMin_off = Spectrum.nu_offline-0.334;                                 %[cm-1] Scan lower bound
-nuMax_off = Spectrum.nu_offline+0.334;                                 %[cm-1] Scan upper bound
+nuMin_off = o2nuCentraloff-0.334;                                 %[cm-1] Scan lower bound
+nuMax_off = o2nuCentraloff+0.334;                                 %[cm-1] Scan upper bound
 nu_scan_off = (nuMin_off:Spectrum.nuBin:nuMax_off);
 
 Spectrum.nu_scan_3D_short = permute(nu_scan, [3 1 2]);       %[cm-1] putting scan in third dimension
@@ -470,8 +481,11 @@ Spectrum.i_scan_3D_short = length(Spectrum.nu_scan_3D_short);         %[none] le
 Spectrum.lambda_scanwv_3D_short = 10^7./Spectrum.nu_scan_3D_short;
 
 %add wavemeter offset
-Spectrum.lambda_online = 769.7958 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
-Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
+% Spectrum.lambda_online = 769.7958 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
+% Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
+
+Spectrum.lambda_online = Spectrum.lambda_online+Spectrum.WavemeterOffset;
+Spectrum.lambda_offline = Spectrum.lambda_offline+Spectrum.WavemeterOffset;
 Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
 Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
 Spectrum.lambda_wvon = double(Spectrum.lambda_wvon)+Spectrum.WavemeterOffset; %single values mess up conversion to wavenumber
