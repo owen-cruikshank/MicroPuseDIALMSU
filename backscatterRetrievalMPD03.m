@@ -9,7 +9,7 @@ Model.P = 71*0.00986923;
 sponts6_off = sponts6_off./trapz(permute(Spectrum.nu_scan_3D_short_off,[3 2 1]),sponts6_off,3);
 
 %load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data\NCAR Boulder Data\MPD03ScanData.mat')
-load(fullfile('CalibrationData','MPD03ScanData.mat'))
+load(fullfile('CalibrationData','MPD03ScanData.mat'),'CalInfo')
  CalInfo.ScanData.O2OfflineMol.Wavelength = CalInfo.ScanData.O2OfflineMol.Wavelength+Spectrum.WavemeterOffset;
  CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength+Spectrum.WavemeterOffset;
   CalInfo.ScanData.O2OnlineMol.Wavelength = CalInfo.ScanData.O2OnlineMol.Wavelength+Spectrum.WavemeterOffset;

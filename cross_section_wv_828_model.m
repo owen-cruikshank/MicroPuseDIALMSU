@@ -1,4 +1,4 @@
-function [N_wv,cross_section,lineshape,Line] = cross_section_wv_828_model(T,P,nu_Range,absorption)
+function [N_wv,cross_section,lineshape,Line,g_wv] = cross_section_wv_828_model(T,P,nu_Range,absorption)
 %File: cross_section_wv_828_model.m
 %Date: 02/14/2021
 %Author: Owen Cruikshank
@@ -112,5 +112,7 @@ for i = 1:length(WV_parameters)                     %loop over all line paramete
 end
 
 N_wv = absorption./cross_section; %[molecule/m3] wv number density
+
+g_wv = N_wv.*mwv*1000; %g/m3
 
 end

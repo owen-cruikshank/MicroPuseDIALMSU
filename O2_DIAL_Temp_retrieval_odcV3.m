@@ -10,8 +10,8 @@ date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 date_start = datetime(2022,6,22,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,6,22,'TimeZone','UTC');%yyyy,mm,dd
 
-date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
+date_start = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
 
 span_days = date_start:date_end;
 
@@ -67,11 +67,13 @@ Options.DataPath = 'C:\Users\Owen\OneDrive - Montana State University\Research\O
 %======================
 disp('Calculating masks')
  %(hours) Time to plot mask data
-cloud_p_point = 20;
+cloud_p_point = 200;
 
 %Threshold for initial SNR mask
 SNR_threshold = 2300;
-%SNR_threshold = 1000;
+
+%SNR_threshold = 3300;
+SNR_threshold = 1500;
 
 %Threshold for Cloud mask
 %SD_threshold = 0.5;  
@@ -159,11 +161,14 @@ for jjjj = 1:iter
         Counts.Nm_on = Counts.o2on_mol;%.*Counts.NBins;
         Counts.Nm_off = Counts.o2off_mol;%.*Counts.NBins;
         [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum);
-        % Counts.Nc_on = Counts.o2on_bgsub;%.*Counts.NBins;
-        % Counts.Nc_off = Counts.o2off_bgsub;%.*Counts.NBins;
-        % Counts.Nm_on = Counts.o2on_bgsub_mol;%.*Counts.NBins;
-        % Counts.Nm_off = Counts.o2off_bgsub_mol;%.*Counts.NBins;
-        % [HSRLfull] = backscatterRetrievalMPD03(Counts, Model, Spectrum);
+        Counts.Nc_on = Counts.o2on_bgsub;%.*Counts.NBins;
+        Counts.Nc_off = Counts.o2off_bgsub;%.*Counts.NBins;
+        Counts.Nm_on = Counts.o2on_bgsub_mol;%.*Counts.NBins;
+        Counts.Nm_off = Counts.o2off_bgsub_mol;%.*Counts.NBins;
+        [HSRLfull] = backscatterRetrievalMPD03(Counts, Model, Spectrum);
+
+        k = ones(4,6)./(4*6);
+        HSRL.BSR = nanconv(HSRL.BSR,k,'edge','nanout');
     
     end
     
@@ -361,15 +366,30 @@ for jjjj = 1:iter
     Alpha.alpha_0_err(end+1,:,:)=Alpha.alpha_0_err(end,:,:);
     
     
-    ln_o2 = log((Counts.wvon(ind_r_lo,:).*Counts.wvoff(ind_r_hi,:))./(Counts.wvon(ind_r_hi,:).*Counts.wvoff(ind_r_lo,:))); % Natural log of counts  
-    Alpha.alpha_0wv_raw = ln_o2./2./(Range.rangeBin*Options.oversample); 
-    %Alpha.alpha_0wv = interp2(Time.ts,Range.rm(ind_r_lo),Alpha.alpha_0wv_raw,Time.ts,Range.rm);
-    Alpha.alpha_0wv = interp2(Time.ts,Range.rm(ind_r_lo)+Range.rangeBin./2,Alpha.alpha_0wv_raw,Time.ts,Range.rm);
-    Alpha.alpha_0wv = fillmissing(Alpha.alpha_0wv,'nearest');
+    % ln_o2 = log((Counts.wvon(ind_r_lo,:).*Counts.wvoff(ind_r_hi,:))./(Counts.wvon(ind_r_hi,:).*Counts.wvoff(ind_r_lo,:))); % Natural log of counts  
+    % Alpha.alpha_0wv_raw = ln_o2./2./(Range.rangeBin*Options.oversample); 
+    % %Alpha.alpha_0wv = interp2(Time.ts,Range.rm(ind_r_lo),Alpha.alpha_0wv_raw,Time.ts,Range.rm);
+    % Alpha.alpha_0wv = interp2(Time.ts,Range.rm(ind_r_lo)+Range.rangeBin./2,Alpha.alpha_0wv_raw,Time.ts,Range.rm);
+    % Alpha.alpha_0wv = interp2(Time.ts,Range.rm(ind_r_lo),Alpha.alpha_0wv_raw,Time.ts,Range.rm);
+    % Alpha.alpha_0wv = fillmissing(Alpha.alpha_0wv,'nearest');
+
+
+            alpha_0wv = zeros(size(Counts.wvon));
+        alpha_0wv(1,:,:) = log((Counts.wvon(1,:).*Counts.wvoff(2,:))./(Counts.wvon(2,:).*Counts.wvoff(1,:)))./2./Range.rangeBin;
+        for iii = 2:length(Range.rm)-1
+            %dg1(iii,:,:) = (g1(iii+1,:,:)-g1(iii-1,:,:))/2/Range.rangeBin;
+            alpha_0wv(iii,:)=log((Counts.wvon(iii-1,:).*Counts.wvoff(iii+1,:))./(Counts.wvon(iii+1,:).*Counts.wvoff(iii-1,:)))./2./Range.rangeBin./2;
+        end
+        alpha_0wv(end,:,:) = log((Counts.wvon(end-1,:).*Counts.wvoff(end,:))./(Counts.wvon(end,:).*Counts.wvoff(end-1,:)))./2./Range.rangeBin;
+    
+        alpha_0wv = real(alpha_0wv);
+        Alpha.alpha_0wv_raw = alpha_0wv;
+        Alpha.alpha_0wv = Alpha.alpha_0wv_raw;
+        Alpha.alpha_0wv = fillmissing(Alpha.alpha_0wv,'nearest');
     
     clear ln_o2 foff fon goff gon
     
-    [~,cross_section,~,~] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvon,Alpha.alpha_0wv);
+    [~,cross_section,~,~,g_wv] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvon,Alpha.alpha_0wv);
     
     [~,cross_sectionOff,~,~] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvoff,Alpha.alpha_0wv);
     
@@ -401,7 +421,8 @@ for jjjj = 1:iter
     % k = ones(2,2)./(2*2);     % Kernel
     k = ones(3,3)./(3*3);     % Kernel
     
-    
+    k = ones(4,6)./(4*6);
+
     N_wvm = nanconv(N_wv,k,'edge','nanout');
     N_wvm(cloud_SDm_above)=nan;
     
@@ -416,7 +437,7 @@ for jjjj = 1:iter
     AbsHum0Rawm = N_wv0.*Constant.mWV*1000; %[g/m3]
     AbsHum0Rawm(cloud_SDm_above)=nan;
     %%%%%%SET MODEL TO WV RETRIEVAL
-    Model.WV = fillmissing(N_wvm,'linear');
+    %Model.WV = fillmissing(N_wvm,'linear');
     Model.WV = fillmissing(N_wv0m,'linear');
     
     Alpha.AbsHum0Rawm = AbsHum0Rawm;
@@ -947,6 +968,9 @@ Results.O2absorption_1 = Alpha.alpha_1;
 Results.O2absorption_2 = Alpha.alpha_2;
 Results.O2absorption_total = Alpha.alpha_totalm;
 Results.TemperatureError = Temperature.TempStds;
+Results.TemperatureErrorMask = mask;
+Results.AbsoluteHumidity = AbsHum0m;
+Results.UnmaskedBSR = HSRLfull.BSR;
 
 %%
 %===============
@@ -967,7 +991,8 @@ Format.dateTickFormat ='mm/dd HH:MM';
 %= Plot time for profiles
 plot_time = datetime(2023,2,13,23,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 plot_time = datetime(2023,8,16,18,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
-plot_time = datetime(2023,8,2,12,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+plot_time = datetime(2023,8,5,17,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+plot_time = datetime(2023,8,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 [~,p_point] = min(abs(plot_time-Time.date_ts)); % Find closest value to 338min for comparison to other program
 p_point(1:length(Range.rm),1)=p_point;
 

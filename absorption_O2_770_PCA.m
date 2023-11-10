@@ -27,7 +27,7 @@ else
     %load('PCA_8_2_22single.mat','M','muP','muT','muY','nu','sigmaP','sigmaT');
     %load('PCA_6_13_23single.mat','M','muP','muT','muY','nu','sigmaP','sigmaT');
     load(fullfile('CalibrationData','PCA_6_19_23singleHITRAN2016.mat'),'M','muP','muT','muY','nu','sigmaP','sigmaT');
-
+    %load(fullfile('CalibrationData','PCA_10_30_23singleHITRAN2016doubleSpectrum.mat'),'M','muP','muT','muY','nu','sigmaP','sigmaT');
     %load('PCA_7_27_23singleHITRAN2016bigSpectrum.mat','M','muP','muT','muY','nu','sigmaP','sigmaT');
 end
 

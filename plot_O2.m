@@ -382,7 +382,7 @@ plot(diag(bsr(:,p_point)),Range.rkm,'linewidth',2)
 hold on
 %plot(diag(HSRL.BSR(:,p_point)),Range.rkm)
 %%%plot(diag(HSRL.BSR828(:,p_point)),Range.rkm,'linewidth',2)
-%hold off
+hold off
 grid on
 title(sprintf(['Backscatter ratio\n' datestr(Time.date_ts(p_point(1)))]))
 ylabel('Range (km)')
