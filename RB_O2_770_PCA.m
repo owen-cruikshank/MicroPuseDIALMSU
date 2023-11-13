@@ -56,11 +56,11 @@ thetapermute = permute(theta(:,:,:),[3 2 1]);
 sponts6I = ones(length(Spectrum.nu_scan_3D_short_off),length(T(1,:)),length(T(:,1)));
 for j = 1:length(T(:,1))
     for i = 1:length(T(1,:))
-        %sponts6I(:,i,j) = muY + M*thetapermute(:,i,j);  
-        sponts6I(:,i,j) =  M*thetapermute(:,i,j);
+        sponts6I(:,i,j) = muY + M*thetapermute(:,i,j);  
+       % sponts6I(:,i,j) =  M*thetapermute(:,i,j);
     end
 end
-sponts6I = sponts6I +muY;
+%sponts6I = sponts6I +muY;
 
 sponts6 = permute(sponts6I(:,:,:),[3 2 1]);
 normsponts6 = trapz(sponts6,3)*(nu_Range(2)-nu_Range(1))*100;

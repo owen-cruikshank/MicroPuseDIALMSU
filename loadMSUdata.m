@@ -13,10 +13,10 @@ disp('Reading in files')
 
 
 Options.path = fullfile(Options.DataPath,'MSU data','RSync','NetCDFOutput'); %Path for instument data
-Options.weatherPath = fullfile(Options.DataPath, 'Data'); %path for weather station data
-Options.sondepath = fullfile(Options.DataPath,'Data','MSU data','Radiosondes'); %path for radiosonde data
+Options.weatherPath = fullfile(Options.DataPath); %path for weather station data
+Options.sondepath = fullfile(Options.DataPath,'MSU data','Radiosondes'); %path for radiosonde data
 
-Options.MPDname = 'MSU';
+%Options.MPDname = 'MSU';
 Options.BinTotal = 560;
 %Options.BinTotal = 400;
 %Options.BinTotal = 490;
@@ -190,7 +190,7 @@ end
 %%%%Model.WV = zeros(size(Model.WV));
 %%
 %dead time correction
- deadTime = 22e-9; %SPCM-AQRH-13 dead time
+ %deadTime = 22e-9; %SPCM-AQRH-13 dead time
 %Counts.o2onCR = Counts.o2on_noise.*Counts.NBins.*250e-9.*14000;%Count rate, Counts*NuberTimeSummedbins*Length of bin(250ns)*profiles per histogram
 
 % % profPerHist=mean(Data.MCS.Channel0.ProfilesPerHistogram,'omitnan');
@@ -528,39 +528,66 @@ Counts.NBins = Data.MCS.Channel0.NBins*2;
 
 
 %%
-%=====Create Spectrum vectors=====
+%-----Create Spectrum vectors----
 
 %lambda_online = interp1(Options.TimeGrid,Data.Laser.O2Online.WavelengthActual,Time.ts/60/60);
 %lambda_offline = interp1(Options.TimeGrid,Data.Laser.O2Offline.WavelengthActual,Time.ts/60/60);
 
-Spectrum.lambda_online = 769.7958 *ones(size(Time.ts));
-Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts));
+%Spectrum.WavemeterOffset = -0.00024;%[nm]
+%Spectrum.WavemeterOffset = 0.00024;%[nm]
+Spectrum.WavemeterOffset = 0;%[nm]
 
-% Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
-% Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
 
-Spectrum.lambda_wvon = 828.1959 *ones(size(Time.ts));
-Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
+% Spectrum.lambda_online = 769.7958 *ones(size(Time.ts));
+% Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts));
+o2lambdaCentralon = 769.7958;
+o2lambdaCentraloff = 770.1085;
+o2nuCentralon = 10^7/o2lambdaCentralon;
+o2nuCentraloff = 10^7/o2lambdaCentraloff;
 
+
+Spectrum.lambda_online = double(fillmissing(filloutliers(Data.Laser.O2Online.WavelengthActual,'linear','movmedian',5),'linear'));
+Spectrum.lambda_offline = double(fillmissing(filloutliers(Data.Laser.O2Offline.WavelengthActual,'linear','movmedian',5),'linear'));
+
+Data.Laser.O2Online.TimeStamp=fillmissing(Data.Laser.O2Online.TimeStamp,'linear');
+Data.Laser.O2Offline.TimeStamp=fillmissing(Data.Laser.O2Offline.TimeStamp,'linear');
+Spectrum.lambda_online = interp1(Data.Laser.O2Online.TimeStamp,Spectrum.lambda_online,Time.thr);
+Spectrum.lambda_offline = interp1(Data.Laser.O2Offline.TimeStamp,Spectrum.lambda_offline,Time.thr);
+
+% Spectrum.lambda_wvon = 828.1959 *ones(size(Time.ts));
+% Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
+ Spectrum.lambda_wvon = 828.187 *ones(size(Time.ts));
+ Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
+%Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
+%Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
+
+Spectrum.lambda_wvon = double(Spectrum.lambda_wvon); %single values mess up conversion to wavenumber
+Spectrum.lambda_wvoff = double(Spectrum.lambda_wvoff);
+
+wvlambdaCentralon = 828.1965;
+wvnuCentralon = 10^7/wvlambdaCentralon;
+%wvlambdaCentraloff = 828.2957;
 
 Spectrum.nu_online = 10^7./Spectrum.lambda_online;                    %[cm-1] Online wavenumber
 Spectrum.nu_offline = 10^7./Spectrum.lambda_offline;                  %[cm-1] Offline wavenumber
 
 Spectrum.nu_wvon = 10^7./Spectrum.lambda_wvon;                    %[cm-1] Online wavenumber
-Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvon;                  %[cm-1] Offline wavenumber
+Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offline wavenumber
 
-nuMin = Spectrum.nu_online-0.334;                                 %[cm-1] Scan lower bound
-nuMax = Spectrum.nu_online+0.334;                                 %[cm-1] Scan upper bound
+nuMin = o2nuCentralon-0.334;                                 %[cm-1] Scan lower bound
+nuMax = o2nuCentralon+0.334;                                 %[cm-1] Scan upper bound
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
+%Spectrum.nuBin = 0.00222/2;   
 nu_scan = (nuMin:Spectrum.nuBin:nuMax);                      %[cm-1](1 x nu) Scan vector
 
-nuwvMin = mean(Spectrum.nu_wvon)-0.334;                                 %[cm-1] Scan lower bound
-nuwvMax = mean(Spectrum.nu_wvon)+0.334;                                 %[cm-1] Scan upper bound
+nuwvMin = wvnuCentralon-0.334;                                 %[cm-1] Scan lower bound
+nuwvMax = wvnuCentralon+0.334;                                 %[cm-1] Scan upper bound
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
+%Spectrum.nuBin = 0.00222/2;
 nu_scanwv = (nuwvMin:Spectrum.nuBin:nuwvMax);                      %[cm-1](1 x nu) Scan vector
 
-nuMin_off = Spectrum.nu_offline-0.334;                                 %[cm-1] Scan lower bound
-nuMax_off = Spectrum.nu_offline+0.334;                                 %[cm-1] Scan upper bound
+nuMin_off = o2nuCentraloff-0.334;                                 %[cm-1] Scan lower bound
+nuMax_off = o2nuCentraloff+0.334;                                 %[cm-1] Scan upper bound
 nu_scan_off = (nuMin_off:Spectrum.nuBin:nuMax_off);
 
 Spectrum.nu_scan_3D_short = permute(nu_scan, [3 1 2]);       %[cm-1] putting scan in third dimension
@@ -574,15 +601,29 @@ Spectrum.i_scan_3D_short = length(Spectrum.nu_scan_3D_short);         %[none] le
 
 Spectrum.lambda_scanwv_3D_short = 10^7./Spectrum.nu_scan_3D_short;
 
-Spectrum.del_nu = Spectrum.nu_scan_3D_short-Spectrum.nu_online;                %[1/cm] difference from center
-Spectrum.del_lambda = Spectrum.lambda_scan_3D_short-Spectrum.lambda_online;
+%add wavemeter offset
+% Spectrum.lambda_online = 769.7958 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
+% Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
+
+Spectrum.lambda_online = Spectrum.lambda_online+Spectrum.WavemeterOffset;
+Spectrum.lambda_offline = Spectrum.lambda_offline+Spectrum.WavemeterOffset;
+% Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
+% Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
+ Spectrum.lambda_wvon = 828.187 *ones(size(Time.ts));
+ Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
+
+Spectrum.lambda_wvon = double(Spectrum.lambda_wvon)+Spectrum.WavemeterOffset; %single values mess up conversion to wavenumber
+Spectrum.lambda_wvoff = double(Spectrum.lambda_wvoff)+Spectrum.WavemeterOffset;
+Spectrum.nu_online = 10^7./Spectrum.lambda_online;                    %[cm-1] Online wavenumber
+Spectrum.nu_offline = 10^7./Spectrum.lambda_offline;                  %[cm-1] Offline wavenumber
+Spectrum.nu_wvon = 10^7./Spectrum.lambda_wvon;                    %[cm-1] Online wavenumber
+Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offline wavenumber
+
 
 [~,Spectrum.online_index] = min(abs(Spectrum.nu_online - Spectrum.nu_scan_3D_short),[],3);%finding index of online wavenumber
 [~,Spectrum.offline_index] = min(abs(Spectrum.nu_offline - Spectrum.nu_scan_3D_short_off),[],3);%finding index of online wavenumber
 
 [~,Spectrum.online_indexwv] = min(abs(Spectrum.nu_wvon - Spectrum.nu_scanwv_3D_short),[],3);%finding index of online wavenumber
-
-
 
 
 %%
@@ -608,6 +649,9 @@ for i=1:numel(sonde_datetime)
             Sonde.WV_sonde = nan(Range.i_range,1);
         end
 end
+
+%%
+[Spectrum] = PCAconstrunctionRB2(Spectrum);
 
 %%
 %====Count filtering====
@@ -770,7 +814,8 @@ HSRL.BSRf = nan(size(HSRL.BSR));
     Counts.sigma_Nc_on = sqrt(Counts.Nm_off);
 
     Options.t_step = 1;
-    [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options);
+    [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+    [HSRLnew] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
 
    %HSRL.BSR = HSRL.BSR.*1.2;
 %HSRL.BSR = HSRL.BSR./mean(HSRL.BSR(end-5:end,:),1);
@@ -940,3 +985,47 @@ end
 %   HSRL.BSR = ones(size(Counts.o2on));
 %   HSRL.Ba = zeros(size(HSRL.Ba));
 %%%[Model] = modelCounts(Counts,Model,HSRL,Time,Range,Spectrum);
+
+%%
+%  Putting sonda data on the same range spacing for use with DIAL
+%  Temperature Performance modeling programs
+
+function [T_int,P_int,WV_int,rm_int] = interp_sonde2(T, P, WV, r_TP, del_r)
+
+%  ============= inputs
+rangebin = del_r;
+
+
+alt_0 = r_TP(1);
+alt = r_TP;
+range = alt-alt_0;
+i_range = length(range);
+
+tk = T;
+pre = P;
+
+wv = WV;
+
+j = 1;
+for i = 1:i_range
+    r = range(i);
+    if r > j*rangebin
+       p = i; 
+       dr1 = range(i)-range(i-1);
+       dr2 = j*rangebin - range(i-1);
+       
+       dt = tk(i) - tk(i-1);
+       T_int(j) = tk(i-1) + dt*dr2/dr1;
+       
+       dp = pre(i) - pre(i-1);
+       P_int(j) = pre(i-1) + dp*dr2/dr1;
+       
+       dwv = wv(i) - wv(i-1);
+       WV_int(j) = wv(i-1) + dwv*dr2/dr1;
+       
+       rm_int(j) = j*rangebin;
+       
+       j=j+1;
+    end
+end
+

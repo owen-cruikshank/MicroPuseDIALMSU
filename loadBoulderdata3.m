@@ -546,9 +546,9 @@ Counts.wvoff = Counts.wvoff_noise;
 %%
 
 %====== Calucate any appy optimal filtering based on Poisson thinning ====
-tic
+
 %%%Counts = poissonThin(Counts);
-toc
+
 %%
 
 % Pulse Decon
@@ -594,7 +594,7 @@ if strcmp(Options.MPDname,'03')
     Counts.Nc_off = Counts.o2off;%.*Counts.NBins;
     Counts.Nm_on = Counts.o2on_mol;%.*Counts.NBins;
     Counts.Nm_off = Counts.o2off_mol;%.*Counts.NBins;
-    [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum);
+    [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum,Options);
 
 else
 

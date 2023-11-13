@@ -7,11 +7,11 @@ clear all
 date_start = datetime(2022,4,21,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 
-date_start = datetime(2022,6,22,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2022,6,22,'TimeZone','UTC');%yyyy,mm,dd
+date_start = datetime(2022,6,1,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 
-date_start = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
+% date_start = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
+% date_end = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
 
 span_days = date_start:date_end;
 
@@ -44,8 +44,12 @@ Constant.No = 2.47937E25;            %[1/m^3] Loschmidt's number  (referenced to
 %==== photon counts, radiosondes, weather station data, HSRL data, etc.
 %======================
 
-%==Load data from MSU instument==
-%[Range,Time,Counts,Sonde,Model,Spectrum,HSRL,Data] = loadMSUdata(span_days,Options,Constant);
+Options.MPDname = '00';
+
+Options.DataPath = 'C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data';
+if strcmp(Options.MPDname,'00')
+    %==Load data from MSU instument==
+    [Range,Time,Counts,Sonde,Model,Spectrum,HSRL,Data] = loadMSUdata(span_days,Options,Constant);
 
 % ==Load data from SGP ARM instument==
 %date_begin = datetime(2019,4,17); date_end   = datetime(2019,4,22);
@@ -53,14 +57,9 @@ Constant.No = 2.47937E25;            %[1/m^3] Loschmidt's number  (referenced to
 %[Range,Time,Counts,Sonde,Model,Spectrum,BSR,Data] = loadSGPdata(span_days,Options,Constant);
 
 %==Load data from Boulder instument==
-
-%Options.MPDname = '05';
-%Options.MPDname = '01';
-Options.MPDname = '03';
-Options.DataPath = 'C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data';
-[Range,Time,Counts,Sonde,Model,Spectrum,HSRL,Data] =loadBoulderdata3(span_days,Options,Constant);
-
-
+elseif strcmp(Options.MPDname,'03') || strcmp(Options.MPDname,'01') || strcmp(Options.MPDname,'05')
+    [Range,Time,Counts,Sonde,Model,Spectrum,HSRL,Data] =loadBoulderdata3(span_days,Options,Constant);
+end
 %%
 %======================
 %= Cloud and SNR mask =
@@ -152,7 +151,7 @@ for jjjj = 1:iter
         Counts.sigma_Nc_off = sqrt(Counts.Nm_on);
         Counts.sigma_Nc_on = sqrt(Counts.Nm_off);
         Options.t_step = 1;
-        [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options);
+        [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
         %[HSRL] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
     
     elseif strcmp(Options.MPDname,'03')
@@ -160,7 +159,7 @@ for jjjj = 1:iter
         Counts.Nc_off = Counts.o2off;%.*Counts.NBins;
         Counts.Nm_on = Counts.o2on_mol;%.*Counts.NBins;
         Counts.Nm_off = Counts.o2off_mol;%.*Counts.NBins;
-        [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum);
+        [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum,Options);
         Counts.Nc_on = Counts.o2on_bgsub;%.*Counts.NBins;
         Counts.Nc_off = Counts.o2off_bgsub;%.*Counts.NBins;
         Counts.Nm_on = Counts.o2on_bgsub_mol;%.*Counts.NBins;
@@ -178,7 +177,7 @@ for jjjj = 1:iter
     HSRL.BSR828 = HSRL.Ba828./HSRL.Bm828+1;
   
 %%
-    if strcmp(Options.MPDname,'MSU')
+    if strcmp(Options.MPDname,'00')
 
         Atmosphere.Pressure = Model.P./0.009869233; 
         Atmosphere.Temperature = Model.T;
@@ -192,8 +191,8 @@ for jjjj = 1:iter
         Counts.sigma_Nc_on = 0;
     
         Options.t_step = 1;
-        %[HSRLf] = HSRL_retrieval_20220909(Counts,Atmosphere,Options);
-        [HSRLf] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
+        [HSRLf] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+        %[HSRLf] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
 
         HSRLf.BSRmu = normrnd(HSRLf.BSR,HSRLf.sigma_BR);
         HSRL.fBSR(:,:,jjjj) = fillmissing(HSRLf.BSRmu,'linear');
@@ -208,8 +207,8 @@ for jjjj = 1:iter
         Counts.sigma_Nc_on = 0;
     
         Options.t_step = 1;
-        %[HSRLg] = HSRL_retrieval_20220909(Counts,Atmosphere,Options);
-        [HSRLg] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
+        [HSRLg] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+        %[HSRLg] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
 
         HSRLg.BSRmu = normrnd(HSRLg.BSR,HSRLg.sigma_BR);
         HSRL.gBSR(:,:,jjjj) = fillmissing(HSRLg.BSRmu,'linear');
@@ -438,7 +437,8 @@ for jjjj = 1:iter
     AbsHum0Rawm(cloud_SDm_above)=nan;
     %%%%%%SET MODEL TO WV RETRIEVAL
     %Model.WV = fillmissing(N_wvm,'linear');
-    Model.WV = fillmissing(N_wv0m,'linear');
+    Model.WV(~isnan(N_wv0m)) = N_wv0m(~isnan(N_wv0m));
+    Model.WV = fillmissing(Model.WV,'linear');
     
     Alpha.AbsHum0Rawm = AbsHum0Rawm;
     Alpha.AbsHumRawm = AbsHumRawm;
@@ -997,8 +997,8 @@ plot_time = datetime(2023,8,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 p_point(1:length(Range.rm),1)=p_point;
 
 %= Plot time for profiles with sondes
-sonde_index = 1;
-%p_point = Sonde.sonde_ind(:,sonde_index);
+sonde_index = 2;
+p_point = Sonde.sonde_ind(:,sonde_index);
 
 mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
 

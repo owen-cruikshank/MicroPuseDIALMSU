@@ -1,7 +1,7 @@
 %principal component analysis construction
 function [Spectrum] = PCAconstrunctionRB2(Spectrum)
 %addpath('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\TempRetrievalRobert\PCASpectra\TestingCode')
-N=100;
+N=200;
 %N=1000;
 %T vector
 Tmin = 140;
@@ -156,7 +156,8 @@ FreqSpec = 299792458.*(lambda_scan_off-lambda_offline).*1e-9./(lambda_offline.*1
 TP1 = TP(:,1);
 TP2 = TP(:,2);
 parfor i = 1:length(TP(:,1))
-    y(i,:) = RayleighBrillouinSpecWavelength(FreqSpec,lambda_offline.*1e-9,TP2(i,1).*101325,TP1(i,1));
+    %y(i,:) = RayleighBrillouinSpecWavelength(FreqSpec,lambda_offline.*1e-9,TP2(i,1).*101325,TP1(i,1));
+     y(i,:) = RayleighBrillouinSpecWavelength(FreqSpec,lambda_offline.*1e-9,TP(i,2).*101325,TP(i,1));
 end
 
 y=y';
@@ -185,7 +186,7 @@ muY = mean(y,2);
 
 %%
 clear U S V
-U = svd(y);
+[U,S,V] = svd(y);
 
 %%
 clear W
