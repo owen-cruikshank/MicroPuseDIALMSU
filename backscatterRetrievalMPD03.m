@@ -44,6 +44,9 @@ HSRL.onlineCombinedTransmission = onlineCombinedTransmission;
 % etam = (mean(CalInfo.ScanData.O2OnlineComb.Transmission./CalInfo.ScanData.O2OnlineMol.Transmission)+1)^-1;
  etam = (mean(onlineCombinedTransmission./onlineMolecularTransmission)+1)^-1;
  etac = 1-etam;
+
+ etam = 1;
+ etac = 1;
 % 
 % 
 % %normalize

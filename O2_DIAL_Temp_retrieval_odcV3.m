@@ -152,6 +152,7 @@ for jjjj = 1:iter
         Counts.sigma_Nc_on = sqrt(Counts.Nm_off);
         Options.t_step = 1;
         [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+        [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         %[HSRL] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
     
     elseif strcmp(Options.MPDname,'03')
@@ -192,10 +193,12 @@ for jjjj = 1:iter
     
         Options.t_step = 1;
         [HSRLf] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+        [HSRLf] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         %[HSRLf] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
 
-        HSRLf.BSRmu = normrnd(HSRLf.BSR,HSRLf.sigma_BR);
-        HSRL.fBSR(:,:,jjjj) = fillmissing(HSRLf.BSRmu,'linear');
+        %%%HSRLf.BSRmu = normrnd(HSRLf.BSR,HSRLf.sigma_BR);
+        %%%HSRL.fBSR(:,:,jjjj) = fillmissing(HSRLf.BSRmu,'linear');
+        HSRL.fBSR(:,:,jjjj)=HSRLf.BSR;
 
         Counts.Nc_on = Counts.gon(:,:,jjjj);
         Counts.Nc_off = Counts.goff(:,:,jjjj);
@@ -208,10 +211,12 @@ for jjjj = 1:iter
     
         Options.t_step = 1;
         [HSRLg] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+        [HSRLg] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         %[HSRLg] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
 
-        HSRLg.BSRmu = normrnd(HSRLg.BSR,HSRLg.sigma_BR);
-        HSRL.gBSR(:,:,jjjj) = fillmissing(HSRLg.BSRmu,'linear');
+        % % HSRLg.BSRmu = normrnd(HSRLg.BSR,HSRLg.sigma_BR);
+        % % HSRL.gBSR(:,:,jjjj) = fillmissing(HSRLg.BSRmu,'linear');
+        HSRL.gBSR(:,:,jjjj) = HSRLg.BSR;
 
     elseif strcmp(Options.MPDname,'03')
         Counts.Nc_on = Counts.fon(:,:,jjjj);

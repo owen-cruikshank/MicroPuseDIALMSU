@@ -815,7 +815,7 @@ HSRL.BSRf = nan(size(HSRL.BSR));
 
     Options.t_step = 1;
     [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
-    [HSRLnew] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
+    [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
 
    %HSRL.BSR = HSRL.BSR.*1.2;
 %HSRL.BSR = HSRL.BSR./mean(HSRL.BSR(end-5:end,:),1);
