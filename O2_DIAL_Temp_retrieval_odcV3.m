@@ -7,8 +7,8 @@ clear all
 date_start = datetime(2022,4,21,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 
-date_start = datetime(2022,6,1,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
+date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
 
 % date_start = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
@@ -998,6 +998,7 @@ plot_time = datetime(2023,2,13,23,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 plot_time = datetime(2023,8,16,18,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 plot_time = datetime(2023,8,5,17,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 plot_time = datetime(2023,8,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+plot_time = datetime(2022,6,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 [~,p_point] = min(abs(plot_time-Time.date_ts)); % Find closest value to 338min for comparison to other program
 p_point(1:length(Range.rm),1)=p_point;
 
