@@ -317,7 +317,7 @@ for jjjj = 1:iter
     
     alpha_0_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV);
     
-    Alpha.alpha_0 = alpha_0-alpha_0_off;
+    Alpha.alpha_0 = alpha_0+alpha_0_off;
     
     nanAlpha = isnan(Alpha.alpha_0);
     Alpha.alpha_0(nanAlpha) = Model.absorption(nanAlpha);
