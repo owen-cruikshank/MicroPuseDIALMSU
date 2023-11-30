@@ -10,6 +10,9 @@ date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
 
+% date_start = datetime(2022,6,1,'TimeZone','UTC');%yyyy,mm,dd
+% date_end = datetime(2022,7,14,'TimeZone','UTC');%yyyy,mm,dd
+
 % date_start = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
 
@@ -567,6 +570,8 @@ for jjjj = 1:iter
     [Temperature.T_final_testf(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawf(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
     [Temperature.T_final_testg(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawg(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
 end
+    %[Temperature.T_final_test(:,:,jjjj),Temperature.L_fit_sm_test,Temperature.Ts_fit,Temperature.Patm_final,Temperature.mean_lapse_rate,Temperature.exclusion,Temperature.Titer] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_totals,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
+    
 
 %Temperature.T_final_test = (mean(Temperature.T_final_testf,3)+mean(Temperature.T_final_testg,3))/2;
 
@@ -577,7 +582,7 @@ tempStd = sqrt((1/(2*(B-1))) *sum((Temperature.T_final_testf-Temperature.T_final
 %%%%Temperature.TempSTD = 0;
 %%
 
-Temperature.T_final_test0 =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_0s,0,cloud_SDm_above,Model.Ts,Model.Ps,startLapse);
+%Temperature.T_final_test0 =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_0s,0,cloud_SDm_above,Model.Ts,Model.Ps,startLapse);
 %%
 if ~isempty(Sonde.sonde_ind)
     
@@ -854,9 +859,9 @@ tempStd = sqrt((1./(2.*(permute(1:B,[1 3 2])-1))) .*cumsum((Temperature.T_final_
 Temperature.T_finalm = Temperature.T_final_tests ;
 Temperature.T_finalm(cloud_SDm_above) = NaN;
 
-Temperature.T_final_tests0 = Temperature.T_final_test0;
-Temperature.T_final_tests0(cloud_SDm_above) = nan;
-Temperature.T_final_tests0 = nanconv(Temperature.T_final_tests0,k,'edge','nanout');
+% Temperature.T_final_tests0 = Temperature.T_final_test0;
+% Temperature.T_final_tests0(cloud_SDm_above) = nan;
+% Temperature.T_final_tests0 = nanconv(Temperature.T_final_tests0,k,'edge','nanout');
 
 %%
 
@@ -973,9 +978,9 @@ Results.O2absorption_1 = Alpha.alpha_1;
 Results.O2absorption_2 = Alpha.alpha_2;
 Results.O2absorption_total = Alpha.alpha_totalm;
 Results.TemperatureError = Temperature.TempStds;
-Results.TemperatureErrorMask = mask;
-Results.AbsoluteHumidity = AbsHum0m;
-Results.UnmaskedBSR = HSRLfull.BSR;
+% Results.TemperatureErrorMask = mask;
+% Results.AbsoluteHumidity = AbsHum0m;
+% Results.UnmaskedBSR = HSRLfull.BSR;
 
 %%
 %===============

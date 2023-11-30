@@ -187,7 +187,7 @@ muY = mean(y,2);
 %%
 clear U S V
 [U,S,V] = svd(y);
-
+clear S V
 %%
 clear W
 W = U'*(y-muY);

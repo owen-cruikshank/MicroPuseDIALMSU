@@ -651,6 +651,7 @@ for i=1:numel(sonde_datetime)
 end
 
 %%
+disp('calculating RB PCA')
 [Spectrum] = PCAconstrunctionRB2(Spectrum);
 
 %%
@@ -761,7 +762,7 @@ Counts.bg_wvoff = nan(size(Counts.bg_o2on));
 
 %%
 
-
+disp('Calculating initial BSR')
 %=====================
 %= Backscatter ratio =
 %=====================
@@ -814,7 +815,7 @@ HSRL.BSRf = nan(size(HSRL.BSR));
     Counts.sigma_Nc_on = sqrt(Counts.Nm_off);
 
     Options.t_step = 1;
-    [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+    %[HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
     [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
 
    %HSRL.BSR = HSRL.BSR.*1.2;
