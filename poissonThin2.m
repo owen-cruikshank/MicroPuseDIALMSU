@@ -65,7 +65,7 @@ rng(1,'simdTwister')
 
 
 % rng(0,'simdTwister') %faster random number generator
-tic
+%tic
 % thin profiles into set f.
 % input is rounded, background added, and multiplied by interation to be
 % close to raw counts.
@@ -77,14 +77,22 @@ tic
 % Counts.fwvon = TEST_SUB_mybinornd( round((Counts.wvon+Counts.bg_wvon).*Counts.NBins), 0.5,iter)./Counts.NBins;
 % Counts.fwvoff = TEST_SUB_mybinornd( round((Counts.wvoff+Counts.bg_wvoff).*Counts.NBins), 0.5,iter)./Counts.NBins;
 
-
-Counts.fon = TEST_SUB_mybinornd(Counts.o2on+Counts.bg_o2on, 0.5,iter);
-
-Counts.foff  = TEST_SUB_mybinornd( Counts.o2off+Counts.bg_o2off, 0.5,iter);
-Counts.fon_mol = TEST_SUB_mybinornd( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
-Counts.foff_mol = TEST_SUB_mybinornd( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
-Counts.fwvon = TEST_SUB_mybinornd( Counts.wvon+Counts.bg_wvon, 0.5,iter);
-Counts.fwvoff = TEST_SUB_mybinornd( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
+% tic
+% Counts.fon = TEST_SUB_mybinornd(Counts.o2on+Counts.bg_o2on, 0.5,iter);
+% toc
+% Counts.foff  = TEST_SUB_mybinornd( Counts.o2off+Counts.bg_o2off, 0.5,iter);
+% Counts.fon_mol = TEST_SUB_mybinornd( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
+% Counts.foff_mol = TEST_SUB_mybinornd( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
+% Counts.fwvon = TEST_SUB_mybinornd( Counts.wvon+Counts.bg_wvon, 0.5,iter);
+% Counts.fwvoff = TEST_SUB_mybinornd( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
+% % tic
+Counts.fon = TEST_SUB_mybinornd_mex(Counts.o2on+Counts.bg_o2on, 0.5,iter);
+toc
+Counts.foff  = TEST_SUB_mybinornd_mex( Counts.o2off+Counts.bg_o2off, 0.5,iter);
+Counts.fon_mol = TEST_SUB_mybinornd_mex( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
+Counts.foff_mol = TEST_SUB_mybinornd_mex( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
+Counts.fwvon = TEST_SUB_mybinornd_mex( Counts.wvon+Counts.bg_wvon, 0.5,iter);
+Counts.fwvoff = TEST_SUB_mybinornd_mex( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
 
 
 % subtract set f from counts to make set g
@@ -102,7 +110,7 @@ gon_mol = Counts.o2on_mol+Counts.bg_o2on_mol-Counts.fon_mol;
 goff_mol = Counts.o2off_mol+Counts.bg_o2off_mol-Counts.foff_mol;
 gwvon = Counts.wvon+Counts.bg_wvon-Counts.fwvon;
 gwvoff = Counts.wvoff+Counts.bg_wvoff-Counts.fwvoff;
-toc
+%toc
 
 %=====Find background of thinned profiles=====
 % Counts.fon_bg = (Counts.bg_o2on.*Counts.NBins)/2;% Take mean of last data points
@@ -196,43 +204,43 @@ Counts.gwvoff = gwvoff-Counts.fwvoff_bg;
 % [Counts.wvoff] = applyFilter(rangeWidthwvoff,timeWidthwvoff,Counts.wvoff);
 
 end
-
-function [ res ] = TEST_SUB_mybinornd( N, p ,iter)
-    %Custom fast binomial 
-    [row_cnt, col_cnt] = size(N);
-    res = zeros(row_cnt, col_cnt,iter);
-    for ii=1:row_cnt
-       for jj=1:col_cnt
-           if isnan(N(ii,jj))
-               res(ii,jj,:)=NaN(1,1,iter);
-           else
-               res(ii, jj,:) = sum(rand(1,N(ii,jj),iter)<p,2,'omitnan');
-           end
-       end
-
-%        for ii=1:row_cnt
-%            %if isnan(N(ii,jj))
-%             %   res(ii,:)=NaN;
-%            %else
-%            %N(ii,isnan(N(ii,:)))=0; 
-%            Nmax = max(N(ii,:),[],'omitnan');
-%            if isnan(Nmax)
-%                res(ii,:) = nan;
-%            else
-%            prop=rand(col_cnt,Nmax)<p;
 % 
-%            for jj = 1:col_cnt
-%                if isnan(N(ii,jj))
-%                    res(ii,jj) = nan;
-%                else
-%            res(ii, jj) = sum(prop(jj,1:N(ii,jj)),2,'omitnan');
-%                end
+% function [ res ] = TEST_SUB_mybinornd( N, p ,iter)
+%     %Custom fast binomial 
+%     [row_cnt, col_cnt] = size(N);
+%     res = zeros(row_cnt, col_cnt,iter);
+%     for ii=1:row_cnt
+%        for jj=1:col_cnt
+%            if isnan(N(ii,jj))
+%                res(ii,jj,:)=NaN(1,1,iter);
+%            else
+%                res(ii, jj,:) = sum(rand(1,N(ii,jj),iter)<p,2,'omitnan');
 %            end
-%            end
-%            %end
-%        %end
+%        end
+% 
+% %        for ii=1:row_cnt
+% %            %if isnan(N(ii,jj))
+% %             %   res(ii,:)=NaN;
+% %            %else
+% %            %N(ii,isnan(N(ii,:)))=0; 
+% %            Nmax = max(N(ii,:),[],'omitnan');
+% %            if isnan(Nmax)
+% %                res(ii,:) = nan;
+% %            else
+% %            prop=rand(col_cnt,Nmax)<p;
+% % 
+% %            for jj = 1:col_cnt
+% %                if isnan(N(ii,jj))
+% %                    res(ii,jj) = nan;
+% %                else
+% %            res(ii, jj) = sum(prop(jj,1:N(ii,jj)),2,'omitnan');
+% %                end
+% %            end
+% %            end
+% %            %end
+% %        %end
+% %     end
 %     end
-    end
-end
+% end
 
 
