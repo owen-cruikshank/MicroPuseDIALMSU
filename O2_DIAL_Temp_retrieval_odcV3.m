@@ -7,8 +7,11 @@ clear all
 date_start = datetime(2022,4,21,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 
-date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
+date_start = datetime(2022,7,27,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
+
+% date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
+% date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
 
 % date_start = datetime(2022,6,1,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2022,7,14,'TimeZone','UTC');%yyyy,mm,dd
@@ -75,7 +78,7 @@ cloud_p_point = 200;
 SNR_threshold = 2300;
 
 %SNR_threshold = 3300;
-SNR_threshold = 1500;
+%SNR_threshold = 1500;
 
 %Threshold for Cloud mask
 %SD_threshold = 0.5;  
@@ -157,6 +160,13 @@ for jjjj = 1:iter
         [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
         [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         %[HSRL] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
+
+        Counts.Nc_on = Counts.o2on_noise;%.*Counts.NBins;
+        Counts.Nc_off = Counts.o2off_noise;%.*Counts.NBins;
+        Counts.Nm_on = Counts.o2on_noise_mol;%.*Counts.NBins;
+        Counts.Nm_off = Counts.o2off_noise_mol;%.*Counts.NBins;
+        [HSRLfull] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
+
     
     elseif strcmp(Options.MPDname,'03')
         Counts.Nc_on = Counts.o2on;%.*Counts.NBins;
@@ -321,6 +331,26 @@ for jjjj = 1:iter
     
     nanAlpha = isnan(Alpha.alpha_0);
     Alpha.alpha_0(nanAlpha) = Model.absorption(nanAlpha);
+
+
+
+        alpha_0_full = zeros(size(Counts.o2on_noise));
+        alpha_0_full(1,:,:) = log((Counts.o2on_noise(1,:).*Counts.o2off_noise(2,:))./(Counts.o2on_noise(2,:).*Counts.o2off_noise(1,:)))./2./Range.rangeBin;
+        for iii = 2:length(Range.rm)-1
+            %dg1(iii,:,:) = (g1(iii+1,:,:)-g1(iii-1,:,:))/2/Range.rangeBin;
+            alpha_0_full(iii,:)=log((Counts.o2on_noise(iii-1,:).*Counts.o2off_noise(iii+1,:))./(Counts.o2on_noise(iii+1,:).*Counts.o2off_noise(iii-1,:)))./2./Range.rangeBin./2;
+        end
+        alpha_0_full(end,:,:) = log((Counts.o2on_noise(end-1,:).*Counts.o2off_noise(end,:))./(Counts.o2on_noise(end,:).*Counts.o2off_noise(end-1,:)))./2./Range.rangeBin;
+    
+        alpha_0_full = real(alpha_0_full);
+    
+    alpha_0_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV);
+    
+    Alpha.alpha_0_full = alpha_0_full+alpha_0_off;
+    
+    nanAlpha = isnan(Alpha.alpha_0_full);
+    Alpha.alpha_0_full(nanAlpha) = Model.absorption(nanAlpha);
+
     
     Counts.o2off_mol_cor = Counts.o2off_mol.*HSRL.BSR;
         alpha_0_mol = zeros(size(Counts.o2on));
@@ -468,6 +498,7 @@ for jjjj = 1:iter
 %%
     % === Purtabative absorption ===
     [Alpha.alpha_total_raw,Alpha.alpha_1,Alpha.alpha_2,Spectrum] = pertAbsorption(Alpha.alpha_0, T_etalon_on, Model, Range, Time, Spectrum, HSRL.BSR, ind_r_lo,ind_r_hi, Options,true);
+    [Alpha.alpha_total_rawFull,Alpha.alpha_1Full,Alpha.alpha_2Full,~] = pertAbsorption(Alpha.alpha_0_full, T_etalon_on, Model, Range, Time, Spectrum, HSRLfull.BSR, ind_r_lo,ind_r_hi, Options,true);
     
     [Alpha.alpha_total_rawf(:,:,jjjj)] = pertAbsorption(Alpha.alpha_0f(:,:,jjjj), T_etalon_on, Model, Range, Time, Spectrum, HSRL.fBSR(:,:,jjjj), ind_r_lo,ind_r_hi, Options,true);
     [Alpha.alpha_total_rawg(:,:,jjjj)] = pertAbsorption(Alpha.alpha_0g(:,:,jjjj), T_etalon_on, Model, Range, Time, Spectrum, HSRL.gBSR(:,:,jjjj), ind_r_lo,ind_r_hi, Options,true);
@@ -504,8 +535,9 @@ for jjjj = 1:iter
     
     %Convolve with kernel
     Alpha.alpha_total_filt = nanconv(Alpha.alpha_total_cut,k,'edge','nanout');
-    Alpha.alpha_total_filt(1:UpperSmoothingCut,:) = nanconv(Alpha.alpha_total_cut(1:UpperSmoothingCut,:),k,'edge','nanout');
-    Alpha.alpha_total_filt(UpperSmoothingCut+1:end,:) = nanconv(Alpha.alpha_total_cut(UpperSmoothingCut+1:end,:),upperK,'edge','nanout');
+    % Alpha.alpha_total_filt(1:UpperSmoothingCut,:) = nanconv(Alpha.alpha_total_cut(1:UpperSmoothingCut,:),k,'edge','nanout');
+    % Alpha.alpha_total_filt(UpperSmoothingCut+1:end,:) = nanconv(Alpha.alpha_total_cut(UpperSmoothingCut+1:end,:),upperK,'edge','nanout');
+
     Alpha.alpha_totals = Alpha.alpha_total_filt;
     
     Alpha.alpha_total_rawf(:,:,jjjj) = nanconv(Alpha.alpha_total_rawf(:,:,jjjj),k,'edge','nanout');
@@ -566,6 +598,7 @@ for jjjj = 1:iter
     
     startLapse = Model.lapseRate;
     [Temperature.T_final_test(:,:,jjjj),Temperature.L_fit_sm_test,Temperature.Ts_fit,Temperature.Patm_final,Temperature.mean_lapse_rate,Temperature.exclusion,Temperature.Titer] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_totals,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
+    [Temperature.T_final_testFull(:,:,jjjj),Temperature.L_fit_sm_testFull,Temperature.Ts_fitFull,Temperature.Patm_finalFull,Temperature.mean_lapse_rateFull,Temperature.exclusionFull,Temperature.TiterFull] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawFull,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
     
     [Temperature.T_final_testf(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawf(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
     [Temperature.T_final_testg(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawg(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);

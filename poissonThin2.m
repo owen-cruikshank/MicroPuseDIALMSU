@@ -78,21 +78,21 @@ rng(1,'simdTwister')
 % Counts.fwvoff = TEST_SUB_mybinornd( round((Counts.wvoff+Counts.bg_wvoff).*Counts.NBins), 0.5,iter)./Counts.NBins;
 
 % tic
-% Counts.fon = TEST_SUB_mybinornd(Counts.o2on+Counts.bg_o2on, 0.5,iter);
-% toc
-% Counts.foff  = TEST_SUB_mybinornd( Counts.o2off+Counts.bg_o2off, 0.5,iter);
-% Counts.fon_mol = TEST_SUB_mybinornd( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
-% Counts.foff_mol = TEST_SUB_mybinornd( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
-% Counts.fwvon = TEST_SUB_mybinornd( Counts.wvon+Counts.bg_wvon, 0.5,iter);
-% Counts.fwvoff = TEST_SUB_mybinornd( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
-% % tic
-Counts.fon = TEST_SUB_mybinornd_mex(Counts.o2on+Counts.bg_o2on, 0.5,iter);
+Counts.fon = TEST_SUB_mybinornd(Counts.o2on+Counts.bg_o2on, 0.5,iter);
 toc
-Counts.foff  = TEST_SUB_mybinornd_mex( Counts.o2off+Counts.bg_o2off, 0.5,iter);
-Counts.fon_mol = TEST_SUB_mybinornd_mex( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
-Counts.foff_mol = TEST_SUB_mybinornd_mex( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
-Counts.fwvon = TEST_SUB_mybinornd_mex( Counts.wvon+Counts.bg_wvon, 0.5,iter);
-Counts.fwvoff = TEST_SUB_mybinornd_mex( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
+Counts.foff  = TEST_SUB_mybinornd( Counts.o2off+Counts.bg_o2off, 0.5,iter);
+Counts.fon_mol = TEST_SUB_mybinornd( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
+Counts.foff_mol = TEST_SUB_mybinornd( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
+Counts.fwvon = TEST_SUB_mybinornd( Counts.wvon+Counts.bg_wvon, 0.5,iter);
+Counts.fwvoff = TEST_SUB_mybinornd( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
+% % tic
+% Counts.fon = TEST_SUB_mybinornd_mex(Counts.o2on+Counts.bg_o2on, 0.5,iter);
+% toc
+% Counts.foff  = TEST_SUB_mybinornd_mex( Counts.o2off+Counts.bg_o2off, 0.5,iter);
+% Counts.fon_mol = TEST_SUB_mybinornd_mex( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
+% Counts.foff_mol = TEST_SUB_mybinornd_mex( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
+% Counts.fwvon = TEST_SUB_mybinornd_mex( Counts.wvon+Counts.bg_wvon, 0.5,iter);
+% Counts.fwvoff = TEST_SUB_mybinornd_mex( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
 
 
 % subtract set f from counts to make set g
