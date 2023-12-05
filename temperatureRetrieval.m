@@ -149,11 +149,12 @@ for i = 1:loop
     % === Pressure Profile ===
 
     %Pg = Ps.*(Ts_fit(1,1,i)./(Ts_fit(1,1,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
-    Pg = Ps.*(Ts_fit(1,:,i)./(Ts_fit(1,:,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
-   % Pg = Ps.*(Ts_fit(1,1,i)./Tg).^(gamma./Lapse(:,:,i));
-   %Pg = Ps.*(Ts./(Ts+starting_lapse_rate.*rm)).^(gamma./starting_lapse_rate);
+   %  PgFit = Ps.*(Ts_fit(1,:,i)./(Ts_fit(1,:,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
+   %  PgOld = Ps.*(Ts_fit(1,1,i)./Tg).^(gamma./Lapse(:,:,i));
+   % PgnoFit = Ps.*(Ts./(Ts+starting_lapse_rate.*rm)).^(gamma./starting_lapse_rate);
 
   % Pg = Pg+Pg*.01;
+  Pg = Ps.*exp(-cumtrapz(rm,gamma./Tg,1));
 
 
 
