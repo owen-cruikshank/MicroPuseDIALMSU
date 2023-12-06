@@ -49,10 +49,13 @@ Range.rm_raw_o2 = -150-30:Range.rangeBin:Range.NBins(1)*Range.rangeBin-150-30-Ra
 Range.rm_raw_o2 = -150-30/2+Range.rangeBin:Range.rangeBin:Range.NBins(1)*Range.rangeBin-150-30/2-Range.rangeBin+Range.rangeBin;    %[m] Create range vector
 %%%%%%%%%%%%%%%%%%%%%%%
 Range.rm_raw_o2 = -75-30/2:Range.rangeBin:Range.NBins(1)*Range.rangeBin+-75-30/2-Range.rangeBin;    %[m] Create range vector
+Range.rm_raw_o2 = -Range.rangeBin*2:Range.rangeBin:Range.NBins(1)*Range.rangeBin-Range.rangeBin*3;
 %%%%%%%%%%%%%%%%%%%%%%%%
+% Range.rm_raw_o2 = 0:Range.rangeBin:Range.NBins(1)*Range.rangeBin+-75-30/2-Range.rangeBin; 
 Range.rm_raw_o2 = Range.rm_raw_o2(:);                           %[m] Convert range vector to column vector
 Range.r_max = 6000;                                       %[m] Max range 
-Range.rm = Range.rm_raw_o2(Range.rm_raw_o2<=Range.r_max & Range.rm_raw_o2>0);     %[m] Shorten range vector to max range
+Range.rm = Range.rm_raw_o2(Range.rm_raw_o2<Range.r_max & Range.rm_raw_o2>=0);     %[m] Shorten range vector to max range
+%Range.rm = Range.rm(1:length(Range.rm_raw_o2));
 
 %=== Integrate range vector ==
 Range.rm = Range.rm(1:2:end);%integrate to new
@@ -472,10 +475,10 @@ Range.rm_raw_o2 = Range.rm_raw_o2(1:2:end)+Range.rangeBin./2;
 % Counts.o2off_noise = interp2(Time.ts,Range.rm_raw_o2,Counts.o2off_bgsub,Time.ts,Range.rm);
 % Counts.o2off_noise_mol = interp2(Time.ts,Range.rm_raw_o2,Counts.o2off_bgsub_mol,Time.ts,Range.rm);
 
-Counts.o2on_noise = Counts.o2on_bgsub(1:80,:);
-Counts.o2on_noise_mol = Counts.o2on_bgsub_mol(1:80,:);
-Counts.o2off_noise = Counts.o2off_bgsub(1:80,:);
-Counts.o2off_noise_mol = Counts.o2off_bgsub_mol(1:80,:);
+Counts.o2on_noise = Counts.o2on_bgsub(1:length(Range.rm),:);
+Counts.o2on_noise_mol = Counts.o2on_bgsub_mol(1:length(Range.rm),:);
+Counts.o2off_noise = Counts.o2off_bgsub(1:length(Range.rm),:);
+Counts.o2off_noise_mol = Counts.o2off_bgsub_mol(1:length(Range.rm),:);
 
 %integrate Bins to new range
 Counts.NBins = Data.MCS.Channel0.NBins*2;
