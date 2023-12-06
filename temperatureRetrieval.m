@@ -151,7 +151,7 @@ for i = 1:loop
     %Pg = Ps.*(Ts_fit(1,1,i)./(Ts_fit(1,1,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
      Pg = Ps.*(Ts_fit(1,:,i)./(Ts_fit(1,:,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
    %  PgOld = Ps.*(Ts_fit(1,1,i)./Tg).^(gamma./Lapse(:,:,i));
-    Pg = Ps.*(Ts./(Ts+starting_lapse_rate.*rm)).^(gamma./starting_lapse_rate);
+    %Pg = Ps.*(Ts./(Ts+starting_lapse_rate.*rm)).^(gamma./starting_lapse_rate);
 
   % Pg = Pg+Pg*.01;
   Pg = Ps.*exp(-cumtrapz(rm,gamma./Tg,1));
@@ -241,7 +241,9 @@ for i = 1:loop
     T_ret(:,:,i) = Tg + deltaT(:,:,i);  
     %Tg = T_ret(:,:,i);
     T_ret(1,:,i) = Ts(1,:);
-    Tg = fillmissing(T_ret(:,:,i),'nearest',1);
+    %Tg = fillmissing(T_ret(:,:,i),'nearest',1);
+    Tg = fillmissing(T_ret(:,:,i),'linear');
+    Tg(Tg<1)=1;
     %Tg = fillmissing(Tg,'nearest',2);
     
     %Fill data points above cloud and snr mask with lapse rate values

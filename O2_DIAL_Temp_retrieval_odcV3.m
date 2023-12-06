@@ -9,6 +9,9 @@ date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 
 date_start = datetime(2022,7,27,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
+
+% date_start = datetime(2022,5,22,'TimeZone','UTC');%yyyy,mm,dd
+% date_end = datetime(2022,05,22,'TimeZone','UTC');%yyyy,mm,dd
 % 
 % date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
@@ -99,12 +102,12 @@ cloud_SDm_above = cloud_SDm_above | SNRm;
 cloud_SDm = logical(cloud_SDm);
 %clear  o2on_SNR SNRm
 %%
-Counts.o2on(cloud_SDm_above) = nan;
-Counts.o2off(cloud_SDm_above) = nan;
-Counts.o2on_mol(cloud_SDm_above) = nan;
-Counts.o2off_mol(cloud_SDm_above) = nan;
-Counts.wvon(cloud_SDm_above) = nan;
-Counts.wvoff(cloud_SDm_above) = nan;
+% % % Counts.o2on(cloud_SDm_above) = nan;
+% % % Counts.o2off(cloud_SDm_above) = nan;
+% % % Counts.o2on_mol(cloud_SDm_above) = nan;
+% % % Counts.o2off_mol(cloud_SDm_above) = nan;
+% % % Counts.wvon(cloud_SDm_above) = nan;
+% % % Counts.wvoff(cloud_SDm_above) = nan;
 %%
 %Number of poisson thinning iterations
 iter = 20;
@@ -598,6 +601,7 @@ for jjjj = 1:iter
     
     startLapse = Model.lapseRate;
     [Temperature.T_final_test(:,:,jjjj),Temperature.L_fit_sm_test,Temperature.Ts_fit,Temperature.Patm_final,Temperature.mean_lapse_rate,Temperature.exclusion,Temperature.Titer] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_totals,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
+    
     [Temperature.T_final_testFull(:,:,jjjj),Temperature.L_fit_sm_testFull,Temperature.Ts_fitFull,Temperature.Patm_finalFull,Temperature.mean_lapse_rateFull,Temperature.exclusionFull,Temperature.TiterFull] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawFull,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
     
     [Temperature.T_final_testf(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawf(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
@@ -625,8 +629,9 @@ if ~isempty(Sonde.sonde_ind)
     absorptionPerfect = absorption_O2_770_model(TPerfect,PPerfect,Spectrum.nu_online(1),WVPerfect);
     Temperature.T_final_test2=zeros(Range.i_range,size(Sonde.sonde_ind,2));
     abssorptionSonde = zeros(Range.i_range,size(Sonde.sonde_ind,2));
-    Pfinal2 = zeros(Range.i_range,size(Sonde.sonde_ind,2));
-    for iii = 1:size(Sonde.sonde_ind,2)
+    Pfinal2 = nan(Range.i_range,size(Sonde.sonde_ind,2));
+   for iii = 1:size(Sonde.sonde_ind,2)
+        %for iii = 7
         sonde_index = iii;
         p_point = Sonde.sonde_ind(:,sonde_index);
         
@@ -635,7 +640,7 @@ if ~isempty(Sonde.sonde_ind)
         abssorptionSonde(:,iii) = [nanconv(Sonde.absorption_sonde{sonde_index}(1:end-1),k,'edge','nanout') ;0];
         
         %abssorptionSonde(:,iii) = filter2(k,Sonde.absorption_sonde{sonde_index},'same');
-        %abssorptionSonde = Sonde.absorption_sonde{sonde_index};
+        abssorptionSonde(:,iii) = Sonde.absorption_sonde{sonde_index};
         %abssorptionSonde = absorptionPerfect;
         
         sondeModelT = Sonde.Tsurf(sonde_index)+Range.rm*-6.5/1000;
@@ -1041,10 +1046,11 @@ plot_time = datetime(2022,6,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 p_point(1:length(Range.rm),1)=p_point;
 
 %= Plot time for profiles with sondes
-sonde_index = 2;
+sonde_index = 1;
 p_point = Sonde.sonde_ind(:,sonde_index);
 
 mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
+mask = logical(tempStds>2) | cloud_SDm_above;
 
 %mask = cloud_SDm_above;
 Temperature.T_finalm(mask) = nan;

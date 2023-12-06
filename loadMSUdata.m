@@ -19,7 +19,7 @@ Options.sondepath = fullfile(Options.DataPath,'MSU data','Radiosondes'); %path f
 %Options.MPDname = 'MSU';
 Options.BinTotal = 560;
 %Options.BinTotal = 400;
-%Options.BinTotal = 490;
+Options.BinTotal = 490;
 %Options.BinTotal = 950;
 %Load raw data from NetCDF files
 [Data, Options] = loadMSUNETcdf(span_days,Options);
@@ -556,6 +556,9 @@ Data.Laser.O2Online.TimeStamp=fillmissing(Data.Laser.O2Online.TimeStamp,'linear'
 Data.Laser.O2Offline.TimeStamp=fillmissing(Data.Laser.O2Offline.TimeStamp,'linear');
 Spectrum.lambda_online = interp1(Data.Laser.O2Online.TimeStamp,Spectrum.lambda_online,Time.thr);
 Spectrum.lambda_offline = interp1(Data.Laser.O2Offline.TimeStamp,Spectrum.lambda_offline,Time.thr);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Spectrum.lambda_online = o2lambdaCentralon*ones(size(Time.ts));
 
 % Spectrum.lambda_wvon = 828.1959 *ones(size(Time.ts));
 % Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
