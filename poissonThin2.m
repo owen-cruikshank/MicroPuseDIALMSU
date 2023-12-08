@@ -54,7 +54,7 @@ function Counts = poissonThin2(Counts,~,iter)
 disp('Thining profiles')
 
 %Set rng to use faster method
-rng(1,'simdTwister')
+% % % rng(1,'simdTwister')
 
 % Counts.o2on(cloud_SDm_above) = nan;
 % Counts.o2off(cloud_SDm_above) = nan;
@@ -78,13 +78,39 @@ rng(1,'simdTwister')
 % Counts.fwvoff = TEST_SUB_mybinornd( round((Counts.wvoff+Counts.bg_wvoff).*Counts.NBins), 0.5,iter)./Counts.NBins;
 
 % tic
-Counts.fon = TEST_SUB_mybinornd(Counts.o2on+Counts.bg_o2on, 0.5,iter);
+% Counts.fon = TEST_SUB_mybinornd(Counts.o2on+Counts.bg_o2on, 0.5,iter);
+% toc
+% Counts.foff  = TEST_SUB_mybinornd( Counts.o2off+Counts.bg_o2off, 0.5,iter);
+% Counts.fon_mol = TEST_SUB_mybinornd( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
+% Counts.foff_mol = TEST_SUB_mybinornd( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
+% Counts.fwvon = TEST_SUB_mybinornd( Counts.wvon+Counts.bg_wvon, 0.5,iter);
+% Counts.fwvoff = TEST_SUB_mybinornd( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
+
+%eliminate <0
+tic
+o2on = Counts.o2on+Counts.bg_o2on;
+o2on(o2on<0)=0;
+o2off = Counts.o2off+Counts.bg_o2off;
+o2off(o2off<0)=0;
+o2on_mol = Counts.o2on_mol+Counts.bg_o2on_mol;
+o2on_mol(o2on_mol<0)=0;
+o2off_mol = Counts.o2off_mol+Counts.bg_o2off_mol;
+o2off_mol(o2off_mol<0)=0;
+wvon = Counts.wvon+Counts.bg_wvon;
+wvon(wvon<0)=0;
+wvoff = Counts.wvoff+Counts.bg_wvoff;
+wvoff(wvoff<0)=0;
+
+
+for i = 1:iter
+Counts.fon(:,:,i) =     double(pyrunfile('PoissThin.py','F',x=int32(o2on)));
+Counts.foff(:,:,i) =    double(pyrunfile('PoissThin.py','F',x=int32(o2off   )));
+Counts.fon_mol(:,:,i) = double(pyrunfile('PoissThin.py','F',x=int32(o2on_mol)));
+Counts.foff_mol(:,:,i) = double(pyrunfile('PoissThin.py','F',x=int32(o2off_mol)));
+Counts.fwvon(:,:,i) =   double(pyrunfile('PoissThin.py','F',x=int32(wvon)));
+Counts.fwvoff(:,:,i) =  double(pyrunfile('PoissThin.py','F',x=int32(wvoff)));
+end
 toc
-Counts.foff  = TEST_SUB_mybinornd( Counts.o2off+Counts.bg_o2off, 0.5,iter);
-Counts.fon_mol = TEST_SUB_mybinornd( Counts.o2on_mol+Counts.bg_o2on_mol, 0.5,iter);
-Counts.foff_mol = TEST_SUB_mybinornd( Counts.o2off_mol+Counts.bg_o2off_mol, 0.5,iter);
-Counts.fwvon = TEST_SUB_mybinornd( Counts.wvon+Counts.bg_wvon, 0.5,iter);
-Counts.fwvoff = TEST_SUB_mybinornd( Counts.wvoff+Counts.bg_wvoff, 0.5,iter);
 % % tic
 % Counts.fon = TEST_SUB_mybinornd_mex(Counts.o2on+Counts.bg_o2on, 0.5,iter);
 % toc
