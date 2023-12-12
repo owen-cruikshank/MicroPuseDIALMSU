@@ -1,4 +1,4 @@
-function [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,Titer] =  temperatureRetrieval(T,ts,rm,~,WV,nu_scan,alpha_O2,~,cloud_SDm_above,Ts,Ps,startLapse)
+function [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,deltaT] =  temperatureRetrieval(T,ts,rm,~,WV,nu_scan,alpha_O2,~,cloud_SDm_above,Ts,Ps,startLapse)
 %function [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,Titer] =  temperatureRetrieval(T,ts,rm,P,WV,nu_scan,alpha_O2,SNRm,cloud_SDm_above,Ts,Ps,startLapse)
 %File: temperatureRetrieval.m
 %Date: 03/16/2020
@@ -219,8 +219,11 @@ for i = 1:loop
     %deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q)./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q); %[K] calculate a change in temperatre
 
     % Limit deltaT to plus or minus 2 K
-    deltaT(deltaT > 2) = 2;
-    deltaT(deltaT < -2) = -2;
+    % deltaT(deltaT > 2) = 2;
+    % deltaT(deltaT < -2) = -2;
+
+     deltaT(deltaT > 5) = 5;
+    deltaT(deltaT < -5) = -5;
 
     Titer(:,:,i) = Tg;
 % 
@@ -240,6 +243,8 @@ for i = 1:loop
     % Update temperature profile guress
     T_ret(:,:,i) = Tg + deltaT(:,:,i);  
     %Tg = T_ret(:,:,i);
+    [~,AltThresh] = min(abs(lower_alt_threshold-rm));
+    T_ret(1:AltThresh,:,i) = nan;
     T_ret(1,:,i) = Ts(1,:);
     %Tg = fillmissing(T_ret(:,:,i),'nearest',1);
     Tg = fillmissing(T_ret(:,:,i),'linear');
@@ -247,9 +252,9 @@ for i = 1:loop
     %Tg = fillmissing(Tg,'nearest',2);
     
     %Fill data points above cloud and snr mask with lapse rate values
-    tempT = Ts_fit(:,:,i) + rm.* Lapse(:,:,i);
-    %%Tg(SNRm(:,:)==0 | cloud_SDm_above(:,:) ~= 1) = tempT(SNRm(:,:)==0 | cloud_SDm_above(:,:) ~= 1);
-    Tg(cloud_SDm_above) = tempT(cloud_SDm_above);
+    % tempT = Ts_fit(:,:,i) + rm.* Lapse(:,:,i);
+    % %%Tg(SNRm(:,:)==0 | cloud_SDm_above(:,:) ~= 1) = tempT(SNRm(:,:)==0 | cloud_SDm_above(:,:) ~= 1);
+    % Tg(cloud_SDm_above) = tempT(cloud_SDm_above);
     
 end
 
