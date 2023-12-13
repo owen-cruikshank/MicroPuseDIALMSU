@@ -121,6 +121,8 @@ Range.rm_raw_o2 = -75-30/2:Range.rangeBin:Range.NBins(1)*Range.rangeBin-75-30/2-
 %Range.rm_raw_o2 = -75-30/2-500:Range.rangeBin:Range.NBins(1)*Range.rangeBin-75-30/2-Range.rangeBin-500;
 %Range.rm_raw_o2 = -300:Range.rangeBin:Range.NBins(1)*Range.rangeBin-300-Range.rangeBin;
 %%%Range.rm_raw_o2 = -75-75:Range.rangeBin:Range.NBins(1)*Range.rangeBin-75-75-Range.rangeBin;    %[m] Create range vector
+Range.rm_raw_o2 = -Range.rangeBin*2:Range.rangeBin:Range.NBins(1)*Range.rangeBin-Range.rangeBin*3;
+
 Range.rm_raw_o2 = Range.rm_raw_o2(:);                           %[m] Convert range vector to column vector
 Range.r_max = 6000;                                       %[m] Max range 
 Range.rm = Range.rm_raw_o2(Range.rm_raw_o2<=Range.r_max & Range.rm_raw_o2>0);     %[m] Shorten range vector to max range
@@ -366,6 +368,14 @@ end
 %%
 %integrate to new range
 inc = 1;
+
+ii = 1:2:length(Range.rm_raw_o2);
+o2on_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
+o2off_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
+o2on_intp2_mol = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
+o2off_intp2_mol = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
+wvon_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
+wvoff_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 for ii = 1:2:length(Range.rm_raw_o2)
     o2on_intp2(inc,:) = (Counts.o2on_bgsub(ii,:)+Counts.o2on_bgsub(ii+1,:));
     o2off_intp2(inc,:) = (Counts.o2off_bgsub(ii,:)+Counts.o2off_bgsub(ii+1,:));
@@ -456,13 +466,13 @@ Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offlin
 nuMin = o2nuCentralon-0.334;                                 %[cm-1] Scan lower bound
 nuMax = o2nuCentralon+0.334;                                 %[cm-1] Scan upper bound
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
-Spectrum.nuBin = 0.00222/2;   
+%Spectrum.nuBin = 0.00222/2;   
 nu_scan = (nuMin:Spectrum.nuBin:nuMax);                      %[cm-1](1 x nu) Scan vector
 
 nuwvMin = wvnuCentralon-0.334;                                 %[cm-1] Scan lower bound
 nuwvMax = wvnuCentralon+0.334;                                 %[cm-1] Scan upper bound
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
-Spectrum.nuBin = 0.00222/2;
+%Spectrum.nuBin = 0.00222/2;
 nu_scanwv = (nuwvMin:Spectrum.nuBin:nuwvMax);                      %[cm-1](1 x nu) Scan vector
 
 nuMin_off = o2nuCentraloff-0.334;                                 %[cm-1] Scan lower bound
@@ -508,6 +518,7 @@ Model.absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offli
 
 
 %%
+disp('calculating RB PCA')
 [Spectrum] = PCAconstrunctionRB2(Spectrum);
 %%
 %Count filtering

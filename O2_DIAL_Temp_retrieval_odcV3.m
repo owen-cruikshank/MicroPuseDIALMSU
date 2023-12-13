@@ -19,8 +19,8 @@ date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
 % date_start = datetime(2022,6,1,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2022,7,14,'TimeZone','UTC');%yyyy,mm,dd
 
-% date_start = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
-% date_end = datetime(2023,8,2,'TimeZone','UTC');%yyyy,mm,dd
+date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
 
 span_days = date_start:date_end;
 
@@ -54,6 +54,7 @@ Constant.No = 2.47937E25;            %[1/m^3] Loschmidt's number  (referenced to
 %======================
 
 Options.MPDname = '00';
+Options.MPDname = '03';
 
 Options.DataPath = 'C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data';
 if strcmp(Options.MPDname,'00')
@@ -177,11 +178,16 @@ for jjjj = 1:iter
         Counts.Nm_on = Counts.o2on_mol;%.*Counts.NBins;
         Counts.Nm_off = Counts.o2off_mol;%.*Counts.NBins;
         [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum,Options);
-        Counts.Nc_on = Counts.o2on_bgsub;%.*Counts.NBins;
-        Counts.Nc_off = Counts.o2off_bgsub;%.*Counts.NBins;
-        Counts.Nm_on = Counts.o2on_bgsub_mol;%.*Counts.NBins;
-        Counts.Nm_off = Counts.o2off_bgsub_mol;%.*Counts.NBins;
-        [HSRLfull] = backscatterRetrievalMPD03(Counts, Model, Spectrum);
+        % Counts.Nc_on = Counts.o2on_bgsub;%.*Counts.NBins;
+        % Counts.Nc_off = Counts.o2off_bgsub;%.*Counts.NBins;
+        % Counts.Nm_on = Counts.o2on_bgsub_mol;%.*Counts.NBins;
+        % Counts.Nm_off = Counts.o2off_bgsub_mol;%.*Counts.NBins;
+
+        Counts.Nc_on = Counts.o2on_noise;%.*Counts.NBins;
+        Counts.Nc_off = Counts.o2off_noise;%.*Counts.NBins;
+        Counts.Nm_on = Counts.o2on_noise_mol;%.*Counts.NBins;
+        Counts.Nm_off = Counts.o2off_noise_mol;%.*Counts.NBins;
+        [HSRLfull] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
 
         k = ones(4,6)./(4*6);
         HSRL.BSR = nanconv(HSRL.BSR,k,'edge','nanout');
@@ -239,14 +245,14 @@ for jjjj = 1:iter
         Counts.Nc_off = Counts.foff(:,:,jjjj);
         Counts.Nm_on = Counts.fon_mol(:,:,jjjj);
         Counts.Nm_off = Counts.foff_mol(:,:,jjjj);
-        [HSRLf] = backscatterRetrievalMPD03(Counts, Model, Spectrum);
+        [HSRLf] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         HSRL.fBSR(:,:,jjjj) = HSRLf.BSR;
 
         Counts.Nc_on = Counts.gon(:,:,jjjj);
         Counts.Nc_off = Counts.goff(:,:,jjjj);
         Counts.Nm_on = Counts.gon_mol(:,:,jjjj);
         Counts.Nm_off = Counts.goff_mol(:,:,jjjj);
-        [HSRLg] = backscatterRetrievalMPD03(Counts, Model, Spectrum);
+        [HSRLg] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         HSRL.gBSR(:,:,jjjj) = HSRLg.BSR;
 
     else
@@ -1059,7 +1065,7 @@ p_point(1:length(Range.rm),1)=p_point;
 
 %= Plot time for profiles with sondes
 sonde_index = 1;
-p_point = Sonde.sonde_ind(:,sonde_index);
+%p_point = Sonde.sonde_ind(:,sonde_index);
 
 mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
 mask = logical(tempStds>2) | cloud_SDm_above;
