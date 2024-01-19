@@ -13,21 +13,21 @@ date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
 % date_start = datetime(2022,5,22,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2022,05,22,'TimeZone','UTC');%yyyy,mm,dd
 % 
-% date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
-% date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
+date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
 
 % date_start = datetime(2022,6,1,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2022,7,14,'TimeZone','UTC');%yyyy,mm,dd
 
-date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
+% date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
+% date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
 
 span_days = date_start:date_end;
 
 %=Time and range averaging
 Options.intTime = 1;  %[min] Integration time
-Options.intTime = 10;  %[min] Integration time
-Options.intRange = 1; %[bins] Integration range
+Options.intTime = 5;  %[min] Integration time
+Options.intRange = 4; %[bins] Integration range
 
 Options.t_avg = 1;     %[bins] Time smoothing bins
 Options.oversample = 1; %[bins] Range smoothing bins
@@ -54,7 +54,7 @@ Constant.No = 2.47937E25;            %[1/m^3] Loschmidt's number  (referenced to
 %======================
 
 Options.MPDname = '00';
-Options.MPDname = '03';
+%Options.MPDname = '03';
 
 Options.DataPath = 'C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data';
 if strcmp(Options.MPDname,'00')
