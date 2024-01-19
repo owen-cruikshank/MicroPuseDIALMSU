@@ -32,7 +32,7 @@ function [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum)
 
 load('CalibrationData\TransmissionData20220809.mat','Data_Wavelength')
 
-HSRL.onlineCombinedTransmission = interp1(Data_Wavelength.lambda_on.*10^9,Data_Wavelength.Nc_on,Spectrum.lambda_scan_3D_short);
+  HSRL.onlineCombinedTransmission = interp1(Data_Wavelength.lambda_on.*10^9,Data_Wavelength.Nc_on,Spectrum.lambda_scan_3D_short);
 HSRL.onlineMolecularTransmission = interp1(Data_Wavelength.lambda_on.*10^9,Data_Wavelength.Nm_on,Spectrum.lambda_scan_3D_short);
 HSRL.offlineCombinedTransmission = interp1(Data_Wavelength.lambda_off.*10^9,Data_Wavelength.Nc_off,Spectrum.lambda_scan_3D_short_off);
 HSRL.offlineMolecularTransmission = interp1(Data_Wavelength.lambda_off.*10^9,Data_Wavelength.Nm_off,Spectrum.lambda_scan_3D_short_off);
@@ -214,6 +214,8 @@ for k = 1:length(Options.t_step) % this loop is here because I am running a few 
     HSRL(k).Cam = Cam; % calibration constant
     HSRL(k).Cmc = Cmc; % calibration constant
     HSRL(k).Cmm = Cmm; % calibration constant
+    HSRL(k).eta_m = Tables.eta_m;
+    HSRL(k).eta_c = Tables.eta_c;
     HSRL(k).Nmol = Nmol; % molecular counts
 end
 end

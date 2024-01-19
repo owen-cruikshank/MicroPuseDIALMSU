@@ -11,21 +11,36 @@ function [Spectrum] = RayleighBrillouinSpecWavelength(FreqSpec,CenterWave,Press,
 C                   = 299792458;
 Kb                  = 1.3806504e-23;
 Mair                = (1.66053886e-27)*28.013;
-Viscosity           = 17.63e-6;
-BulkViscosity       = Viscosity*0.73;
-ThermalConductivity = 25.2e-3;
+% Viscosity           = 17.63e-6;
+% BulkViscosity       = Viscosity*0.73;
+% ThermalConductivity = 25.2e-3;
+
+%dynamic viscosity of air
+%Sutherland Equation
+eta0=1.716e-5; %kg/(m*s) reference shear viscosity
+k0=0.0241; %W/(K*m) reference thermal conductivity
+T0=273; %K reference temperature
+Seta=111; %K
+Sk=194; %K
+shearviscosity=eta0*(Temp/T0)^(3/2)*((T0+Seta)/(Temp+Seta));
+thermalconductivity=k0*(Temp/T0)^(3/2)*((T0+Sk)/(Temp+Sk));
+% bulk_vis=0.86e-5+1.29e-7*(T-250);
+BulkViscosity=shearviscosity*0.71; %This is a poor approximation
+
+
+
 %% Tenti Model constants
-c_int     = 1.0;
+c_int     = 1.0;%internal specific heat capacity
 c_tr      = 3/2;
 gamma_int = c_int/(c_tr+c_int);
-rlx_int   = 1.5*BulkViscosity/(Viscosity*gamma_int);
-eukenf    = Mair*ThermalConductivity/(Viscosity*Kb*(c_tr+c_int));
+rlx_int   = 1.5*BulkViscosity/(shearviscosity*gamma_int);
+eukenf    = Mair*thermalconductivity/(shearviscosity*Kb*(c_tr+c_int));
 %% Calculating Tenti Sub-parameters
 K   = 4.*pi./CenterWave./sin(pi/2);
 Nuo = sqrt(Kb.*Temp./Mair);
 %% Calculating Tenti Parameters
 X = 2.*pi.*FreqSpec./sqrt(2)./K./Nuo;
-Y = Press./sqrt(2)./K./Nuo./Viscosity;
+Y = Press./sqrt(2)./K./Nuo./shearviscosity;
 %% Calculating 
 [~,Spectrum] = crbs6(Y,rlx_int,eukenf,c_int,c_tr,X);
 end

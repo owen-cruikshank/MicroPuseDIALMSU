@@ -11,28 +11,28 @@ sponts6_off = sponts6_off./trapz(permute(Spectrum.nu_scan_3D_short_off,[3 2 1]),
 if strcmp( Options.MPDname,'03')
     %load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data\NCAR Boulder Data\MPD03ScanData.mat')
     load(fullfile('CalibrationData','MPD03ScanData.mat'),'CalInfo')
-     CalInfo.ScanData.O2OfflineMol.Wavelength = CalInfo.ScanData.O2OfflineMol.Wavelength+Spectrum.WavemeterOffset;
-     CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength+Spectrum.WavemeterOffset;
-      CalInfo.ScanData.O2OnlineMol.Wavelength = CalInfo.ScanData.O2OnlineMol.Wavelength+Spectrum.WavemeterOffset;
-     CalInfo.ScanData.O2OnlineComb.Wavelength = CalInfo.ScanData.O2OnlineComb.Wavelength+Spectrum.WavemeterOffset;
+    CalInfo.ScanData.O2OfflineMol.Wavelength = CalInfo.ScanData.O2OfflineMol.Wavelength+Spectrum.WavemeterOffset;
+    CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength+Spectrum.WavemeterOffset;
+    CalInfo.ScanData.O2OnlineMol.Wavelength = CalInfo.ScanData.O2OnlineMol.Wavelength+Spectrum.WavemeterOffset;
+    CalInfo.ScanData.O2OnlineComb.Wavelength = CalInfo.ScanData.O2OnlineComb.Wavelength+Spectrum.WavemeterOffset;
     
      %  CalInfo.ScanData.O2OfflineMol.Wavelength = CalInfo.ScanData.O2OfflineMol.Wavelength-Spectrum.WavemeterOffset;
      % CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength-Spectrum.WavemeterOffset;
      %  CalInfo.ScanData.O2OnlineMol.Wavelength = CalInfo.ScanData.O2OnlineMol.Wavelength-Spectrum.WavemeterOffset;
      % CalInfo.ScanData.O2OnlineComb.Wavelength = CalInfo.ScanData.O2OnlineComb.Wavelength-Spectrum.WavemeterOffset;
     
-    offlineMolecularTransmission = interp1(10^7./CalInfo.ScanData.O2OfflineMol.Wavelength, CalInfo.ScanData.O2OfflineMol.Transmission, Spectrum.nu_scan_3D_short_off);
-    offlineCombinedTransmission = interp1(10^7./CalInfo.ScanData.O2OfflineComb.Wavelength, CalInfo.ScanData.O2OfflineComb.Transmission, Spectrum.nu_scan_3D_short_off);
-    onlineMolecularTransmission = interp1(10^7./CalInfo.ScanData.O2OnlineMol.Wavelength, CalInfo.ScanData.O2OnlineMol.Transmission, Spectrum.nu_scan_3D_short);
-    onlineCombinedTransmission = interp1(10^7./CalInfo.ScanData.O2OnlineComb.Wavelength, CalInfo.ScanData.O2OnlineComb.Transmission, Spectrum.nu_scan_3D_short);
+    offlineMolecularTransmission = interp1(10^7./CalInfo.ScanData.O2OfflineMol.Wavelength,  CalInfo.ScanData.O2OfflineMol.Transmission,  Spectrum.nu_scan_3D_short_off);
+    offlineCombinedTransmission  = interp1(10^7./CalInfo.ScanData.O2OfflineComb.Wavelength, CalInfo.ScanData.O2OfflineComb.Transmission, Spectrum.nu_scan_3D_short_off);
+    onlineMolecularTransmission  = interp1(10^7./CalInfo.ScanData.O2OnlineMol.Wavelength,   CalInfo.ScanData.O2OnlineMol.Transmission,   Spectrum.nu_scan_3D_short);
+    onlineCombinedTransmission   = interp1(10^7./CalInfo.ScanData.O2OnlineComb.Wavelength,  CalInfo.ScanData.O2OnlineComb.Transmission,  Spectrum.nu_scan_3D_short);
 
 elseif strcmp(Options.MPDname,'00')
     load('CalibrationData\TransmissionData20220809.mat','Data_Wavelength')
 
-onlineCombinedTransmission = interp1((Data_Wavelength.lambda_on.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nc_on,Spectrum.lambda_scan_3D_short);
-onlineMolecularTransmission = interp1((Data_Wavelength.lambda_on.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nm_on,Spectrum.lambda_scan_3D_short);
-offlineCombinedTransmission = interp1((Data_Wavelength.lambda_off.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nc_off,Spectrum.lambda_scan_3D_short_off);
-offlineMolecularTransmission = interp1((Data_Wavelength.lambda_off.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nm_off,Spectrum.lambda_scan_3D_short_off);
+    onlineCombinedTransmission   = interp1((Data_Wavelength.lambda_on.*10^9) +Spectrum.WavemeterOffset,Data_Wavelength.Nc_on, Spectrum.lambda_scan_3D_short);
+    onlineMolecularTransmission  = interp1((Data_Wavelength.lambda_on.*10^9) +Spectrum.WavemeterOffset,Data_Wavelength.Nm_on, Spectrum.lambda_scan_3D_short);
+    offlineCombinedTransmission  = interp1((Data_Wavelength.lambda_off.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nc_off,Spectrum.lambda_scan_3D_short_off);
+    offlineMolecularTransmission = interp1((Data_Wavelength.lambda_off.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nm_off,Spectrum.lambda_scan_3D_short_off);
 
 end
 
@@ -41,20 +41,33 @@ HSRL.offlineCombinedTransmission = offlineCombinedTransmission;
 HSRL.onlineMolecularTransmission = onlineMolecularTransmission;
 HSRL.onlineCombinedTransmission = onlineCombinedTransmission;
 
-% etam = (mean(CalInfo.ScanData.O2OnlineComb.Transmission./CalInfo.ScanData.O2OnlineMol.Transmission)+1)^-1;
- etam = (mean(onlineCombinedTransmission./onlineMolecularTransmission)+1)^-1;
- etac = 1-etam;
+int = [1:50 size(offlineMolecularTransmission,3)-50:size(offlineMolecularTransmission,3)];
 
- etam = 1;
- etac = 1;
+eta_m=(mean(offlineCombinedTransmission(:,:,int)./offlineMolecularTransmission(:,:,int))+1).^-1;
+
+% etam = (mean(CalInfo.ScanData.O2OnlineComb.Transmission./CalInfo.ScanData.O2OnlineMol.Transmission)+1)^-1;
+ %eta_m = (mean(onlineCombinedTransmission./onlineMolecularTransmission)+1)^-1;
+ eta_c = 1-eta_m;
+
+ % etam = 1;
+ % etac = 1;
+
+ etam = eta_m;
+ etac = eta_c;
 % 
 % 
 % %normalize
 % etam = 0.5649;
 % etac = 0.4351;
-offlineMolecularTransmission = offlineMolecularTransmission./(max(offlineCombinedTransmission) .*etam./etac);
-offlineCombinedTransmission = offlineCombinedTransmission./max(offlineCombinedTransmission);
+
+% etam = 0.5265;
+% etac = 0.4735;
+% offlineMolecularTransmission = offlineMolecularTransmission./(max(offlineCombinedTransmission) .*etam./etac);
+% offlineCombinedTransmission  = offlineCombinedTransmission ./max(offlineCombinedTransmission);
 % 
+
+offlineMolecularTransmission = offlineMolecularTransmission./(max(offlineCombinedTransmission) .*etam./etac);
+offlineCombinedTransmission  = offlineCombinedTransmission ./max(offlineCombinedTransmission);
 
 
 
@@ -73,7 +86,7 @@ Cac = trapz(permute(Spectrum.nu_scan_3D_short_off,[3 2 1]),aerosolSpectrum.*offl
 Cmm = Cmm./Cac;
 Cam = Cam./Cac;
 Cmc = Cmc./Cac;
-%Cac = Cac./Cac;
+Cac = Cac./Cac;
 
 %Bm = 5.45e-32 .* Model.P.*101325./Model.T./1.380649e-23.*550^4./(Spectrum.lambda_offline(1).^4);
 
@@ -102,6 +115,11 @@ Ba = Bm .* (BSR-1);
 HSRL.BSR=BSR;
 HSRL.Ba = Ba;
 HSRL.Bm = Bm;
+HSRL.eta_m = eta_m;
+HSRL.eta_c = eta_c;
+HSRL.Cam = Cam;
+HSRL.Cmm = Cmm;
+HSRL.Cac = Cac;
+HSRL.Cmc = Cmc;
 
-5;
 
