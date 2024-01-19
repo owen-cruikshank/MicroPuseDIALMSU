@@ -308,8 +308,10 @@ TimeGrid = Options.TimeGrid(Options.TimeGrid>=((i-1)*24) & Options.TimeGrid<(i*2
                        increment = 1;
                        %clear rangeSummedData
                        %for jj = Options.intRange:Options.intRange:560
-                       for jj = Options.intRange:Options.intRange:Options.BinTotal
-                           rangeSummedData(:,increment) = sum(SummedData(:,jj-Options.intRange+1:jj),2);
+                       %for jj = Options.intRange:Options.intRange:Options.BinTotal
+                       for jj = 1:1:Options.BinTotal
+                           %rangeSummedData(:,increment) = sum(SummedData(:,jj-Options.intRange+1:jj),2);
+                           rangeSummedData(:,increment) = sum(SummedData(:,jj-1+1:jj),2);
                            increment = increment+1;
                        end
                        % Take mean of summed data bins and add to structure

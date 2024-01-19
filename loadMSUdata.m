@@ -19,7 +19,7 @@ Options.sondepath = fullfile(Options.DataPath,'MSU data','Radiosondes'); %path f
 %Options.MPDname = 'MSU';
 Options.BinTotal = 560;
 %Options.BinTotal = 400;
-Options.BinTotal = 490;
+%Options.BinTotal = 490;
 %Options.BinTotal = 950;
 %Load raw data from NetCDF files
 [Data, Options] = loadMSUNETcdf(span_days,Options);
@@ -41,7 +41,7 @@ Time.thr = Time.ts/60/60; %(hr)
 % =====================
 % Create range vector from length of data bins
 Range.nsPerBin = 250; %[ns] bin length in nanosections
-Range.NBins = floor(Options.BinTotal/Options.intRange); %number of range bins in vector
+Range.NBins = floor(Options.BinTotal); %number of range bins in vector
 Range.rangeBin = (Constant.c * Range.nsPerBin(1)*10^-9)/2; %(m)range bin length
 
 Range.rm_raw_o2 = -150:Range.rangeBin:Range.NBins(1)*Range.rangeBin-150-Range.rangeBin;    %[m] Create range vector
@@ -58,8 +58,10 @@ Range.rm = Range.rm_raw_o2(Range.rm_raw_o2<Range.r_max & Range.rm_raw_o2>=0);   
 %Range.rm = Range.rm(1:length(Range.rm_raw_o2));
 
 %=== Integrate range vector ==
-Range.rm = Range.rm(1:2:end);%integrate to new
-Range.rangeBin = Range.rangeBin*2;
+% Range.rm = Range.rm(1:2:end);%integrate to new
+% Range.rangeBin = Range.rangeBin*2;
+Range.rm = Range.rm(1:Options.intRange:end);%integrate to new
+Range.rangeBin = Range.rangeBin*Options.intRange;
 
 Range.i_range = length(Range.rm);                               %[none] Size of range vector
 Range.rkm = Range.rm/1000;
@@ -440,7 +442,7 @@ Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol;       % Bac
 
 % ========integrate to new range
 inc = 1;
-ii = 1:2:length(Range.rm_raw_o2);
+ii = 1:Options.intRange:length(Range.rm_raw_o2);
 o2on_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 o2off_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 o2on_intp2_mol = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
@@ -453,11 +455,19 @@ o2off_intp2_mol = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 %     inc = inc+1;
 % end
 
-for ii = 1:2:length(Range.rm_raw_o2)
-    o2on_intp2(inc,:) = (Counts.o2on_bgsub(ii,:)+Counts.o2on_bgsub(ii+1,:));
-    o2off_intp2(inc,:) = (Counts.o2off_bgsub(ii,:)+Counts.o2off_bgsub(ii+1,:));
-    o2on_intp2_mol(inc,:) = (Counts.o2on_bgsub_mol(ii,:)+Counts.o2on_bgsub_mol(ii+1,:));
-    o2off_intp2_mol(inc,:) = (Counts.o2off_bgsub_mol(ii,:)+Counts.o2off_bgsub_mol(ii+1,:));
+% for ii = 1:2:length(Range.rm_raw_o2)
+%     o2on_intp2(inc,:) = (Counts.o2on_bgsub(ii,:)+Counts.o2on_bgsub(ii+1,:));
+%     o2off_intp2(inc,:) = (Counts.o2off_bgsub(ii,:)+Counts.o2off_bgsub(ii+1,:));
+%     o2on_intp2_mol(inc,:) = (Counts.o2on_bgsub_mol(ii,:)+Counts.o2on_bgsub_mol(ii+1,:));
+%     o2off_intp2_mol(inc,:) = (Counts.o2off_bgsub_mol(ii,:)+Counts.o2off_bgsub_mol(ii+1,:));
+%     inc = inc+1;
+% end
+
+for ii = 1:Options.intRange:length(Range.rm_raw_o2)-Options.intRange+1
+    o2on_intp2(inc,:) = sum(Counts.o2on_bgsub(ii:(ii+Options.intRange-1),:),1);
+    o2off_intp2(inc,:) = sum(Counts.o2off_bgsub(ii:(ii+Options.intRange-1),:),1);
+    o2on_intp2_mol(inc,:) = sum(Counts.o2on_bgsub_mol(ii:(ii+Options.intRange-1),:),1);
+    o2off_intp2_mol(inc,:) = sum(Counts.o2off_bgsub_mol(ii:(ii+Options.intRange-1),:),1);
     inc = inc+1;
 end
 Counts.o2on_bgsub = o2on_intp2;
@@ -465,7 +475,8 @@ Counts.o2off_bgsub = o2off_intp2;
 Counts.o2on_bgsub_mol = o2on_intp2_mol;
 Counts.o2off_bgsub_mol = o2off_intp2_mol;
 
-Range.rm_raw_o2 = Range.rm_raw_o2(1:2:end)+Range.rangeBin./2;
+%Range.rm_raw_o2 = Range.rm_raw_o2(1:2:end)+Range.rangeBin./2;
+Range.rm_raw_o2 = Range.rm_raw_o2(1:Options.intRange:end)+Range.rangeBin./Options.intRange;
 
 %%
 
@@ -481,7 +492,8 @@ Counts.o2off_noise = Counts.o2off_bgsub(1:length(Range.rm),:);
 Counts.o2off_noise_mol = Counts.o2off_bgsub_mol(1:length(Range.rm),:);
 
 %integrate Bins to new range
-Counts.NBins = Data.MCS.Channel0.NBins*2;
+%Counts.NBins = Data.MCS.Channel0.NBins*2;
+Counts.NBins = Data.MCS.Channel0.NBins*Options.intRange;
 %Counts.NBins = Data.MCS.Channel0.NBins;
 
 
@@ -554,8 +566,8 @@ Spectrum.lambda_offline = double(fillmissing(filloutliers(Data.Laser.O2Offline.W
 
 Data.Laser.O2Online.TimeStamp=fillmissing(Data.Laser.O2Online.TimeStamp,'linear');
 Data.Laser.O2Offline.TimeStamp=fillmissing(Data.Laser.O2Offline.TimeStamp,'linear');
-Spectrum.lambda_online = interp1(Data.Laser.O2Online.TimeStamp,Spectrum.lambda_online,Time.thr);
-Spectrum.lambda_offline = interp1(Data.Laser.O2Offline.TimeStamp,Spectrum.lambda_offline,Time.thr);
+Spectrum.lambda_online = fillmissing(interp1(Data.Laser.O2Online.TimeStamp,Spectrum.lambda_online,Time.thr),'linear');
+Spectrum.lambda_offline = fillmissing(interp1(Data.Laser.O2Offline.TimeStamp,Spectrum.lambda_offline,Time.thr),'linear');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Spectrum.lambda_online = o2lambdaCentralon*ones(size(Time.ts));
@@ -821,8 +833,11 @@ HSRL.BSRf = nan(size(HSRL.BSR));
     Counts.sigma_Nc_on = sqrt(Counts.Nm_off);
 
     Options.t_step = 1;
-    %[HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+    [HSRLold] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
     [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
+
+   % load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\11_13_23\processRobertDataMSUv3.mat','HSRL')
+
 
    %HSRL.BSR = HSRL.BSR.*1.2;
 %HSRL.BSR = HSRL.BSR./mean(HSRL.BSR(end-5:end,:),1);
