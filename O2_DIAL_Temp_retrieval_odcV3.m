@@ -6,18 +6,18 @@ clear all
 
 date_start = datetime(2022,4,21,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
-
+% 
 date_start = datetime(2022,7,27,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
-
-% date_start = datetime(2022,5,22,'TimeZone','UTC');%yyyy,mm,dd
-% date_end = datetime(2022,05,22,'TimeZone','UTC');%yyyy,mm,dd
 % 
-date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
-
+% % date_start = datetime(2022,5,22,'TimeZone','UTC');%yyyy,mm,dd
+% % date_end = datetime(2022,05,22,'TimeZone','UTC');%yyyy,mm,dd
+% % 
+% date_start = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
+% date_end = datetime(2022,6,23,'TimeZone','UTC');%yyyy,mm,dd
+% 
 % date_start = datetime(2022,6,1,'TimeZone','UTC');%yyyy,mm,dd
-% date_end = datetime(2022,7,14,'TimeZone','UTC');%yyyy,mm,dd
+% date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 
 % date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
@@ -26,8 +26,8 @@ span_days = date_start:date_end;
 
 %=Time and range averaging
 Options.intTime = 1;  %[min] Integration time
-Options.intTime = 5;  %[min] Integration time
-Options.intRange = 4; %[bins] Integration range
+Options.intTime = 10;  %[min] Integration time
+Options.intRange = 2; %[bins] Integration range
 
 Options.t_avg = 1;     %[bins] Time smoothing bins
 Options.oversample = 1; %[bins] Range smoothing bins
@@ -86,7 +86,7 @@ SNR_threshold = 2300;
 
 %Threshold for Cloud mask
 %SD_threshold = 0.5;  
-SD_threshold = 1.5;
+%SD_threshold = 1.5;
 SD_threshold = 5;
 
 BGmult =1; % Multiplier for background for SNR calculation
@@ -136,7 +136,7 @@ for jjjj = 1:iter
         N_A = 6.02214076e23;        %[1/mol] Avagadro's number
         R = kB * N_A;               %[J/K/mol] universal gas constant
         gamma = g0 * M_air / R;     %[K/m]gravity molar mass of air and gas constant
-        Pg = fillmissing(Model.Ps.*(Temperature.Ts_fit(:,:,end)./(Temperature.Ts_fit(:,:,end)+Temperature.L_fit_sm_test(:,:,end).*Range.rm)).^(gamma./Temperature.L_fit_sm_test(:,:,end)),'linear');
+        %Pg = fillmissing(Model.Ps.*(Temperature.Ts_fit(:,:,end)./(Temperature.Ts_fit(:,:,end)+Temperature.L_fit_sm_test(:,:,end).*Range.rm)).^(gamma./Temperature.L_fit_sm_test(:,:,end)),'linear');
       
         %Pg = fillmissing(Model.Ps.*(Model.Ts./(Model.Ts+LapseRand.*Range.rkm)).^(gamma./LapseRand/1000),'linear');
         %%%%Model.P = Pg;
@@ -321,7 +321,7 @@ for jjjj = 1:iter
     Alpha.alpha_0 = interp2(Time.ts,Range.rm(ind_r_lo)+Range.rangeBin./2,Alpha.alpha_0_raw,Time.ts,Range.rm);
     Alpha.alpha_0_raw = real(Alpha.alpha_0_raw);
     Alpha.alpha_0 = real(Alpha.alpha_0);
-    alpha_0 = fillmissing(Alpha.alpha_0,'nearest');
+    %alpha_0 = fillmissing(Alpha.alpha_0,'nearest');
     
     %2nd order error
         alpha_0 = zeros(size(Counts.o2on));
@@ -465,7 +465,7 @@ for jjjj = 1:iter
     % k = ones(4,8)./(4*8);     % Kernel
     % %k = ones(3,7)./(3*7);     % Kernel
     % k = ones(2,2)./(2*2);     % Kernel
-    k = ones(3,3)./(3*3);     % Kernel
+    %%k = ones(3,3)./(3*3);     % Kernel
     
     k = ones(4,6)./(4*6);
 
@@ -506,21 +506,22 @@ for jjjj = 1:iter
     
 %%
     % === Purtabative absorption ===
-    [Alpha.alpha_total_raw,Alpha.alpha_1,Alpha.alpha_2,Spectrum] = pertAbsorption(Alpha.alpha_0, T_etalon_on, Model, Range, Time, Spectrum, HSRL.BSR, ind_r_lo,ind_r_hi, Options,true);
-    [Alpha.alpha_total_rawFull,Alpha.alpha_1Full,Alpha.alpha_2Full,~] = pertAbsorption(Alpha.alpha_0_full, T_etalon_on, Model, Range, Time, Spectrum, HSRLfull.BSR, ind_r_lo,ind_r_hi, Options,true);
+    %[Alpha.alpha_total_raw,Alpha.alpha_1,Alpha.alpha_2,Spectrum] = pertAbsorption(Alpha.alpha_0, T_etalon_on, Model, Range, Time, Spectrum, HSRL.BSR, ind_r_lo,ind_r_hi, Options,true);
+    [Alpha.alpha_total_rawFull,Alpha.alpha_1,Alpha.alpha_2,~] = pertAbsorption(Alpha.alpha_0_full, T_etalon_on, Model, Range, Time, Spectrum, HSRLfull.BSR, ind_r_lo,ind_r_hi, Options,true);
     
+    Alpha.alpha_total_raw = Alpha.alpha_total_rawFull;
     [Alpha.alpha_total_rawf(:,:,jjjj)] = pertAbsorption(Alpha.alpha_0f(:,:,jjjj), T_etalon_on, Model, Range, Time, Spectrum, HSRL.fBSR(:,:,jjjj), ind_r_lo,ind_r_hi, Options,true);
     [Alpha.alpha_total_rawg(:,:,jjjj)] = pertAbsorption(Alpha.alpha_0g(:,:,jjjj), T_etalon_on, Model, Range, Time, Spectrum, HSRL.gBSR(:,:,jjjj), ind_r_lo,ind_r_hi, Options,true);
     
 %%
-    Alpha.alpha_total_err = zeros(size(Alpha.alpha_total_raw));
+    Alpha.alpha_total_err = zeros(size(Alpha.alpha_total_rawFull));
     
 %%
     
     %== Force total alpha to its modeled surface value ==
     %[~,cut] = min(abs(Range.rm-500));             % Index where rm is closest to chosen value
     cut=2;
-    Alpha.alpha_total_cut = [Model.absorption(1,:); NaN((cut - 2),Time.i_time); Alpha.alpha_total_raw(cut:end,:)];
+    Alpha.alpha_total_cut = [Model.absorption(1,:); NaN((cut - 2),Time.i_time); Alpha.alpha_total_rawFull(cut:end,:)];
     Alpha.alpha_total_cut = fillmissing(Alpha.alpha_total_cut,'linear');
     
     %Alpha.alpha_total_cut = Alpha.alpha_0;
@@ -606,10 +607,16 @@ for jjjj = 1:iter
     % Model.P = Model.Ps .* (Model.Ts./Model.T).^(-5.2199);                       %[atm] (1 x r) Pressure model as a function of r  
     
     startLapse = Model.lapseRate;
-    [Temperature.T_final_test(:,:,jjjj),Temperature.L_fit_sm_test,Temperature.Ts_fit,Temperature.Patm_final,Temperature.mean_lapse_rate,Temperature.exclusion,Temperature.deltaT] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_totals,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
+    %[Temperature.T_final_test(:,:,jjjj),Temperature.L_fit_sm_test,Temperature.Ts_fit,Temperature.Patm_final,Temperature.mean_lapse_rate,Temperature.exclusion,Temperature.deltaT] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_totals,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
     
     [Temperature.T_final_testFull(:,:,jjjj),Temperature.L_fit_sm_testFull,Temperature.Ts_fitFull,Temperature.Patm_finalFull,Temperature.mean_lapse_rateFull,Temperature.exclusionFull,Temperature.deltaTFull] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawFull,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
-    
+    Temperature.L_fit_sm_test = Temperature.L_fit_sm_testFull;
+    Temperature.Ts_fit = Temperature.Ts_fitFull;
+    Temperature.Patm_final = Temperature.Patm_finalFull;
+    Temperature.mean_lapse_rate = Temperature.mean_lapse_rateFull;
+    Temperature.exclusion = Temperature.exclusionFull;
+    Temperature.deltaT = Temperature.deltaTFull;
+    Temperature.T_final_test = Temperature.T_final_testFull;
     [Temperature.T_final_testf(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawf(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
     [Temperature.T_final_testg(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawg(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
 end
@@ -860,25 +867,25 @@ end
 %[Temperature.T_final_tests2] = applyFilter(minSigz,minSigt,Temperature.T_final_test_cut);
 
 
-k = ones(3,3)./(3*3);     % Kernel
+%k = ones(3,3)./(3*3);     % Kernel
 
 k = ones(4,6)./(4*6);
 
 %=== apply mask
 
 %==== Smooth temperature
-Temperature.T_final_tests = nanconv(Temperature.T_final_test(:,:,end),k,'edge','nanout');
+%Temperature.T_final_tests = nanconv(Temperature.T_final_test(:,:,end),k,'edge','nanout');
 Temperature.T_final_testFulls = nanconv(Temperature.T_final_testFull(:,:,end),k,'edge','nanout');
 
 
-Temperature.T_final_testfs = zeros(size(Temperature.T_final_tests,1),size(Temperature.T_final_tests,2),iter);
-Temperature.T_final_testgs = zeros(size(Temperature.T_final_tests,1),size(Temperature.T_final_tests,2),iter);
+Temperature.T_final_testfs = zeros(size(Temperature.T_final_testFull,1),size(Temperature.T_final_testFull,2),iter);
+Temperature.T_final_testgs = zeros(size(Temperature.T_final_testFull,1),size(Temperature.T_final_testFull,2),iter);
 for iii = 1:size(Temperature.T_final_testf,3)
     Temperature.T_final_testfs(:,:,iii) = nanconv(Temperature.T_final_testf(:,:,iii),k,'edge','nanout');
     Temperature.T_final_testgs(:,:,iii) = nanconv(Temperature.T_final_testg(:,:,iii),k,'edge','nanout');
 end
 
-Temperature.TempStd = zeros(size(Temperature.T_final_tests));
+%Temperature.TempStd = zeros(size(Temperature.T_final_tests));
 Temperature.TempStd = std(Temperature.T_final_testf(:,:,:),0,3);
 %Temperature.TempStds = Temperature.TempStd./21;
 k1 = round((size(k,1)-1)./2);
@@ -910,8 +917,8 @@ tempStd = sqrt((1./(2.*(permute(1:B,[1 3 2])-1))) .*cumsum((Temperature.T_final_
 
 %%
 %=== apply mask
-Temperature.T_finalm = Temperature.T_final_tests ;
-Temperature.T_finalm(cloud_SDm_above) = NaN;
+%Temperature.T_finalm = Temperature.T_final_tests ;
+%Temperature.T_finalm(cloud_SDm_above) = NaN;
 
 Temperature.T_finalm = Temperature.T_final_testFulls;
 
@@ -1012,14 +1019,14 @@ Temperature.T_finalm = Temperature.T_final_testFulls;
 % end
 
 
-figure(54524)
-for iii = 1:size(Sonde.sonde_ind,2)
-
-    sonde_index = iii;
-p_point = Sonde.sonde_ind(:,sonde_index);
-    plot(diag(Temperature.Patm_final(:,p_point))-Sonde.P_sonde(:,sonde_index),Range.rkm)
-    hold on
-end
+% figure(54524)
+% for iii = 1:size(Sonde.sonde_ind,2)
+% 
+%     sonde_index = iii;
+% p_point = Sonde.sonde_ind(:,sonde_index);
+%     plot(diag(Temperature.Patm_final(:,p_point))-Sonde.P_sonde(:,sonde_index),Range.rkm)
+%     hold on
+% end
 
 %%
 
@@ -1055,10 +1062,10 @@ Format.dateTickFormat ='mm/dd HH:MM';
 %Format.dateTickFormat ='mm/dd';
 
 %= Plot time for profiles
-plot_time = datetime(2023,2,13,23,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
-plot_time = datetime(2023,8,16,18,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
-plot_time = datetime(2023,8,5,17,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
-plot_time = datetime(2023,8,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+%plot_time = datetime(2023,2,13,23,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+%plot_time = datetime(2023,8,16,18,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+%plot_time = datetime(2023,8,5,17,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+%plot_time = datetime(2023,8,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 plot_time = datetime(2022,6,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 [~,p_point] = min(abs(plot_time-Time.date_ts)); % Find closest value to 338min for comparison to other program
 p_point(1:length(Range.rm),1)=p_point;
@@ -1067,8 +1074,8 @@ p_point(1:length(Range.rm),1)=p_point;
 sonde_index = 1;
 %p_point = Sonde.sonde_ind(:,sonde_index);
 
-mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
-mask = logical(tempStds>2) | cloud_SDm_above;
+%mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
+%mask = logical(tempStds>2) | cloud_SDm_above;
 mask = logical(tempStds>2);
 
 %mask = cloud_SDm_above;

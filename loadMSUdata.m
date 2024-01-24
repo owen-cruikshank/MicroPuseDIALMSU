@@ -19,7 +19,7 @@ Options.sondepath = fullfile(Options.DataPath,'MSU data','Radiosondes'); %path f
 %Options.MPDname = 'MSU';
 Options.BinTotal = 560;
 %Options.BinTotal = 400;
-%Options.BinTotal = 490;
+Options.BinTotal = 490;
 %Options.BinTotal = 950;
 %Load raw data from NetCDF files
 [Data, Options] = loadMSUNETcdf(span_days,Options);
