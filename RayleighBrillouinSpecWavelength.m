@@ -7,13 +7,10 @@ function [Spectrum] = RayleighBrillouinSpecWavelength(FreqSpec,CenterWave,Press,
 %CenterWave [nm]
 %Press [pa]
 %Temp [K]
-%% Constants
-C                   = 299792458;
-Kb                  = 1.3806504e-23;
-Mair                = (1.66053886e-27)*28.013;
-% Viscosity           = 17.63e-6;
-% BulkViscosity       = Viscosity*0.73;
-% ThermalConductivity = 25.2e-3;
+
+% Constants
+Kb                  = 1.3806504e-23;% Boltzman's constant
+Mair                = (1.66053886e-27)*28.013;% Molecular mass of air
 
 %dynamic viscosity of air
 %Sutherland Equation
@@ -24,9 +21,7 @@ Seta=111; %K
 Sk=194; %K
 shearviscosity=eta0*(Temp/T0)^(3/2)*((T0+Seta)/(Temp+Seta));
 thermalconductivity=k0*(Temp/T0)^(3/2)*((T0+Sk)/(Temp+Sk));
-% bulk_vis=0.86e-5+1.29e-7*(T-250);
 BulkViscosity=shearviscosity*0.71; %This is a poor approximation
-
 
 
 %% Tenti Model constants

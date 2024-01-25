@@ -8,29 +8,9 @@ function [sponts6] = RB_O2_770_PCA(T,P,nu_Range,Spectrum)
 %   -P:[atm] scalar or (range x time) vector of atmopheric pressure as a function
 %   of range
 %   -nu_Range:[1/cm] wavenumber scan. Dimentions: (1 x 1 x wavenumber)
-%   -WV:[1/m^3] water vapor number density. Dimentions: (range x time)
 %
 %Outputs:
-%   -absorption: [1/m] the atmopheric absorption of O2 at the input
-%   wavenumber arround the 780nm line, dimensions (range x time x wavenumber)
-%   -sigma: [m^2] The voight absorption cross section of O2 at the input
-%   wavenumber arround the 780nm line, dimensions (range x time x wavenumber)
-%   -f: [m] Absorption lineshape function, dimensions (range x time x wavnumber)
 
-%load variables needed
-%Coherent s7
-%load('RBPCA_1_15_21single.mat')
-%spontaneous s6
-%load(fullfile('CalibrationData','RBPCA_11_2_21single.mat'),'M','muP','muT','muY','nu','sigmaP','sigmaT')
-
-
-%load('PCA_7_30_23singleRayleighBrillionbigSpectrum.mat','M','muP','muT','muY','nu','sigmaP','sigmaT')
-
-%load('PCA_7_30_23singleRayleighBrillion.mat','M','muP','muT','muY','nu','sigmaP','sigmaT')
-
-
-%load('PCA_10_06_23singleRayleighBrillion_offline.mat','muY','M','muT','muP','sigmaT','sigmaP','nu')
-%load(fullfile('CalibrationData','PCA_10_10_23singleRayleighBrillion_offline.mat'),'muY','M','muT','muP','sigmaT','sigmaP','nu')
 
 muY = Spectrum.RBoffline.muY;
 M = Spectrum.RBoffline.M;
@@ -39,7 +19,7 @@ muP = Spectrum.RBoffline.muP;
 sigmaT = Spectrum.RBoffline.sigmaT;
 sigmaP = Spectrum.RBoffline.sigmaP;
 
-%order
+%Recaculate theta with input T and P
 No = 20;
         normT = (T-muT)/sigmaT;
         normP = (P-muP)/sigmaP;    
@@ -57,12 +37,12 @@ sponts6I = ones(length(Spectrum.nu_scan_3D_short_off),length(T(1,:)),length(T(:,
 for j = 1:length(T(:,1))
     for i = 1:length(T(1,:))
         sponts6I(:,i,j) = muY + M*thetapermute(:,i,j);  
-       % sponts6I(:,i,j) =  M*thetapermute(:,i,j);
     end
 end
-%sponts6I = sponts6I +muY;
 
+%Move spectrum to third dimension
 sponts6 = permute(sponts6I(:,:,:),[3 2 1]);
+%Normalize spectrum to integral
 normsponts6 = trapz(sponts6,3)*(nu_Range(2)-nu_Range(1))*100;
 sponts6 = sponts6./normsponts6;
 
