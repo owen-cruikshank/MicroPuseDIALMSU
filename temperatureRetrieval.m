@@ -41,10 +41,7 @@ h = 6.62607004E-34;                     %[Js] Planck's constant
 
 T0 = 296;                   %[K] reference temperature
 
-%loop = 17;%number of times to do iterative temperature retrieval loop
-
-loop = 25;
-
+loop = 25;%number of times to do iterative temperature retrieval loop
 
 gamma = g0 * M_air / R;     %[K/m]gravity molar mass of air and gas constant
 
@@ -61,7 +58,6 @@ Titer = zeros(length(rm),length(ts),loop);
 logicalExc = true(length(rm),length(ts));
 
 %starting_lapse_rate = -0.0065;%[K/m] typical lapse rate
-%starting_lapse_rate = -0.004;
 starting_lapse_rate = startLapse;
 
 mean_lapse_rate = ones(1,1,1);
@@ -70,14 +66,11 @@ mean_lapse_rate(:,:,:) = starting_lapse_rate;%[K/m] variable to set to for unfit
 L_t_window = 1;
 
 %Fit lapse rate bounds
-%lower_alt_threshold = 400;  %[m] only preform a fit above
 lower_alt_threshold = 400;  %[m] only preform a fit above
 
 upper_lapse_bound = -0.004;  %[K/m]
 lower_lapse_bound = -0.010;  %[K/m]
 
-% upper_lapse_bound = -0.002;  %[K/m]
-% lower_lapse_bound = -0.012;  %[K/m]
 
 fprintf('Loop')
 for i = 1:loop
@@ -94,8 +87,8 @@ for i = 1:loop
             Ts_fit(:,time,i) = Ts(time);   
             
         %make sure there are enough points to fit
-       %% elseif sum(1-exclusion(:,time,i)) > 20 
-            elseif sum(1-exclusion(:,time,i)) > 10
+        %% elseif sum(1-exclusion(:,time,i)) > 20 
+        elseif sum(1-exclusion(:,time,i)) > 10
             %fo = fitoptions('Exclude',exclusion(:,time,i),...
                             %'StartPoint',[starting_lapse_rate,Ts(time)]);%fit options
 % % % %             Lapse_fit = fit(rm,Tg(:,time),polyf,...
@@ -149,13 +142,13 @@ for i = 1:loop
     % === Pressure Profile ===
 
     %Pg = Ps.*(Ts_fit(1,1,i)./(Ts_fit(1,1,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
-     Pg = Ps.*(Ts_fit(1,:,i)./(Ts_fit(1,:,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
-   %  PgOld = Ps.*(Ts_fit(1,1,i)./Tg).^(gamma./Lapse(:,:,i));
-   Pg = Ps.*(Ts./Tg).^(gamma./starting_lapse_rate);
-    Pg = Ps.*(Ts./(Ts+starting_lapse_rate.*rm)).^(gamma./starting_lapse_rate);
+    % Pg = Ps.*(Ts_fit(1,:,i)./(Ts_fit(1,:,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
+    %  PgOld = Ps.*(Ts_fit(1,1,i)./Tg).^(gamma./Lapse(:,:,i));
+    %Pg = Ps.*(Ts./Tg).^(gamma./starting_lapse_rate);
+    %Pg = Ps.*(Ts./(Ts+starting_lapse_rate.*rm)).^(gamma./starting_lapse_rate);
 
-  % Pg = Pg+Pg*.01;
-  Pg = Ps.*exp(-cumtrapz(rm,gamma./Tg,1));
+    % Pg = Pg+Pg*.01;
+    Pg = Ps.*exp(-cumtrapz(rm,gamma./Tg,1));
 
 
 
@@ -167,57 +160,22 @@ for i = 1:loop
     %update lineshape function
     [~,~,~,Line] = absorption_O2_770_model(Tg,Pg,nu_scan,WV);%[m] lineshape function
 
-    %Calculate Coefficients
-    % epa = Line{10}.E_lower*h*c; %J
-    % C1a = Line{10}.S0 * T0 * (Pg*101325) * exp(epa/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
-    % C2a = Tg .^ (-2) .* exp(-epa/kB./Tg);%[K^-2]
-    % C3a = (-2) ./ Tg + epa./(kB.*Tg.^2);%[K^-1]
-    % epb = Line{11}.E_lower*h*c;
-    % C1b = Line{11}.S0 * T0 * (Pg*101325) * exp(epb/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
-    % C2b = Tg .^ (-2) .* exp(-epb/kB./Tg);%[K^-2]
-    % C3b = (-2) ./ Tg + epb./(kB.*Tg.^2);%[K^-1]
+    %Calculate Coefficient
 
-        epa = Line{1}.E_lower*h*c; %J
-    C1a = Line{1}.S0 * T0 * (Pg*101325) * exp(epa/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
-    C2a = Tg .^ (-2) .* exp(-epa/kB./Tg);%[K^-2]
-    C3a = (-2) ./ Tg + epa./(kB.*Tg.^2);%[K^-1]
+    epa = Line{1}.E_lower*h*c; %J
+    C1a = Line{1}.S0 * T0 * (Ps*101325) * exp(epa/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
+    C2a = Tg .^ (-2) .* exp(-epa/kB./Tg) .* exp(-cumtrapz(rm,gamma./Tg,1));%[K^-2]
+    C3a = (-2) ./ Tg + epa./(kB.*Tg.^2) + cumtrapz(rm,gamma./Tg./Tg,1);%[K^-1]
     epb = Line{2}.E_lower*h*c;
-    C1b = Line{2}.S0 * T0 * (Pg*101325) * exp(epb/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
-    C2b = Tg .^ (-2) .* exp(-epb/kB./Tg);%[K^-2]
-    C3b = (-2) ./ Tg + epb./(kB.*Tg.^2);%[K^-1]
+    C1b = Line{2}.S0 * T0 * (Ps*101325) * exp(epb/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
+    C2b = Tg .^ (-2) .* exp(-epb/kB./Tg) .* exp(-cumtrapz(rm,gamma./Tg,1));%[K^-2]
+    C3b = (-2) ./ Tg + epb./(kB.*Tg.^2) + cumtrapz(rm,gamma./Tg./Tg,1);%[K^-1]
 
-% 
-    % epa = Line{1}.E_lower*h*c; %J
-    % C1a = Line{1}.S0 * T0 * (Ps*101325) * exp(epa/kB/T0) ./ kB./Ts.^(-gamma./Lapse(:,:,i));%[K^2/(m^2)]pressure converted to Pa
-    % C2a = Tg .^ (-2-gamma./Lapse(:,:,i)) .* exp(-epa/kB./Tg);%[K^-2]
-    % C3a = (-2-gamma./Lapse(:,:,i)) ./ Tg + epa./(kB.*Tg.^2);%[K^-1]
-    % epb = Line{2}.E_lower*h*c;
-    % C1b = Line{2}.S0 * T0 * (Ps*101325) * exp(epb/kB/T0) ./ kB./Ts.^(-gamma./Lapse(:,:,i));%[K^2/(m^2)]pressure converted to Pa
-    % C2b = Tg .^ (-2-gamma./Lapse(:,:,i)) .* exp(-epb/kB./Tg);%[K^-2]
-    % C3b = (-2-gamma./Lapse(:,:,i)) ./ Tg + epb./(kB.*Tg.^2);%[K^-1]
-
-    % epc = Line{3}.E_lower*h*c;
-    % C1c = Line{3}.S0 * T0 * (Pg*101325) * exp(epc/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
-    % C2c = Tg .^ ( -2) .* exp(-epc/kB./Tg);%[K^-2]
-    % C3c = (-2) ./ Tg + epc./(kB.*Tg.^2);%[K^-1]
-    % epd = Line{4}.E_lower*h*c;
-    % C1d = Line{4}.S0 * T0 * (Pg*101325) * exp(epd/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
-    % C2d = Tg .^ (-2) .* exp(-epd/kB./Tg);%[K^-2]
-    % C3d = (-2) ./ Tg + epd./(kB.*Tg.^2);%[K^-1]
 
     %Calculate change in temperature from last
-%    deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q - C1b.*C2b.*Line{2}.lineshape.*q- C1c.*C2c.*Line{3}.lineshape.*q- C1d.*C2d.*Line{4}.lineshape.*q) ... 
-%        ./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q+C1b.*C2b.*C3b.*Line{2}.lineshape.*q+C1c.*C2c.*C3c.*Line{3}.lineshape.*q+C1d.*C2d.*C3d.*Line{4}.lineshape.*q); %[K] calculate a change in temperatre
-       % %  deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{10}.lineshape.*q - C1b.*C2b.*Line{11}.lineshape.*q) ... 
-       % % ./(C1a.*C2a.*C3a.*Line{10}.lineshape.*q+C1b.*C2b.*C3b.*Line{11}.lineshape.*q); %[K] calculate a change in temperatre
-       % % 
-        deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q - C1b.*C2b.*Line{2}.lineshape.*q) ... 
-       ./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q+C1b.*C2b.*C3b.*Line{2}.lineshape.*q); %[K] calculate a change in temperatre
+    deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q - C1b.*C2b.*Line{2}.lineshape.*q) ... 
+   ./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q+C1b.*C2b.*C3b.*Line{2}.lineshape.*q); %[K] calculate a change in temperatre
   
-
-    %deltaT(:,:,i) = (alpha_O2 - C1b.*C2b.*Line{2}.lineshape.*q)./(C1b.*C2b.*C3b.*Line{2}.lineshape.*q); %[K] calculate a change in temperatre
-
-    %deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q)./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q); %[K] calculate a change in temperatre
 
     % Limit deltaT to plus or minus 2 K
     % deltaT(deltaT > 2) = 2;
@@ -227,20 +185,7 @@ for i = 1:loop
     deltaT(deltaT < -5) = -5;
 
     Titer(:,:,i) = Tg;
-% 
-%     if sum(sum(deltaT))/nnz(~isnan(deltaT)) < 0.01
-%         break;
-%     end
-%delta = deltaT(:,:,i);
-%%%sum(sum(abs(delta(~cloud_SDm_above))>0.05))
 
-%sum(sum(abs(deltaT(:,:,i))>0.1))
-% %     if sum(sum(abs(deltaT(:,:,i))>1)) <= 0
-% %         i=loop;
-% %         %break;
-% %         disp('broke')
-% %         
-% %     end
     % Update temperature profile guress
     T_ret(:,:,i) = Tg + deltaT(:,:,i);  
     %Tg = T_ret(:,:,i);
