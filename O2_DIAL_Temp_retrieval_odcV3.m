@@ -119,8 +119,8 @@ Counts = poissonThin2(Counts,cloud_SDm_above,iter);
 for jjjj = 1:iter
     display(['Bootstrapping iteration ', num2str(jjjj)])
     if jjjj >=2
-%         Model.T = real(fillmissing(Temperature.T_finalm,'linear'));
-%         Model.P = real(fillmissing(Temperature.Patm_final,'linear'));
+         Model.T = real(fillmissing(Temperature.T_final_testFull(:,:,jjjj-1),'linear'));
+         Model.P = real(fillmissing(Temperature.Patm_finalFull,'linear'));
 
        %%%%% Model.T = fillmissing(Temperature.L_fit_sm_test(:,:,end).*Range.rm+Temperature.Ts_fit(:,:,end),'linear');
         %%%%%Model.Ts =Temperature.Ts_fit(:,:,end);
@@ -172,6 +172,10 @@ for jjjj = 1:iter
         Counts.Nm_on = Counts.o2on_noise_mol;%.*Counts.NBins;
         Counts.Nm_off = Counts.o2off_noise_mol;%.*Counts.NBins;
         [HSRLfull] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
+
+        k = ones(2,3)./(2*3);
+        k = ones(1,1)./(1*1);
+        HSRLfull.BSR = nanconv(HSRLfull.BSR,k,'edge','nanout');
 
     
     elseif strcmp(Options.MPDname,'03')
@@ -241,6 +245,12 @@ for jjjj = 1:iter
         % % HSRLg.BSRmu = normrnd(HSRLg.BSR,HSRLg.sigma_BR);
         % % HSRL.gBSR(:,:,jjjj) = fillmissing(HSRLg.BSRmu,'linear');
         HSRL.gBSR(:,:,jjjj) = HSRLg.BSR;
+
+        k = ones(2,3)./(2*3);
+        k = ones(1,1)./(1*1);
+        HSRL.fBSR(:,:,jjjj) = nanconv(HSRL.fBSR(:,:,jjjj),k,'edge','nanout');
+        HSRL.gBSR(:,:,jjjj) = nanconv(HSRL.gBSR(:,:,jjjj),k,'edge','nanout');
+        
 
     elseif strcmp(Options.MPDname,'03')
         Counts.Nc_on = Counts.fon(:,:,jjjj);
@@ -533,6 +543,8 @@ for jjjj = 1:iter
     k = ones(2,2)./(2*2);% Kernel
     k = ones(2,3)./(2*3);% Kernel
     k = ones(1,1)./(1*1);
+    k=ones(1,1)./(1*1);% Kernel
+
     
     %Appy cloud mask before smoothing
     Alpha.alpha_total_cut(cloud_SDm_above) = NaN;          % Replace mask with NaNs
@@ -557,6 +569,7 @@ for jjjj = 1:iter
     Alpha.alpha_total_rawFull = nanconv(Alpha.alpha_total_rawFull,k,'edge','nanout');
     Alpha.alpha_total_rawf(:,:,jjjj) = nanconv(Alpha.alpha_total_rawf(:,:,jjjj),k,'edge','nanout');
     Alpha.alpha_total_rawg(:,:,jjjj) = nanconv(Alpha.alpha_total_rawg(:,:,jjjj),k,'edge','nanout');
+    Alpha.alpha_total_rawFull = nanconv(Alpha.alpha_total_rawFull,k,'edge','nanout');
     
     Alpha.alpha_0m = Alpha.alpha_0;
     Alpha.alpha_0m(cloud_SDm_above)=nan;
@@ -675,6 +688,7 @@ if ~isempty(Sonde.sonde_ind)
         %[Tfinal,~,~,Pfinal,~,~,~] =  temperatureRetrieval(Model.T(:,p_point(1)),Time.ts(:,p_point(1)),Range.rm,Model.P(:,p_point(1)),Sonde.WV_sonde(:,sonde_index),Spectrum.nu_online(:,p_point(1)),abssorptionSonde,SNRm(:,p_point(1)),cloud_SDm_above(:,p_point(1)),Model.Ts(:,p_point(1)),Model.Ps(:,p_point(1)));
         %%[Tfinal,~,~,Pfinal,~,~,~] =  temperatureRetrieval(diag(Model.T(:,p_point)),Time.ts(:,p_point(1)),Range.rm,diag(Model.P(:,p_point)),Sonde.WV_sonde(:,sonde_index),Spectrum.nu_online(:,p_point(1)),abssorptionSonde,diag(SNRm(:,p_point)),diag(cloud_SDm_above(:,p_point)),Sonde.Tsurf(sonde_index),Sonde.Psurf(sonde_index));
         [Tfinal,Lapse,Ts_fit,Pfinal,~,~,~] =  temperatureRetrieval(diag(Model.T(:,p_point)),Time.ts(:,p_point(1)),Range.rm,diag(Model.P(:,p_point)),Sonde.WV_sonde(:,sonde_index),Spectrum.nu_online(:,p_point(1)),abssorptionSonde(:,iii),0,diag(cloud_SDm_above(:,p_point)),Sonde.Tsurf(sonde_index),Sonde.Psurf(sonde_index),startLapse);
+        %[Tfinal,Lapse,Ts_fit,Pfinal,~,~,~] =  temperatureRetrieval(diag(Model.T(:,p_point)),Time.ts(:,p_point(1)),Range.rm,diag(Model.P(:,p_point)),Sonde.WV_sonde(:,sonde_index),Spectrum.nu_online(:,p_point(1)),abssorptionSonde(:,iii),0,diag(cloud_SDm_above(:,p_point)),Model.Ts(1,p_point(1)),Model.Ps(1,p_point(1)),startLapse);
         %[Tfinal,Lapse,Ts_fit,Pfinal,~,~,Titer(:,iii,:)] =  temperatureRetrieval(diag(Model.T(:,p_point)),Time.ts(:,p_point(1)),Range.rm,diag(Model.P(:,p_point)),Sonde.WV_sonde(:,sonde_index),Spectrum.nu_online(:,p_point(1)),abssorptionSonde(:,iii),0,diag(cloud_SDm_above(:,p_point)),Model.Ts(Sonde.sonde_ind(1,sonde_index)),(Model.Ps(Sonde.sonde_ind(1,sonde_index))));
         %%%[Tfinal,Lapse,Ts_fit,Pfinal,~,~,Titer(:,iii,:)] =  temperatureRetrieval(sondeModelT,Time.ts(:,p_point(1)),Range.rm,sondeModelP,Sonde.WV_sonde(:,sonde_index),Spectrum.nu_online(:,p_point(1)),abssorptionSonde,diag(SNRm(:,p_point)),diag(cloud_SDm_above(:,p_point)),Sonde.Tsurf(sonde_index),Sonde.Psurf(sonde_index));
         %%[Tfinal,Lapse,Ts_fit,Pfinal,~,~,~] =  temperatureRetrieval(sondeModelT,Time.ts(:,p_point(1)),Range.rm,sondeModelP,zeros(size(Sonde.WV_sonde(:,sonde_index))),Spectrum.nu_online(:,p_point(1)),abssorptionSonde,diag(SNRm(:,p_point)),diag(cloud_SDm_above(:,p_point)),Sonde.T_sonde(1,sonde_index),Sonde.P_sonde(1,sonde_index));
@@ -682,8 +696,10 @@ if ~isempty(Sonde.sonde_ind)
         %[Tfinal,~,~,Pfinal,~,~,~] =  temperatureRetrieval(sondeModelT,Time.ts(:,p_point(1)),Range.rm,sondeModelP,WVPerfect,Spectrum.nu_online(:,p_point(1)),abssorptionSonde,diag(SNRm(:,p_point)),diag(cloud_SDm_above(:,p_point)),Sonde.Tsurf(sonde_index),Sonde.Psurf(sonde_index));
         %[Tfinal,~,~,Pfinal,~,~,~] =  temperatureRetrieval(Model.T(:,p_point(1)),Time.ts(:,p_point(1)),Range.rm,Model.P(:,p_point(1)),WVPerfect,Spectrum.nu_online(1),absorptionPerfect,SNRm(:,p_point(1)),cloud_SDm_above(:,p_point(1)),296,1+.001);
         
-        Tfinal(diag(cloud_SDm_above(:,p_point))) = NaN;
-        Pfinal(diag(cloud_SDm_above(:,p_point))) = NaN;
+        %%Tfinal(diag(cloud_SDm_above(:,p_point))) = NaN;
+        %%Pfinal(diag(cloud_SDm_above(:,p_point))) = NaN;
+        Tfinal(1:7,:) = NaN;
+        Pfinal(1:7,:) = NaN;
         Pfinal2(:,iii) = Pfinal;
         Temperature.T_final_test2(:,iii)=Tfinal;
         
@@ -757,7 +773,8 @@ if ~isempty(Sonde.sonde_ind)
     title(sprintf('Temperature Difference'))
     xlabel('T_{retrieval}-T_{sonde} (K)')
     ylabel('Range (km)')
-    xlim([-10 10])
+    %xlim([-10 10])
+    xlim([-.01  .04])
     hold off
     grid on
 
