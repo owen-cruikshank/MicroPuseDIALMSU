@@ -7,8 +7,8 @@ clear all
 date_start = datetime(2022,4,21,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 % 
-date_start = datetime(2022,7,27,'TimeZone','UTC');%yyyy,mm,dd
-date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
+% date_start = datetime(2022,7,27,'TimeZone','UTC');%yyyy,mm,dd
+% date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
 % 
 % % date_start = datetime(2022,5,22,'TimeZone','UTC');%yyyy,mm,dd
 % % date_end = datetime(2022,05,22,'TimeZone','UTC');%yyyy,mm,dd
@@ -112,10 +112,12 @@ cloud_SDm = logical(cloud_SDm);
 %%
 %Number of poisson thinning iterations
 iter = 20;
+%iter = 30;
 Counts = poissonThin2(Counts,cloud_SDm_above,iter);
 
 %%
 for jjjj = 1:iter
+    display(['Bootstrapping iteration ', num2str(jjjj)])
     if jjjj >=2
 %         Model.T = real(fillmissing(Temperature.T_finalm,'linear'));
 %         Model.P = real(fillmissing(Temperature.Patm_final,'linear'));
@@ -529,6 +531,8 @@ for jjjj = 1:iter
 %%
     %===== Soothing alpha =====
     k = ones(2,2)./(2*2);% Kernel
+    k = ones(2,3)./(2*3);% Kernel
+    k = ones(1,1)./(1*1);
     
     %Appy cloud mask before smoothing
     Alpha.alpha_total_cut(cloud_SDm_above) = NaN;          % Replace mask with NaNs
@@ -550,6 +554,7 @@ for jjjj = 1:iter
 
     Alpha.alpha_totals = Alpha.alpha_total_filt;
     
+    Alpha.alpha_total_rawFull = nanconv(Alpha.alpha_total_rawFull,k,'edge','nanout');
     Alpha.alpha_total_rawf(:,:,jjjj) = nanconv(Alpha.alpha_total_rawf(:,:,jjjj),k,'edge','nanout');
     Alpha.alpha_total_rawg(:,:,jjjj) = nanconv(Alpha.alpha_total_rawg(:,:,jjjj),k,'edge','nanout');
     
@@ -870,6 +875,8 @@ end
 %k = ones(3,3)./(3*3);     % Kernel
 
 k = ones(4,6)./(4*6);
+%k = ones(2,3)./(2*3);
+%k = ones(1,1)./(1*1);
 
 %=== apply mask
 
