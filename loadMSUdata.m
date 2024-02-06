@@ -19,7 +19,7 @@ Options.sondepath = fullfile(Options.DataPath,'MSU data','Radiosondes'); %path f
 %Options.MPDname = 'MSU';
 Options.BinTotal = 560;
 %Options.BinTotal = 400;
-Options.BinTotal = 490;
+%Options.BinTotal = 490;
 %Options.BinTotal = 950;
 %Load raw data from NetCDF files
 [Data, Options] = loadMSUNETcdf(span_days,Options);
@@ -193,6 +193,22 @@ if ~isempty(Sonde.sonde_ind)
 end
 
 %%%%Model.WV = zeros(size(Model.WV));
+
+%%
+%Afterpulse correction
+load('Afterpulsing_correction_09092022.mat','Correction_Nc_off','Correction_Nc_on','Correction_Nm_off','Correction_Nm_on')
+Correction_Nc_off = [Correction_Nc_off' ; mean(Correction_Nc_off(end-20:end)).*ones(Options.BinTotal-490,1)];
+Correction_Nc_on = [Correction_Nc_on' ; mean(Correction_Nc_on(end-20:end)).*ones(Options.BinTotal-490,1)];
+Correction_Nm_off = [Correction_Nm_off' ; mean(Correction_Nm_off(end-20:end)).*ones(Options.BinTotal-490,1)];
+Correction_Nm_on = [Correction_Nm_on' ; mean(Correction_Nm_on(end-20:end)).*ones(Options.BinTotal-490,1)];
+
+Data.MCS.Channel2.Data = Data.MCS.Channel2.Data - round(Correction_Nc_on);
+Data.MCS.Channel10.Data = Data.MCS.Channel10.Data - round(Correction_Nc_off);
+Data.MCS.Channel0.Data = Data.MCS.Channel0.Data - round(Correction_Nm_on);
+Data.MCS.Channel8.Data = Data.MCS.Channel8.Data - round(Correction_Nm_off);
+
+
+
 %%
 %dead time correction
  deadTime = 22e-9; %SPCM-AQRH-13 dead time
@@ -548,7 +564,7 @@ Counts.NBins = Data.MCS.Channel0.NBins*Options.intRange;
 %lambda_online = interp1(Options.TimeGrid,Data.Laser.O2Online.WavelengthActual,Time.ts/60/60);
 %lambda_offline = interp1(Options.TimeGrid,Data.Laser.O2Offline.WavelengthActual,Time.ts/60/60);
 
-%Spectrum.WavemeterOffset = -0.00024;%[nm]
+Spectrum.WavemeterOffset = -0.00024;%[nm]
 %Spectrum.WavemeterOffset = 0.00024;%[nm]
 Spectrum.WavemeterOffset = 0;%[nm]
 

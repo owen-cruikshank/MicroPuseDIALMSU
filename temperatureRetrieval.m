@@ -42,6 +42,8 @@ h = 6.62607004E-34;                     %[Js] Planck's constant
 T0 = 296;                   %[K] reference temperature
 
 loop = 25;%number of times to do iterative temperature retrieval loop
+loop = 20;%number of times to do iterative temperature retrieval loop
+%loop = 30;%number of times to do iterative temperature retrieval loop
 
 gamma = g0 * M_air / R;     %[K/m]gravity molar mass of air and gas constant
 
