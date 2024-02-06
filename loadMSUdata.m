@@ -195,30 +195,30 @@ end
 %%%%Model.WV = zeros(size(Model.WV));
 %%
 %dead time correction
- %deadTime = 22e-9; %SPCM-AQRH-13 dead time
+ deadTime = 22e-9; %SPCM-AQRH-13 dead time
 %Counts.o2onCR = Counts.o2on_noise.*Counts.NBins.*250e-9.*14000;%Count rate, Counts*NuberTimeSummedbins*Length of bin(250ns)*profiles per histogram
 
-% % profPerHist=mean(Data.MCS.Channel0.ProfilesPerHistogram,'omitnan');
-% % 
-% % Counts.NBins = Data.MCS.Channel0.NBins;
-% % Counts.o2onCR = Data.MCS.Channel2.Data./(Counts.NBins.*250e-9.*profPerHist/2);
-% % Data.MCS.Channel2.Data =round( Data.MCS.Channel2.Data ./(1-(deadTime.*Counts.o2onCR)));
-% % 
-% % 
-% % Counts.o2offCR = Data.MCS.Channel10.Data./(Counts.NBins.*250e-9.*profPerHist/2);
-% % Data.MCS.Channel10.Data = round(Data.MCS.Channel10.Data ./(1-(deadTime.*Counts.o2offCR)));
-% % 
-% % Counts.o2on_molCR = Data.MCS.Channel0.Data./(Counts.NBins.*250e-9.*profPerHist/2);
-% % Data.MCS.Channel0.Data = round(Data.MCS.Channel0.Data ./(1-(deadTime.*Counts.o2on_molCR)));
-% % 
-% % Counts.o2off_molCR = Data.MCS.Channel8.Data./(Counts.NBins.*250e-9.*profPerHist/2);
-% % Data.MCS.Channel8.Data = round(Data.MCS.Channel8.Data ./(1-(deadTime.*Counts.o2off_molCR)));
-% % 
-% % 
-% % Counts.o2onCF = 1./(1-(deadTime.*Counts.o2onCR));
-% % Counts.o2offCF = 1./(1-(deadTime.*Counts.o2offCR));
-% % Counts.o2on_molCF = 1./(1-(deadTime.*Counts.o2on_molCR));
-% % Counts.o2off_molCF = 1./(1-(deadTime.*Counts.o2off_molCR));
+profPerHist=mean(Data.MCS.Channel0.ProfilesPerHistogram,'omitnan');
+
+Counts.NBins = Data.MCS.Channel0.NBins;
+Counts.o2onCR = Data.MCS.Channel2.Data./Counts.NBins./250e-9./profPerHist/2;
+Data.MCS.Channel2.Data =round( Data.MCS.Channel2.Data ./(1-(deadTime.*Counts.o2onCR)));
+
+
+Counts.o2offCR = Data.MCS.Channel10.Data./Counts.NBins./250e-9./profPerHist/2;
+Data.MCS.Channel10.Data = round(Data.MCS.Channel10.Data ./(1-(deadTime.*Counts.o2offCR)));
+
+Counts.o2on_molCR = Data.MCS.Channel0.Data./Counts.NBins./250e-9./profPerHist/2;
+Data.MCS.Channel0.Data = round(Data.MCS.Channel0.Data ./(1-(deadTime.*Counts.o2on_molCR)));
+
+Counts.o2off_molCR = Data.MCS.Channel8.Data./Counts.NBins./250e-9./profPerHist/2;
+Data.MCS.Channel8.Data = round(Data.MCS.Channel8.Data ./(1-(deadTime.*Counts.o2off_molCR)));
+
+
+Counts.o2onCF = 1./(1-(deadTime.*Counts.o2onCR));
+Counts.o2offCF = 1./(1-(deadTime.*Counts.o2offCR));
+Counts.o2on_molCF = 1./(1-(deadTime.*Counts.o2on_molCR));
+Counts.o2off_molCF = 1./(1-(deadTime.*Counts.o2off_molCR));
 
 %%
 % %==== After pulse correction ====
