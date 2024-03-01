@@ -635,8 +635,9 @@ for jjjj = 1:iter
     Temperature.exclusion = Temperature.exclusionFull;
     Temperature.deltaT = Temperature.deltaTFull;
     Temperature.T_final_test = Temperature.T_final_testFull;
-    [Temperature.T_final_testf(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawf(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
-    [Temperature.T_final_testg(:,:,jjjj)] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawg(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
+    [Temperature.T_final_testf(:,:,jjjj),~,~,~,~,~,Temperature.deltaTFullf] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawf(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
+    [Temperature.T_final_testg(:,:,jjjj),~,~,~,~,~,Temperature.deltaTFullg] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_total_rawg(:,:,jjjj),0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
+    
 end
     %[Temperature.T_final_test(:,:,jjjj),Temperature.L_fit_sm_test,Temperature.Ts_fit,Temperature.Patm_final,Temperature.mean_lapse_rate,Temperature.exclusion,Temperature.Titer] =  temperatureRetrieval(Model.T,Time.ts,Range.rm,Model.P,Model.WV,Spectrum.nu_online,Alpha.alpha_totals,0,cloud_SDm_above|SNRm,Model.Ts,Model.Ps,startLapse);
  %%   
@@ -774,7 +775,7 @@ if ~isempty(Sonde.sonde_ind)
     xlabel('T_{retrieval}-T_{sonde} (K)')
     ylabel('Range (km)')
     %xlim([-10 10])
-    xlim([-.01  .04])
+    %xlim([-.01  .04])
     hold off
     grid on
 
@@ -904,7 +905,27 @@ Temperature.T_final_testFulls = nanconv(Temperature.T_final_testFull(:,:,end),k,
 
 Temperature.T_final_testfs = zeros(size(Temperature.T_final_testFull,1),size(Temperature.T_final_testFull,2),iter);
 Temperature.T_final_testgs = zeros(size(Temperature.T_final_testFull,1),size(Temperature.T_final_testFull,2),iter);
-for iii = 1:size(Temperature.T_final_testf,3)
+
+% deltaTMaskf = false(size(Temperature.T_final_testFull(:,:,end)));
+% deltaTMaskf(abs(Temperature.deltaTf(:,:,end))>=2e-5) = true;
+% deltaTMaskg = false(size(Temperature.T_final_testFull(:,:,end)));
+% deltaTMaskg(abs(Temperature.deltaTg(:,:,end))>=2e-5) = true;
+
+% % % for iii = 1:size(Temperature.T_final_testf,3)
+% % %     for iiii = 1:size(Temperature.T_final_testf,2)
+% % %         for iiiii = 1:size(Temperature.T_final_testf,1)
+% % %             if Temperature.deltaTFullg(iiiii,iiii,end) >= 2e-5
+% % %                 Temperature.T_final_testf(iiiii,iiii,iii) = nan;
+% % %             end
+% % % 
+% % %             if Temperature.deltaTFullg(iiiii,iiii,end) >= 2e-5
+% % %                 Temperature.T_final_testg(iiiii,iiii,iii) = nan;
+% % %             end
+% % %         end
+% % %     end
+% % % end
+
+for iii = 1:size(Temperature.T_final_testf,3)   
     Temperature.T_final_testfs(:,:,iii) = nanconv(Temperature.T_final_testf(:,:,iii),k,'edge','nanout');
     Temperature.T_final_testgs(:,:,iii) = nanconv(Temperature.T_final_testg(:,:,iii),k,'edge','nanout');
 end
@@ -915,30 +936,44 @@ Temperature.TempStd = std(Temperature.T_final_testf(:,:,:),0,3);
 k1 = round((size(k,1)-1)./2);
 k2 = round((size(k,2)-1)./2);
 tempStdss = nan(size(Temperature.TempStd));
+tempStdssS = nan(size(Temperature.TempStd));
+tempStdssSl = nan(size(Temperature.TempStd));
 for iii = 1:size(Temperature.TempStd,1)
     for jjj = 1:size(Temperature.TempStd,2)
 
         if iii <= k1 || jjj <=k2
         Temperature.TempStds(iii,jjj) = Temperature.TempStd(iii,jjj);
+            tempStdssS(iii,jjj) = tempStd(iii,jjj,end);
+            tempStdssSl(iii,jjj) = tempStd(iii,jjj,end);
         elseif iii >= (size(Temperature.TempStd,1)-k1) || jjj >= (size(Temperature.TempStd,2)-k2)
             Temperature.TempStds(iii,jjj) = Temperature.TempStd(iii,jjj);
 
-            tempStdss(iii,jjj) = tempStd(iii,jjj);
+            tempStdss(iii,jjj) = tempStd(iii,jjj,end);
+            tempStdssS(iii,jjj) = tempStd(iii,jjj,end);
+            tempStdssSl(iii,jjj) = tempStd(iii,jjj,end);
         else
             Temperature.TempStds(iii,jjj) = sqrt(sumsqr(Temperature.TempStd(iii-k1:iii+k1,jjj-k2:jjj+k2)))./numel(k);
 
-            tempStdss(iii,jjj) = sqrt(sumsqr(tempStd(iii-k1:iii+k1,jjj-k2:jjj+k2)))./numel(k);
+            tempStdss(iii,jjj) = sqrt(sumsqr(tempStd(iii-k1:iii+k1,jjj-k2:jjj+k2,end)))./numel(k);
+            tempStdssS(iii,jjj) = sqrt(sumsqr(tempStd(iii-k1:iii+k1-1,jjj-k2:jjj+k2-1,end)))./numel(k);
+            tempStdssSl(iii,jjj) = sqrt(sumsqr(tempStd(iii-k1+1:iii+k1,jjj-k2+1:jjj+k2,end)))./numel(k);
+
+            tempStdssSl(iii,jjj) = sqrt(sumsqr(tempStd(iii-k1+1:iii+k1,jjj-k2+1:jjj+k2,end)))./numel(k);
+
+            
         end
         
     end
 end
 
 
+tempStdssSS = sqrt(nanconv(tempStd(:,:,end).^2,k.*numel(k),'edge','nanout').*numel(k))./numel(k);
+
 tempStds = sqrt((1/(2*(B-1))) *sum((Temperature.T_final_testfs-Temperature.T_final_testgs).^2,3) );
 
 tempStd = sqrt((1./(2.*(permute(1:B,[1 3 2])-1))) .*cumsum((Temperature.T_final_testf-Temperature.T_final_testg).^2,3) );
 
-
+tempStds = tempStdssSS;
 %%
 %=== apply mask
 %Temperature.T_finalm = Temperature.T_final_tests ;
@@ -1100,7 +1135,7 @@ sonde_index = 1;
 
 %mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
 %mask = logical(tempStds>2) | cloud_SDm_above;
-mask = logical(tempStds>2);
+mask = logical(tempStds>5);
 
 %mask = cloud_SDm_above;
 Temperature.T_finalm(mask) = nan;
