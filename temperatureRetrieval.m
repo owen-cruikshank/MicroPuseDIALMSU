@@ -43,7 +43,7 @@ T0 = 296;                   %[K] reference temperature
 
 loop = 25;%number of times to do iterative temperature retrieval loop
 loop = 20;%number of times to do iterative temperature retrieval loop
-%loop = 30;%number of times to do iterative temperature retrieval loop
+loop = 30;%number of times to do iterative temperature retrieval loop
 
 gamma = g0 * M_air / R;     %[K/m]gravity molar mass of air and gas constant
 
@@ -178,6 +178,13 @@ for i = 1:loop
     deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q - C1b.*C2b.*Line{2}.lineshape.*q) ... 
    ./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q+C1b.*C2b.*C3b.*Line{2}.lineshape.*q); %[K] calculate a change in temperatre
   
+   %   deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q ) ... 
+   % ./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q); %[K] calculate a change in temperatre
+   % 
+   %      deltaT(:,:,i) = (alpha_O2 - C1b.*C2b.*Line{2}.lineshape.*q) ... 
+   % ./(C1b.*C2b.*C3b.*Line{2}.lineshape.*q); %[K] calculate a change in temperatre
+   % 
+
 
     % Limit deltaT to plus or minus 2 K
     % deltaT(deltaT > 2) = 2;

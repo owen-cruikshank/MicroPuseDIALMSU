@@ -7,8 +7,8 @@ clear all
 date_start = datetime(2022,4,21,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2022,7,16,'TimeZone','UTC');%yyyy,mm,dd
 % 
-% date_start = datetime(2022,7,27,'TimeZone','UTC');%yyyy,mm,dd
-% date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
+date_start = datetime(2022,7,27,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
 % 
 % % date_start = datetime(2022,5,22,'TimeZone','UTC');%yyyy,mm,dd
 % % date_end = datetime(2022,05,22,'TimeZone','UTC');%yyyy,mm,dd
@@ -112,18 +112,19 @@ cloud_SDm = logical(cloud_SDm);
 %%
 %Number of poisson thinning iterations
 iter = 20;
-%iter = 30;
+iter = 30;
 Counts = poissonThin2(Counts,cloud_SDm_above,iter);
 
 %%
 for jjjj = 1:iter
     display(['Bootstrapping iteration ', num2str(jjjj)])
     if jjjj >=2
-         Model.T = real(fillmissing(Temperature.T_final_testFull(:,:,jjjj-1),'linear'));
-         Model.P = real(fillmissing(Temperature.Patm_finalFull,'linear'));
+         % Model.T = real(fillmissing(Temperature.T_final_testFull(:,:,jjjj-1),'linear'));
+          %Model.P = real(fillmissing(Temperature.Patm_finalFull,'linear'));
 
-       %%%%% Model.T = fillmissing(Temperature.L_fit_sm_test(:,:,end).*Range.rm+Temperature.Ts_fit(:,:,end),'linear');
-        %%%%%Model.Ts =Temperature.Ts_fit(:,:,end);
+       Model.T = fillmissing(Temperature.L_fit_sm_test(:,:,end).*Range.rm+Temperature.Ts_fit(:,:,end),'linear');
+        Model.Ts =Temperature.Ts_fit(:,:,end);
+        Model.P = real(fillmissing(Temperature.Patm_finalFull,'linear'));
 
         %Testing random lapse
         % % LapseRand = normrnd(-6.5,4);
@@ -163,7 +164,7 @@ for jjjj = 1:iter
         Counts.sigma_Nc_off = sqrt(Counts.Nm_on);
         Counts.sigma_Nc_on = sqrt(Counts.Nm_off);
         Options.t_step = 1;
-        [HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+        %[HSRL] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
         [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         %[HSRL] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
 
@@ -220,7 +221,7 @@ for jjjj = 1:iter
         Counts.sigma_Nc_on = 0;
     
         Options.t_step = 1;
-        [HSRLf] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+        %[HSRLf] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
         [HSRLf] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         %[HSRLf] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
 
@@ -238,7 +239,7 @@ for jjjj = 1:iter
         Counts.sigma_Nc_on = 0;
     
         Options.t_step = 1;
-        [HSRLg] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
+        %[HSRLg] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
         [HSRLg] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         %[HSRLg] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
 
@@ -1131,8 +1132,8 @@ plot_time = datetime(2022,6,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 p_point(1:length(Range.rm),1)=p_point;
 
 %= Plot time for profiles with sondes
-sonde_index = 1;
-%p_point = Sonde.sonde_ind(:,sonde_index);
+sonde_index = 21;
+p_point = Sonde.sonde_ind(:,sonde_index);
 
 %mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
 %mask = logical(tempStds>2) | cloud_SDm_above;
