@@ -19,7 +19,7 @@ Options.sondepath = fullfile(Options.DataPath,'MSU data','Radiosondes'); %path f
 %Options.MPDname = 'MSU';
 Options.BinTotal = 560;
 %Options.BinTotal = 400;
-%Options.BinTotal = 490;
+Options.BinTotal = 490;
 %Options.BinTotal = 950;
 %Load raw data from NetCDF files
 [Data, Options] = loadMSUNETcdf(span_days,Options);
@@ -195,17 +195,17 @@ end
 %%%%Model.WV = zeros(size(Model.WV));
 
 %%
-%Afterpulse correction
-load('Afterpulsing_correction_09092022.mat','Correction_Nc_off','Correction_Nc_on','Correction_Nm_off','Correction_Nm_on')
-Correction_Nc_off = [Correction_Nc_off' ; mean(Correction_Nc_off(end-20:end)).*ones(Options.BinTotal-490,1)];
-Correction_Nc_on = [Correction_Nc_on' ; mean(Correction_Nc_on(end-20:end)).*ones(Options.BinTotal-490,1)];
-Correction_Nm_off = [Correction_Nm_off' ; mean(Correction_Nm_off(end-20:end)).*ones(Options.BinTotal-490,1)];
-Correction_Nm_on = [Correction_Nm_on' ; mean(Correction_Nm_on(end-20:end)).*ones(Options.BinTotal-490,1)];
-
-Data.MCS.Channel2.Data = Data.MCS.Channel2.Data - round(Correction_Nc_on);
-Data.MCS.Channel10.Data = Data.MCS.Channel10.Data - round(Correction_Nc_off);
-Data.MCS.Channel0.Data = Data.MCS.Channel0.Data - round(Correction_Nm_on);
-Data.MCS.Channel8.Data = Data.MCS.Channel8.Data - round(Correction_Nm_off);
+% %Afterpulse correction
+% load('Afterpulsing_correction_09092022.mat','Correction_Nc_off','Correction_Nc_on','Correction_Nm_off','Correction_Nm_on')
+% Correction_Nc_off = [Correction_Nc_off' ; mean(Correction_Nc_off(end-20:end)).*ones(Options.BinTotal-490,1)];
+% Correction_Nc_on = [Correction_Nc_on' ; mean(Correction_Nc_on(end-20:end)).*ones(Options.BinTotal-490,1)];
+% Correction_Nm_off = [Correction_Nm_off' ; mean(Correction_Nm_off(end-20:end)).*ones(Options.BinTotal-490,1)];
+% Correction_Nm_on = [Correction_Nm_on' ; mean(Correction_Nm_on(end-20:end)).*ones(Options.BinTotal-490,1)];
+% 
+% Data.MCS.Channel2.Data = Data.MCS.Channel2.Data - round(Correction_Nc_on);
+% Data.MCS.Channel10.Data = Data.MCS.Channel10.Data - round(Correction_Nc_off);
+% Data.MCS.Channel0.Data = Data.MCS.Channel0.Data - round(Correction_Nm_on);
+% Data.MCS.Channel8.Data = Data.MCS.Channel8.Data - round(Correction_Nm_off);
 
 
 
@@ -262,27 +262,27 @@ Counts.o2off_molCF = 1./(1-(deadTime.*Counts.o2off_molCR));
 % Data.MCS.Channel0.Data = Data.MCS.Channel0.Data-Correction_Nm_on;
 % Data.MCS.Channel8.Data = Data.MCS.Channel8.Data-Correction_Nm_off;
 
-% % % load('afterpulse11092022.mat')
-% % % % Ch10afterpulse = [Ch10afterpulse' ones(1,560-490).*mean(Ch10afterpulse(end-20:end))];
-% % % % Ch0afterpulse = [Ch0afterpulse' ones(1,560-490).*mean(Ch0afterpulse(end-20:end))];
-% % % % Ch8afterpulse = [Ch8afterpulse' ones(1,560-490).*mean(Ch8afterpulse(end-20:end))];
-% % % % Ch2afterpulse = [Ch2afterpulse' ones(1,560-490).*mean(Ch2afterpulse(end-20:end))];
-% % % 
-% % % % Ch10afterpulse = [Ch10afterpulse'-mean(Ch10afterpulse(end-100:end)) zeros(1,560-490)];
-% % % % Ch0afterpulse = [Ch0afterpulse'-mean(Ch0afterpulse(end-100:end)) zeros(1,560-490)];
-% % % % Ch8afterpulse = [Ch8afterpulse'-mean(Ch8afterpulse(end-100:end)) zeros(1,560-490)];
-% % % % Ch2afterpulse = [Ch2afterpulse'-mean(Ch2afterpulse(end-100:end)) zeros(1,560-490)];
-% % % 
-% % % Ch10afterpulse = [Ch10afterpulse'-mean(Ch10afterpulse(end-100:end)) ];
-% % % Ch0afterpulse = [Ch0afterpulse'-mean(Ch0afterpulse(end-100:end)) ];
-% % % Ch8afterpulse = [Ch8afterpulse'-mean(Ch8afterpulse(end-100:end)) ];
-% % % Ch2afterpulse = [Ch2afterpulse'-mean(Ch2afterpulse(end-100:end)) ];
-% % % 
-% % % 
-% % % Data.MCS.Channel10.Data = Data.MCS.Channel10.Data-Ch10afterpulse';
-% % %  Data.MCS.Channel2.Data = Data.MCS.Channel2.Data-Ch2afterpulse';
-% % %  Data.MCS.Channel0.Data = Data.MCS.Channel0.Data-Ch0afterpulse';
-% % %  Data.MCS.Channel8.Data = Data.MCS.Channel8.Data-Ch8afterpulse';
+%load('afterpulse11092022.mat')
+% Ch10afterpulse = [Ch10afterpulse' ones(1,560-490).*mean(Ch10afterpulse(end-20:end))];
+% Ch0afterpulse = [Ch0afterpulse' ones(1,560-490).*mean(Ch0afterpulse(end-20:end))];
+% Ch8afterpulse = [Ch8afterpulse' ones(1,560-490).*mean(Ch8afterpulse(end-20:end))];
+% Ch2afterpulse = [Ch2afterpulse' ones(1,560-490).*mean(Ch2afterpulse(end-20:end))];
+
+% Ch10afterpulse = [Ch10afterpulse'-mean(Ch10afterpulse(end-100:end)) zeros(1,560-490)];
+% Ch0afterpulse = [Ch0afterpulse'-mean(Ch0afterpulse(end-100:end)) zeros(1,560-490)];
+% Ch8afterpulse = [Ch8afterpulse'-mean(Ch8afterpulse(end-100:end)) zeros(1,560-490)];
+% Ch2afterpulse = [Ch2afterpulse'-mean(Ch2afterpulse(end-100:end)) zeros(1,560-490)];
+% 
+% Ch10afterpulse = [Ch10afterpulse'-mean(Ch10afterpulse(end-100:end)) ];
+% Ch0afterpulse = [Ch0afterpulse'-mean(Ch0afterpulse(end-100:end)) ];
+% Ch8afterpulse = [Ch8afterpulse'-mean(Ch8afterpulse(end-100:end)) ];
+% Ch2afterpulse = [Ch2afterpulse'-mean(Ch2afterpulse(end-100:end)) ];
+
+
+% Data.MCS.Channel10.Data = Data.MCS.Channel10.Data-Ch10afterpulse';
+%  Data.MCS.Channel2.Data = Data.MCS.Channel2.Data-Ch2afterpulse';
+%  Data.MCS.Channel0.Data = Data.MCS.Channel0.Data-Ch0afterpulse';
+%  Data.MCS.Channel8.Data = Data.MCS.Channel8.Data-Ch8afterpulse';
 %%
 %=========================
 %=== Calculate background
@@ -336,23 +336,38 @@ Counts.o2off_molCF = 1./(1-(deadTime.*Counts.o2off_molCR));
 % % Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
 % % Counts.o2off_bgsub_mol(Counts.o2off_bgsub_mol < 0) = 0;         % Minimum of zero
 
+bgon = 7*2;
+bgoff = -7*2;
+
+bgon = 100;
+bgoff = -100;
+
+bgon = 0.05;
+bgoff = 0.05;
+
+bgon = 0.06;
+bgoff = 0.06;
+
+bgon = 0.00;
+bgoff = 0.00;
+
 Counts.bg_o2off = round(mean(Data.MCS.Channel10.Data(490-10:490,:)));% Take mean of last data points
-Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off;       % Background subtracted
+Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off -bgoff.*Counts.bg_o2off;       % Background subtracted
 %Counts.o2off_bgsub(Counts.o2off_bgsub < 0) = 0;         % Minimum of zero
 
 Counts.bg_o2on = round(mean(Data.MCS.Channel2.Data(490-10:490,:)));% Take mean of last data points
-Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on;       % Background subtracted
+Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on -bgon.*Counts.bg_o2on;       % Background subtracted
 %Counts.o2on_bgsub(Counts.o2on_bgsub < 0) = 0;         % Minimum of zero
 
 Counts.bg_o2off_mol = round(mean(Data.MCS.Channel8.Data(490-10:490,:)));% Take mean of last data points
-Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
+Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol -bgoff.*Counts.bg_o2off_mol;       % Background subtracted
 %Counts.o2off_bgsub_mol(Counts.o2off_bgsub_mol < 0) = 0;         % Minimum of zero
 
 Counts.bg_o2on_mol = round(mean(Data.MCS.Channel0.Data(490-10:490,:)));% Take mean of last data points
-Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol;       % Background subtracted
+Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol -bgon.*Counts.bg_o2on_mol;       % Background subtracted
 %Counts.o2on_bgsub_mol(Counts.o2on_bgsub_mol < 0) = 0;         % Minimum of zero
 
-
+5
 
 % 
 % % Counts.bg_o2off = round(mean(Data.MCS.Channel10.Data(1:4,:)));% Take mean of last data points
