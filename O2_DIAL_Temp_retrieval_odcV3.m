@@ -464,6 +464,7 @@ for jjjj = 1:iter
     % T_etalon_off = double(interp1(double(OfflineWavelength)*10^9,OfflineCombinedTransmittance,Spectrum.lambda_scan_3D_short_off));
     % 
     T_etalon_on = HSRL.onlineCombinedTransmission./max(HSRL.onlineCombinedTransmission);
+    T_etalon_off = HSRL.offlineCombinedTransmission./max(HSRL.offlineCombinedTransmission);
 
 
     %altitude in km
