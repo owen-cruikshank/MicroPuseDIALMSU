@@ -769,23 +769,27 @@ if ~isempty(Sonde.sonde_ind)
     title(sprintf('Histogram T_{DIAL}-T_{sonde}\n Mean %0.5f, std %0.5f',meanHist(1),stdHist(1)))
 
     figure(53)
+    tiledlayout(1,2)
+    nexttile
     plot(Temperature.T_final_test2-Sonde.T_sonde,Range.rkm)
     hold on
     %plot(meanTemp,Range.rm,'linewidth',3)
-    title(sprintf('temperature\n mean %0.3d std %0.3d',meanHist(1),stdHist(1)))
-    title(sprintf('Temperature Difference'))
+    %title(sprintf('temperature\n mean %0.3d std %0.3d',meanHist(1),stdHist(1)))
+    %title(sprintf('Temperature Difference'))
     xlabel('T_{retrieval}-T_{sonde} (K)')
-    ylabel('Range (km)')
+    xlabel('\Delta T (retrieval-sonde) (^oC)','FontWeight','bold')
+    ylabel('Range (km)','FontWeight','bold')
     %xlim([-10 10])
     %xlim([-.01  .04])
     hold off
     grid on
 
-    figure(54)
+   % figure(54)
+   nexttile
     plot(Pfinal2-Sonde.P_sonde,Range.rkm)
-    title('Pressure Difference')
-    xlabel('P_{retrieval}-P_{sonde} (atm)')
-    ylabel('Range (km)')
+    %title('Pressure Difference')
+    xlabel('\Delta P (retrieval-sonde) (atm)','FontWeight','bold')
+    %ylabel('Range (km)')
     grid on
     
     figure(5544)
