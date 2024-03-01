@@ -2,7 +2,7 @@
 % author: Owen Cruikshank
 % date: 11/30/2020
 
-function [alpha_final,alpha_1_raw,alpha_2_raw,Spectrum] = pertAbsorption(alpha, T_etalon, Model, Range, Time, Spectrum, BSR, ind_r_lo,ind_r_hi, Options, UseRBspectrum,usePCAabsorption)
+function [alpha_final,alpha_1_raw,alpha_2_raw,Spectrum] = pertAbsorption(alpha, T_etalon, T_etalon_off, Model, Range, Time, Spectrum, BSR, ind_r_lo,ind_r_hi, Options, UseRBspectrum,usePCAabsorption)
     % --- Spectral distribution using the initial temperature profile guess ---
 
      cB = 1.2;%Brullouion correction to doppler gaussian half width
@@ -203,6 +203,9 @@ end
     % Online
     zeta = g1.*T_etalon;                        %[m]
     eta = dg1_dr.*T_etalon;                     %[none]
+
+    zeta_off = g1.*T_etalon_off;
+    eta_off = dg1_dr.*T_etalon_off;
 % % % 
 % % %     zeta_err = g1_err.*T_etalon;
 % % %     eta_err = dg1_dr_err.*T_etalon;
@@ -276,7 +279,7 @@ end
     %alpha_1_raw = 0.5.*(alpha.*W1 + G1);      %[1/m]
 
    % alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./trapz(zeta.*Tm0,3) - trapz(eta,3)./trapz(zeta,3));      %[1/m]
-    alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./zeta_int - trapz(eta.*TmOff,3)./trapz(zeta.*TmOff,3));      %[1/m]
+    alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./zeta_int - trapz(eta_off.*TmOff,3)./trapz(zeta_off.*TmOff,3));      %[1/m]
 
 %     alpha_1_raw2 = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./zeta_int - trapz(dg2_dr.*T_etalon.*TmOff,3)./trapz(g2.*T_etalon.*TmOff,3));      %[1/m]
 
@@ -306,6 +309,7 @@ alpha_1_raw=fillmissing(alpha_1_raw,'nearest',1);
  
     %G2 = ((trapz(eta.*Tm0,3)*Spectrum.nuBin*100).*zeta_Tm1_int./((trapz(zeta.*Tm0,3)*Spectrum.nuBin*100).^2)) - (eta_Tm1_int./(trapz(zeta.*Tm0,3)*Spectrum.nuBin*100));              %[1/m]
     G2 = ((trapz(eta.*Tm0,3)*Spectrum.nuBin*100).*zeta_Tm1_int./((zeta_int*Spectrum.nuBin*100).^2)) - (eta_Tm1_int./(zeta_int*Spectrum.nuBin*100));              %[1/m]
+
 
     alpha_2_raw = 0.5.*(alpha_1_raw.*W1 + alpha.*W2 + G2);    %[1/m]
     
