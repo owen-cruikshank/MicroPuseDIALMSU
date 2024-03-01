@@ -55,6 +55,11 @@ O2_parameters=[
 7 1 12984.267824 2.674e-27 0.01352 0.0507 0.052 1600.1329 0.73 -0.0061;
 7 1 12986.261834 3.404e-27 0.01705 0.0507 0.052 1598.1388 0.73 -0.0071];
 
+f = fopen('5d41b591.par','r');
+formatSpec = '%1d%1d%f %e %e%6f%4f %f%4f%8f       b      %1f       X      %1f                %1c %2d%1c %2d     %1c%14c %d %d %f %f';
+O2_parameters = fscanf(f,formatSpec,[35 Inf]);
+O2_parameters = O2_parameters';
+fclose(f);
 
 
 
@@ -119,7 +124,7 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
 
         % Q296 = TIPS2017(O2_parameters(i,1),O2_parameters(i,2),T0);
         % Q = TIPS2017(O2_parameters(i,1),O2_parameters(i,2),T);
-        %ST_O2 = S0_O2.*(Q296./Q).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0)));
+        % ST_O2 = S0_O2.*(Q296./Q).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0)));
         
         gamma_L_T = gamma_L * (P/P0).*((T0./T).^n_air);     %[1/m](t x r) Lorentz linewidth adjusted for temperature and pressure shift
         gamma_D_T = (nuShifted/c).*sqrt(2*kB*T*log(2)/mo2); %[1/m](t x r) Dopper linewidth due to temperature
@@ -147,6 +152,12 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
         Line{increment}.cross_section = Voight .* K;
         Line{increment}.S0=S0_O2;
         Line{increment}.E_lower = E_lower;
+        
+        Line{increment}.istotope = O2_parameters(i,2); 
+        Line{increment}.v = O2_parameters(i,12);
+        Line{increment}.quanta = [char(O2_parameters(i,13)) num2str(O2_parameters(i,14)) char(O2_parameters(i,15)) num2str(O2_parameters(i,14))];
+
+        Line{increment}.a =  Voight .* K.* ((P*101325)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
 
         increment = increment+1; %increment line number
     end
