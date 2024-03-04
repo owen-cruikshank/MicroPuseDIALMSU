@@ -162,21 +162,23 @@ for i = 1:loop
     %update lineshape function
     [~,~,~,Line] = absorption_O2_770_model(Tg,Pg,nu_scan,WV);%[m] lineshape function
 
+    Line1 = Line{4};
+    Line2 = Line{5};
     %Calculate Coefficient
 
-    epa = Line{1}.E_lower*h*c; %J
-    C1a = Line{1}.S0 * T0 * (Ps*101325) * exp(epa/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
+    epa = Line1.E_lower*h*c; %J
+    C1a = Line1.S0 * T0 * (Ps*101325) * exp(epa/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
     C2a = Tg .^ (-2) .* exp(-epa/kB./Tg) .* exp(-cumtrapz(rm,gamma./Tg,1));%[K^-2]
     C3a = (-2) ./ Tg + epa./(kB.*Tg.^2) + cumtrapz(rm,gamma./Tg./Tg,1);%[K^-1]
-    epb = Line{2}.E_lower*h*c;
-    C1b = Line{2}.S0 * T0 * (Ps*101325) * exp(epb/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
+    epb = Line2.E_lower*h*c;
+    C1b = Line2.S0 * T0 * (Ps*101325) * exp(epb/kB/T0) ./ kB;%[K^2/(m^2)]pressure converted to Pa
     C2b = Tg .^ (-2) .* exp(-epb/kB./Tg) .* exp(-cumtrapz(rm,gamma./Tg,1));%[K^-2]
     C3b = (-2) ./ Tg + epb./(kB.*Tg.^2) + cumtrapz(rm,gamma./Tg./Tg,1);%[K^-1]
 
 
     %Calculate change in temperature from last
-    deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q - C1b.*C2b.*Line{2}.lineshape.*q) ... 
-   ./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q+C1b.*C2b.*C3b.*Line{2}.lineshape.*q); %[K] calculate a change in temperatre
+    deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line1.lineshape.*q - C1b.*C2b.*Line2.lineshape.*q) ... 
+   ./(C1a.*C2a.*C3a.*Line1.lineshape.*q+C1b.*C2b.*C3b.*Line2.lineshape.*q); %[K] calculate a change in temperatre
   
    %   deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q ) ... 
    % ./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q); %[K] calculate a change in temperatre
