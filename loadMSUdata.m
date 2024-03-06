@@ -529,35 +529,6 @@ Counts.NBins = Data.MCS.Channel0.NBins*Options.intRange;
 
 
 %%
-%Dead time correction
-% deadTime = 22e-9; %SPCM-AQRH-13 dead time
-% %Counts.o2onCR = Counts.o2on_noise.*Counts.NBins.*250e-9.*14000;%Count rate, Counts*NuberTimeSummedbins*Length of bin(250ns)*profiles per histogram
-% Counts.o2onCR = Counts.o2on_noise./(Counts.NBins.*250e-9.*14000/2);
-% Counts.o2on_noise =round( Counts.o2on_noise ./(1-(deadTime.*Counts.o2onCR)));
-% 
-% 
-% Counts.o2offCR = Counts.o2off_noise./(Counts.NBins.*250e-9.*14000/2);
-% Counts.o2off_noise = round(Counts.o2off_noise ./(1-(deadTime.*Counts.o2offCR)));
-% 
-% Counts.o2on_molCR = Counts.o2on_noise_mol./(Counts.NBins.*250e-9.*14000/2);
-% Counts.o2on_noise_mol = round(Counts.o2on_noise_mol ./(1-(deadTime.*Counts.o2on_molCR)));
-% 
-% Counts.o2off_molCR = Counts.o2off_noise_mol./(Counts.NBins.*250e-9.*14000/2);
-% Counts.o2off_noise_mol = round(Counts.o2off_noise_mol ./(1-(deadTime.*Counts.o2off_molCR)));
-% 
-% 
-% Counts.o2onCF = 1./(1-(deadTime.*Counts.o2onCR));
-% Counts.o2offCF = 1./(1-(deadTime.*Counts.o2offCR));
-% Counts.o2on_molCF = 1./(1-(deadTime.*Counts.o2on_molCR));
-% Counts.o2off_molCF = 1./(1-(deadTime.*Counts.o2off_molCR));
-
-% % % Counts.o2offCR = Counts.o2off_noise.*Counts.NBins.*250e-9.*14000;%Count rate, Counts*NuberTimeSummedbins*Length of bin(250ns)*profiles per histogram
-% % % Counts.o2off_noise = Counts.o2off_noise ./(1-(deadTime.*Counts.o2offCR));
-% % % Counts.o2on_molCR = Counts.o2on_noise_mol.*Counts.NBins.*250e-9.*14000;%Count rate, Counts*NuberTimeSummedbins*Length of bin(250ns)*profiles per histogram
-% % % Counts.o2on_noise_mol = Counts.o2on_noise_mol ./(1-(deadTime.*Counts.o2on_molCR));
-% % % Counts.o2off_molCR = Counts.o2off_noise_mol.*Counts.NBins.*250e-9.*14000;%Count rate, Counts*NuberTimeSummedbins*Length of bin(250ns)*profiles per histogram
-% % % Counts.o2off_noise_mol = Counts.o2off_noise_mol ./(1-(deadTime.*Counts.o2off_molCR));
-%%
 %===== Afterpulse Correction =====
 % load('AfterPulse.mat','pulseON','pulseOFF','pulseON_mol','pulseOFF_mol')
 % Counts.o2on_noise(5:end,:) = Counts.o2on_noise(5:end,:)-pulseON(5:end,:)*1;

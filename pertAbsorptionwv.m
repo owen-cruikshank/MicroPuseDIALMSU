@@ -56,8 +56,16 @@
 
     clear g1_a g1_m doppler_O2_ret
     %derivative of lineshape dg/dr
-    dg1_dr = (g1(ind_r_hi,:,:) - g1(ind_r_lo,:,:)) ./(Range.rangeBin*Options.oversample); %[none] Derivative over oversamped range
-    dg1_dr = interp1(Range.rm(ind_r_lo),dg1_dr,Range.rm,'nearest',nan);         %[none] Make dg/dr the same size as g
+    % % dg1_dr = (g1(ind_r_hi,:,:) - g1(ind_r_lo,:,:)) ./(Range.rangeBin*Options.oversample); %[none] Derivative over oversamped range
+    % % dg1_dr = interp1(Range.rm(ind_r_lo),dg1_dr,Range.rm,'nearest',nan);         %[none] Make dg/dr the same size as g
+
+    dg1_dr = zeros(size(g1));
+    dg1_dr(1,:,:) = (g1(2,:,:)-g1(1,:,:))./Range.rangeBin;
+    for iii = 2:length(Range.rm)-1
+        dg1_dr(iii,:,:) = (g1(iii+1,:,:)-g1(iii-1,:,:))/2/Range.rangeBin;
+    end
+    dg1_dr(end,:,:) = (g1(end,:,:)-g1(end-1,:,:))./Range.rangeBin;
+
 
     %%
 %       ==old absorption function

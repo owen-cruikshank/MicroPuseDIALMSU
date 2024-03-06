@@ -22,6 +22,9 @@ date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
 % date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
 
+date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
+
 span_days = date_start:date_end;
 
 %=Time and range averaging
@@ -54,7 +57,7 @@ Constant.No = 2.47937E25;            %[1/m^3] Loschmidt's number  (referenced to
 %======================
 
 Options.MPDname = '00';
-%Options.MPDname = '03';
+Options.MPDname = '03';
 
 Options.DataPath = 'C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data';
 if strcmp(Options.MPDname,'00')
@@ -466,12 +469,12 @@ for jjjj = 1:iter
     % 
     T_etalon_on = HSRL.onlineCombinedTransmission./max(HSRL.onlineCombinedTransmission);
     T_etalon_off = HSRL.offlineCombinedTransmission./max(HSRL.offlineCombinedTransmission);
-
+    T_etalonwv_on = HSRL.WVOnlineTransmission./max(HSRL.WVOnlineTransmission);
 
     %altitude in km
     altitude = 1.5719;
 
-    [Alpha.alpha_1wv, Alpha.alpha_2wv,Spectrum] = pertAbsorptionwv(Alpha.alpha_0wv, 1, Model, Range, Time, Spectrum, HSRL.BSR828, ind_r_lo,ind_r_hi, Options, Constant, altitude);
+    [Alpha.alpha_1wv, Alpha.alpha_2wv,Spectrum] = pertAbsorptionwv(Alpha.alpha_0wv, T_etalonwv_on, Model, Range, Time, Spectrum, HSRL.BSR828, ind_r_lo,ind_r_hi, Options, Constant, altitude);
     
     N_wv = (Alpha.alpha_0wv+Alpha.alpha_1wv+ Alpha.alpha_2wv)./(cross_section-cross_sectionOff);
     
@@ -1130,14 +1133,14 @@ Format.dateTickFormat ='mm/dd HH:MM';
 %plot_time = datetime(2023,2,13,23,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 %plot_time = datetime(2023,8,16,18,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 %plot_time = datetime(2023,8,5,17,0,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
-%plot_time = datetime(2023,8,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
-plot_time = datetime(2022,6,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+plot_time = datetime(2023,8,1,12,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
+%plot_time = datetime(2022,6,2,16,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 [~,p_point] = min(abs(plot_time-Time.date_ts)); % Find closest value to 338min for comparison to other program
 p_point(1:length(Range.rm),1)=p_point;
 
 %= Plot time for profiles with sondes
-sonde_index = 21;
-p_point = Sonde.sonde_ind(:,sonde_index);
+sonde_index = 1;
+%p_point = Sonde.sonde_ind(:,sonde_index);
 
 %mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
 %mask = logical(tempStds>2) | cloud_SDm_above;
