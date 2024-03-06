@@ -67,7 +67,8 @@ c=3e8;
     %%
     %Calculate RB spectrum by PCA
 else
-    [doppler_O2_ret] = RB_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short,Spectrum);  
+    [doppler_O2_ret_offline] = RB_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short_off,Spectrum);  
+    [doppler_O2_ret_online] = RB_O2_770_PCA_online(Model.T,Model.P,Spectrum.nu_scan_3D_short,Spectrum); 
 end
     %%
   
@@ -80,25 +81,31 @@ end
 % % % clear l_err deltafunc
 
     % --- Backscatter Lineshape g ---
-    g1_m = 1./BSR .* doppler_O2_ret ;%.*nuBin*100;                         %[m] Molecular backscatter lineshape
+    g1on_m = 1./BSR .* doppler_O2_ret_online ;%.*nuBin*100;                         %[m] Molecular backscatter lineshape
     %%clear doppler_O2_ret
-    g1_a = zeros(Range.i_range,Time.i_time,Spectrum.i_scan_3D_short);                       % Initalize aerosol lineshape
+    g1on_a = zeros(Range.i_range,Time.i_time,Spectrum.i_scan_3D_short); % Initalize aerosol lineshape
+        g1off_m = 1./BSR .* doppler_O2_ret_offline ;%.*nuBin*100;                         %[m] Molecular backscatter lineshape
+    %%clear doppler_O2_ret
+    g1off_a = zeros(Range.i_range,Time.i_time,Spectrum.i_scan_3D_short);  
+    
     for i = 1:Time.i_time
-        g1_a(:,i,Spectrum.online_index(1)) = (1 - 1./BSR(:,i))/ Spectrum.nuBin / 100 ; %[m] aerosol backscatter lineshape
+        g1on_a(:,i,Spectrum.online_index(1)) = (1 - 1./BSR(:,i))/ Spectrum.nuBin / 100 ; %[m] aerosol backscatter lineshape
+        g1off_a(:,i,Spectrum.offline_index(1)) = (1 - 1./BSR(:,i))/ Spectrum.nuBin / 100 ; %[m] aerosol backscatter lineshape
     end
-    g1 = g1_a + g1_m;                                                   %[m] Combined backscatter lineshape
+    g1on = g1on_a + g1on_m;                                                   %[m] Combined backscatter lineshape
+    g1off = g1off_a + g1off_m; 
     %g1_check = trapz(g1,3).*nuBin*100;                                %[none] Check if integral of g1 is normalized to 1  
 
 %     g1_m = 1./BSR .* doppler_O2_ret_off ;%.*nuBin*100; 
 %     g2 = g1_a+g1_m;
     
-    clear g1_m g1_a
+    clear g1on_m g1on_a g1off_m g1off_a
     %derivative of lineshape dg/dr
-    ind_r_lo = 1:(length(Range.rm)-1);
-    ind_r_hi = 2:length(Range.rm);
-    dg1_dr = (g1(ind_r_hi,:,:) - g1(ind_r_lo,:,:)) ./(Range.rangeBin*Options.oversample); %[none] Derivative over oversamped range
-    %dg1_dr = interp1(Range.rm(ind_r_lo),dg1_dr,Range.rm,'nearest',nan);         %[none] Make dg/dr the same size as g
-   dg1_dr(ind_r_hi(end),:,:) = dg1_dr(ind_r_hi(end-1),:,:);
+   %  ind_r_lo = 1:(length(Range.rm)-1);
+   %  ind_r_hi = 2:length(Range.rm);
+   %  dg1_dr = (g1(ind_r_hi,:,:) - g1(ind_r_lo,:,:)) ./(Range.rangeBin*Options.oversample); %[none] Derivative over oversamped range
+   %  %dg1_dr = interp1(Range.rm(ind_r_lo),dg1_dr,Range.rm,'nearest',nan);         %[none] Make dg/dr the same size as g
+   % dg1_dr(ind_r_hi(end),:,:) = dg1_dr(ind_r_hi(end-1),:,:);
 
 %     for iii = 1:length(Spectrum.lambda_scan_3D_short)
 %         dg1_dr1(:,:,iii) = interp2(Time.ts,Range.rm(ind_r_lo)+Range.rangeBin./2,dg1_dr(:,:,iii),Time.ts,Range.rm);
@@ -107,14 +114,17 @@ end
 %     dg1_dr = dg1_dr1;
 % 
 %     %first order central derivative
-    dg1 = zeros(size(g1));
-    dg1(1,:,:) = (g1(2,:,:)-g1(1,:,:))./Range.rangeBin;
+    dg1on = zeros(size(g1on));
+    dg1off = zeros(size(g1off));
+    dg1on(1,:,:) = (g1on(2,:,:)-g1on(1,:,:))./Range.rangeBin;
+    dg1off(1,:,:) = (g1off(2,:,:)-g1off(1,:,:))./Range.rangeBin;
     for iii = 2:length(Range.rm)-1
-        dg1(iii,:,:) = (g1(iii+1,:,:)-g1(iii-1,:,:))/2/Range.rangeBin;
+        dg1on(iii,:,:) = (g1on(iii+1,:,:)-g1on(iii-1,:,:))/2/Range.rangeBin;
+        dg1off(iii,:,:) = (g1off(iii+1,:,:)-g1off(iii-1,:,:))/2/Range.rangeBin;
     end
-    dg1(end,:,:) = (g1(end,:,:)-g1(end-1,:,:))./Range.rangeBin;
+    dg1on(end,:,:) = (g1on(end,:,:)-g1on(end-1,:,:))./Range.rangeBin;
+    dg1off(end,:,:) = (g1off(end,:,:)-g1off(end-1,:,:))./Range.rangeBin;
 
-    dg1_dr = dg1;
 
 %     dg2 = zeros(size(g2));
 %     dg2(1,:,:) = (g2(2,:,:)-g2(1,:,:))./Range.rangeBin;
@@ -125,7 +135,7 @@ end
 % 
 %     dg2_dr = dg2;
 
-    clear dg1
+    %clear dg1
 
 
 % % %     for iii = 1:size(dg1_dr,1)-1
@@ -150,20 +160,29 @@ end
    %  absorption_f = absorption_O2_770_model_wavenumber(Model.T,Model.P,Spectrum.nu_scan_3D_short ,Model.WV);
    %  end
 
-   absorption_f = absorption_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short ,Model.WV);
-
-
+   %absorption_f = absorption_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short ,Model.WV);
+    absorption_f = absorption_O2_770_PCA2(Model.T,Model.P,Spectrum,Model.WV);
+    absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV);
 
     %o2absorption_off = absorption_O2_770_model_wavenumber(Model.T,Model.P,Spectrum.nu_scan_3D_short_off ,Model.WV);
 
-
-    o2absorption_off = zeros(size(absorption_f));
+    % for i = 1:size(Spectrum.nu_scan_3D_short,3)
+    %     absorption_ff(:,:,i)=absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_scan_3D_short(i),Model.WV);
+    % end
+    % absorption_ff_off = zeros(size(absorption_f));
+    %  for i = 1:size(Spectrum.nu_scan_3D_short_off,3)
+    %      absorption_ff_off(:,:,i)=absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_scan_3D_short_off(i),Model.WV);
+    %  end
+    % o2absorption_off = zeros(size(absorption_f));
     o2absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV);
+    %o2absorption_off = absorption_ff_off;
     %%
     %Create lineshape function
     for i = 1:Time.i_time
-        absorption_f(:,i,:) = absorption_f(:,i,:) ./ absorption_f(:,i,Spectrum.online_index(1));  %[none] Normalize lineshape function
-       % absorption_f(:,i,:) = absorption_f(:,i,:) ./ max(absorption_f(:,i,:),3);  %[none] Normalize lineshape function
+        %absorption_f(:,i,:) = absorption_f(:,i,:) ./ absorption_f(:,i,Spectrum.online_index(1));  %[none] Normalize lineshape function
+        absorption_f(:,i,:) = absorption_f(:,i,:) ./ absorption(:,i);  %[none] Normalize lineshape function
+
+        % absorption_f(:,i,:) = absorption_f(:,i,:) ./ max(absorption_f(:,i,:),3);  %[none] Normalize lineshape function
     end
 
 % % %     absorption_f_err = abs(0.02*absorption_f); %error for absorption model
@@ -201,19 +220,22 @@ end
 
     % Integrand terms
     % Online
-    zeta = g1.*T_etalon;                        %[m]
-    eta = dg1_dr.*T_etalon;                     %[none]
+    zeta = g1on.*T_etalon;                        %[m]
+    eta = dg1on.*T_etalon;                     %[none]
 
-    zeta_off = g1.*T_etalon_off;
-    eta_off = dg1_dr.*T_etalon_off;
+    zeta_off = g1off.*T_etalon_off;
+    eta_off = dg1off.*T_etalon_off;
+
+    zeta_off = g1off.*T_etalon;
+    eta_off = dg1off.*T_etalon;
 % % % 
 % % %     zeta_err = g1_err.*T_etalon;
 % % %     eta_err = dg1_dr_err.*T_etalon;
 
-    clear g1 dg1_dr
+    clear g1on g1off dg1on dg1off
     % Integrated terms
     % Online
-    zeta_int = trapz(zeta.*Tm0,3);              %[none]
+    %zeta_int = trapz(zeta.*Tm0,3);              %[none]
     %eta_int = trapz(eta.*Tm0,3)*Spectrum.nuBin*100;                %[1/m]
     %zeta_ls_int = trapz(zeta.*Tm0.*(1-absorption_f),3)*Spectrum.nuBin*100;    %[none]
     % Offline
@@ -223,7 +245,8 @@ end
     % === First Order ===
    % W1 = zeta_ls_int./zeta_int;                 %[none]
     %W1 = trapz(zeta.*Tm0.*(1-absorption_f),3)./trapz(zeta.*Tm0,3);                 %[none]
-    W1 = trapz(zeta.*Tm0.*(1-absorption_f),3)./zeta_int;    
+    %W1 = trapz(zeta.*Tm0.*(1-absorption_f),3)./zeta_int;    
+    W1 = trapz(zeta.*Tm0.*(1-absorption_f),3)./trapz(zeta.*Tm0,3); 
     
 % % %     W1insidenum_err = abs(zeta.*Tm0.*(1-absorption_f)) .* sqrt((zeta_err./zeta).^2+(Tm0_err./Tm0).^2+(absorption_f_err./(1-absorption_f)).^2);
 % % %     W1insideden_err = abs(zeta.*Tm0) .* sqrt((zeta_err./zeta).^2+(Tm0_err./Tm0).^2);
@@ -279,7 +302,7 @@ end
     %alpha_1_raw = 0.5.*(alpha.*W1 + G1);      %[1/m]
 
    % alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./trapz(zeta.*Tm0,3) - trapz(eta,3)./trapz(zeta,3));      %[1/m]
-    alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./zeta_int - trapz(eta_off.*TmOff,3)./trapz(zeta_off.*TmOff,3));      %[1/m]
+    alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./trapz(zeta.*Tm0,3) - trapz(eta_off.*TmOff,3)./trapz(zeta_off.*TmOff,3));      %[1/m]
 
 %     alpha_1_raw2 = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./zeta_int - trapz(dg2_dr.*T_etalon.*TmOff,3)./trapz(g2.*T_etalon.*TmOff,3));      %[1/m]
 
@@ -305,10 +328,10 @@ alpha_1_raw=fillmissing(alpha_1_raw,'nearest',1);
 %     G2 = (eta_int.*zeta_Tm1_int./(zeta_int.^2)) - (eta_Tm1_int./zeta_int);              %[1/m]
 
    % W2 = ((trapz(zeta.*Tm0.*(1-absorption_f),3)*Spectrum.nuBin*100).*zeta_ls_Tm1_int./((trapz(zeta.*Tm0,3)*Spectrum.nuBin*100).^2)) - (zeta_ls_Tm1_int./(trapz(zeta.*Tm0,3)*Spectrum.nuBin*100));   %[none]
-    W2 = ((trapz(zeta.*Tm0.*(1-absorption_f),3)*Spectrum.nuBin*100).*zeta_ls_Tm1_int./((zeta_int*Spectrum.nuBin*100).^2)) - (zeta_ls_Tm1_int./(zeta_int*Spectrum.nuBin*100));   %[none]
+    W2 = ((trapz(zeta.*Tm0.*(1-absorption_f),3)*Spectrum.nuBin*100).*zeta_ls_Tm1_int./((trapz(zeta.*Tm0,3)*Spectrum.nuBin*100).^2)) - (zeta_ls_Tm1_int./(trapz(zeta.*Tm0,3)*Spectrum.nuBin*100));   %[none]
  
     %G2 = ((trapz(eta.*Tm0,3)*Spectrum.nuBin*100).*zeta_Tm1_int./((trapz(zeta.*Tm0,3)*Spectrum.nuBin*100).^2)) - (eta_Tm1_int./(trapz(zeta.*Tm0,3)*Spectrum.nuBin*100));              %[1/m]
-    G2 = ((trapz(eta.*Tm0,3)*Spectrum.nuBin*100).*zeta_Tm1_int./((zeta_int*Spectrum.nuBin*100).^2)) - (eta_Tm1_int./(zeta_int*Spectrum.nuBin*100));              %[1/m]
+    G2 = ((trapz(eta.*Tm0,3)*Spectrum.nuBin*100).*zeta_Tm1_int./((trapz(zeta.*Tm0,3)*Spectrum.nuBin*100).^2)) - (eta_Tm1_int./(trapz(zeta.*Tm0,3)*Spectrum.nuBin*100));              %[1/m]
 
 
     alpha_2_raw = 0.5.*(alpha_1_raw.*W1 + alpha.*W2 + G2);    %[1/m]

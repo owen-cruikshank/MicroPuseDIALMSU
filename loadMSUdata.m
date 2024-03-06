@@ -626,7 +626,7 @@ Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offlin
 nuMin = o2nuCentralon-0.334;                                 %[cm-1] Scan lower bound
 nuMax = o2nuCentralon+0.334;                                 %[cm-1] Scan upper bound
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
-%Spectrum.nuBin = 0.00222/2;   
+Spectrum.nuBin = 0.00222/2;   
 nu_scan = (nuMin:Spectrum.nuBin:nuMax);                      %[cm-1](1 x nu) Scan vector
 
 nuwvMin = wvnuCentralon-0.334;                                 %[cm-1] Scan lower bound
@@ -634,6 +634,9 @@ nuwvMax = wvnuCentralon+0.334;                                 %[cm-1] Scan uppe
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
 %Spectrum.nuBin = 0.00222/2;
 nu_scanwv = (nuwvMin:Spectrum.nuBin:nuwvMax);                      %[cm-1](1 x nu) Scan vector
+
+
+Spectrum.nuBin = 0.00222/2;
 
 nuMin_off = o2nuCentraloff-0.334;                                 %[cm-1] Scan lower bound
 nuMax_off = o2nuCentraloff+0.334;                                 %[cm-1] Scan upper bound
@@ -671,6 +674,12 @@ Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offlin
 
 [~,Spectrum.online_index] = min(abs(Spectrum.nu_online - Spectrum.nu_scan_3D_short),[],3);%finding index of online wavenumber
 [~,Spectrum.offline_index] = min(abs(Spectrum.nu_offline - Spectrum.nu_scan_3D_short_off),[],3);%finding index of online wavenumber
+
+%Adjust index to match wavelength
+Spectrum.nu_scan_3D_short=Spectrum.nu_scan_3D_short-(Spectrum.nu_scan_3D_short(:,:,Spectrum.online_index(1))-Spectrum.nu_online(1));
+Spectrum.nu_scan_3D_short_off=Spectrum.nu_scan_3D_short_off-(Spectrum.nu_scan_3D_short_off(:,:,Spectrum.offline_index(1))-Spectrum.nu_offline(1));
+Spectrum.lambda_scan_3D_short = 10^7./Spectrum.nu_scan_3D_short;
+Spectrum.lambda_scan_3D_short_off = 10^7./Spectrum.nu_scan_3D_short_off;
 
 [~,Spectrum.online_indexwv] = min(abs(Spectrum.nu_wvon - Spectrum.nu_scanwv_3D_short),[],3);%finding index of online wavenumber
 

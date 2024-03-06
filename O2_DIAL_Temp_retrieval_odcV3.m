@@ -470,8 +470,8 @@ for jjjj = 1:iter
 
     %altitude in km
     altitude = 1.5719;
-    
-    [Alpha.alpha_1wv, Alpha.alpha_2wv,Spectrum] = pertAbsorptionwv(Alpha.alpha_0wv, T_etalon_on, Model, Range, Time, Spectrum, HSRL.BSR828, ind_r_lo,ind_r_hi, Options, Constant, altitude);
+
+    [Alpha.alpha_1wv, Alpha.alpha_2wv,Spectrum] = pertAbsorptionwv(Alpha.alpha_0wv, 1, Model, Range, Time, Spectrum, HSRL.BSR828, ind_r_lo,ind_r_hi, Options, Constant, altitude);
     
     N_wv = (Alpha.alpha_0wv+Alpha.alpha_1wv+ Alpha.alpha_2wv)./(cross_section-cross_sectionOff);
     
