@@ -123,6 +123,7 @@ for jjjj = 1:iter
           %Model.P = real(fillmissing(Temperature.Patm_finalFull,'linear'));
 
        Model.T = fillmissing(Temperature.L_fit_sm_test(:,:,end).*Range.rm+Temperature.Ts_fit(:,:,end),'linear');
+       Model.T(Model.T<0)=0.001;
         Model.Ts =Temperature.Ts_fit(:,:,end);
         Model.P = real(fillmissing(Temperature.Patm_finalFull,'linear'));
 
