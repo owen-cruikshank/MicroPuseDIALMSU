@@ -15,6 +15,9 @@ if strcmp( Options.MPDname,'03')
     CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength+Spectrum.WavemeterOffset;
     CalInfo.ScanData.O2OnlineMol.Wavelength = CalInfo.ScanData.O2OnlineMol.Wavelength+Spectrum.WavemeterOffset;
     CalInfo.ScanData.O2OnlineComb.Wavelength = CalInfo.ScanData.O2OnlineComb.Wavelength+Spectrum.WavemeterOffset;
+
+    CalInfo.ScanData.WVOffline.Wavelength = CalInfo.ScanData.WVOffline.Wavelength+Spectrum.WavemeterOffset;
+    CalInfo.ScanData.WVOnline.Wavelength = CalInfo.ScanData.WVOnline.Wavelength+Spectrum.WavemeterOffset;
     
      %  CalInfo.ScanData.O2OfflineMol.Wavelength = CalInfo.ScanData.O2OfflineMol.Wavelength-Spectrum.WavemeterOffset;
      % CalInfo.ScanData.O2OfflineComb.Wavelength = CalInfo.ScanData.O2OfflineComb.Wavelength-Spectrum.WavemeterOffset;
@@ -26,6 +29,7 @@ if strcmp( Options.MPDname,'03')
     onlineMolecularTransmission  = interp1(10^7./CalInfo.ScanData.O2OnlineMol.Wavelength,   CalInfo.ScanData.O2OnlineMol.Transmission,   Spectrum.nu_scan_3D_short);
     onlineCombinedTransmission   = interp1(10^7./CalInfo.ScanData.O2OnlineComb.Wavelength,  CalInfo.ScanData.O2OnlineComb.Transmission,  Spectrum.nu_scan_3D_short);
 
+    WVOnlineTransmission = interp1(10^7./CalInfo.ScanData.WVOnline.Wavelength,  CalInfo.ScanData.WVOnline.Transmission,  Spectrum.nu_scanwv_3D_short);
 elseif strcmp(Options.MPDname,'00')
     load('CalibrationData\TransmissionData20220809.mat','Data_Wavelength')
 
@@ -33,13 +37,15 @@ elseif strcmp(Options.MPDname,'00')
     onlineMolecularTransmission  = interp1((Data_Wavelength.lambda_on.*10^9) +Spectrum.WavemeterOffset,Data_Wavelength.Nm_on, Spectrum.lambda_scan_3D_short);
     offlineCombinedTransmission  = interp1((Data_Wavelength.lambda_off.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nc_off,Spectrum.lambda_scan_3D_short_off);
     offlineMolecularTransmission = interp1((Data_Wavelength.lambda_off.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nm_off,Spectrum.lambda_scan_3D_short_off);
-
+    
+    WVOnlineTransmission = ones(size(offlineMolecularTransmission));
 end
 
 HSRL.offlineMolecularTransmission = offlineMolecularTransmission;
 HSRL.offlineCombinedTransmission = offlineCombinedTransmission;
 HSRL.onlineMolecularTransmission = onlineMolecularTransmission;
 HSRL.onlineCombinedTransmission = onlineCombinedTransmission;
+HSRL.WVOnlineTransmission =WVOnlineTransmission;
 
 int = [1:50 size(offlineMolecularTransmission,3)-50:size(offlineMolecularTransmission,3)];
 

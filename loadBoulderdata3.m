@@ -127,12 +127,14 @@ Range.rm_raw_o2 = Range.rm_raw_o2(:);                           %[m] Convert ran
 Range.r_max = 6000;                                       %[m] Max range 
 Range.rm = Range.rm_raw_o2(Range.rm_raw_o2<=Range.r_max & Range.rm_raw_o2>0);     %[m] Shorten range vector to max range
 
-
-Range.rm = Range.rm(1:2:end);%integrate to new
-Range.rangeBin = Range.rangeBin*2;
-Range.rkm = Range.rm/1000;
+%=== Integrate range vector ==
+% Range.rm = Range.rm(1:2:end);%integrate to new
+% Range.rangeBin = Range.rangeBin*2;
+Range.rm = Range.rm(1:Options.intRange:end);%integrate to new
+Range.rangeBin = Range.rangeBin*Options.intRange;
 
 Range.i_range = length(Range.rm);                               %[none] Size of range vector
+Range.rkm = Range.rm/1000;
 %%
 
 disp('Calculating model')
@@ -310,6 +312,33 @@ end
 % 
 % HSRL.Bm = HSRL.Ba./(HSRL.BSR-1);%'m^(-1) sr^(-1)'
 
+%%
+%dead time correction
+ deadTime = 22e-9; %SPCM-AQRH-13 dead time
+%Counts.o2onCR = Counts.o2on_noise.*Counts.NBins.*250e-9.*14000;%Count rate, Counts*NuberTimeSummedbins*Length of bin(250ns)*profiles per histogram
+
+profPerHist=mean(Data.MCS.Channel0.ProfilesPerHistogram,'omitnan');
+
+Counts.NBins = Data.MCS.Channel0.NBins;
+Counts.o2onCR = Data.MCS.Channel2.Data./Counts.NBins./250e-9./profPerHist/2;
+Data.MCS.Channel2.Data =round( Data.MCS.Channel2.Data ./(1-(deadTime.*Counts.o2onCR)));
+
+
+Counts.o2offCR = Data.MCS.Channel10.Data./Counts.NBins./250e-9./profPerHist/2;
+Data.MCS.Channel10.Data = round(Data.MCS.Channel10.Data ./(1-(deadTime.*Counts.o2offCR)));
+
+Counts.o2on_molCR = Data.MCS.Channel0.Data./Counts.NBins./250e-9./profPerHist/2;
+Data.MCS.Channel0.Data = round(Data.MCS.Channel0.Data ./(1-(deadTime.*Counts.o2on_molCR)));
+
+Counts.o2off_molCR = Data.MCS.Channel8.Data./Counts.NBins./250e-9./profPerHist/2;
+Data.MCS.Channel8.Data = round(Data.MCS.Channel8.Data ./(1-(deadTime.*Counts.o2off_molCR)));
+
+
+Counts.o2onCF = 1./(1-(deadTime.*Counts.o2onCR));
+Counts.o2offCF = 1./(1-(deadTime.*Counts.o2offCR));
+Counts.o2on_molCF = 1./(1-(deadTime.*Counts.o2on_molCR));
+Counts.o2off_molCF = 1./(1-(deadTime.*Counts.o2off_molCR));
+
 
 %%
 % --- O2 Background Subtraction ---
@@ -366,60 +395,72 @@ elseif strcmp(Options.MPDname,'01')
 end
 
 %%
-%integrate to new range
+% ========integrate to new range
 inc = 1;
-
-ii = 1:2:length(Range.rm_raw_o2);
+ii = 1:Options.intRange:length(Range.rm_raw_o2);
 o2on_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 o2off_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 o2on_intp2_mol = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 o2off_intp2_mol = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
-wvon_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
-wvoff_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
-for ii = 1:2:length(Range.rm_raw_o2)
-    o2on_intp2(inc,:) = (Counts.o2on_bgsub(ii,:)+Counts.o2on_bgsub(ii+1,:));
-    o2off_intp2(inc,:) = (Counts.o2off_bgsub(ii,:)+Counts.o2off_bgsub(ii+1,:));
-    o2on_intp2_mol(inc,:) = (Counts.o2on_bgsub_mol(ii,:)+Counts.o2on_bgsub_mol(ii+1,:));
-    o2off_intp2_mol(inc,:) = (Counts.o2off_bgsub_mol(ii,:)+Counts.o2off_bgsub_mol(ii+1,:));
-    wvon_intp2(inc,:) = (Counts.wvon_bgsub(ii,:)+Counts.wvon_bgsub(ii+1,:));
-    wvoff_intp2(inc,:) = (Counts.wvoff_bgsub(ii,:)+Counts.wvoff_bgsub(ii+1,:));
+wvon_intp2 = zeros(length(ii),length(Counts.wvon_bgsub(1,:)));
+wvoff_intp2 = zeros(length(ii),length(Counts.wvoff_bgsub(1,:)));
+% for ii = 1:2:length(Range.rm_raw_o2)
+%     o2on_intp2(inc,:) = (Counts.o2on_bgsub(ii,:)+Counts.o2on_bgsub(ii+1,:))/2;
+%     o2off_intp2(inc,:) = (Counts.o2off_bgsub(ii,:)+Counts.o2off_bgsub(ii+1,:))/2;
+%     o2on_intp2_mol(inc,:) = (Counts.o2on_bgsub_mol(ii,:)+Counts.o2on_bgsub_mol(ii+1,:))/2;
+%     o2off_intp2_mol(inc,:) = (Counts.o2off_bgsub_mol(ii,:)+Counts.o2off_bgsub_mol(ii+1,:))/2;
+%     inc = inc+1;
+% end
+
+% for ii = 1:2:length(Range.rm_raw_o2)
+%     o2on_intp2(inc,:) = (Counts.o2on_bgsub(ii,:)+Counts.o2on_bgsub(ii+1,:));
+%     o2off_intp2(inc,:) = (Counts.o2off_bgsub(ii,:)+Counts.o2off_bgsub(ii+1,:));
+%     o2on_intp2_mol(inc,:) = (Counts.o2on_bgsub_mol(ii,:)+Counts.o2on_bgsub_mol(ii+1,:));
+%     o2off_intp2_mol(inc,:) = (Counts.o2off_bgsub_mol(ii,:)+Counts.o2off_bgsub_mol(ii+1,:));
+%     inc = inc+1;
+% end
+
+for ii = 1:Options.intRange:length(Range.rm_raw_o2)-Options.intRange+1
+    o2on_intp2(inc,:) = sum(Counts.o2on_bgsub(ii:(ii+Options.intRange-1),:),1);
+    o2off_intp2(inc,:) = sum(Counts.o2off_bgsub(ii:(ii+Options.intRange-1),:),1);
+    o2on_intp2_mol(inc,:) = sum(Counts.o2on_bgsub_mol(ii:(ii+Options.intRange-1),:),1);
+    o2off_intp2_mol(inc,:) = sum(Counts.o2off_bgsub_mol(ii:(ii+Options.intRange-1),:),1);
+    wvon_intp2(inc,:) = sum(Counts.wvon_bgsub(ii:(ii+Options.intRange-1),:),1);
+    wvoff_intp2(inc,:) = sum(Counts.wvoff_bgsub(ii:(ii+Options.intRange-1),:),1);
     inc = inc+1;
 end
 Counts.o2on_bgsub = o2on_intp2;
 Counts.o2off_bgsub = o2off_intp2;
 Counts.o2on_bgsub_mol = o2on_intp2_mol;
 Counts.o2off_bgsub_mol = o2off_intp2_mol;
+
 Counts.wvon_bgsub = wvon_intp2;
 Counts.wvoff_bgsub = wvoff_intp2;
 
-Range.rm_raw_o2 = Range.rm_raw_o2(1:2:end)+Range.rangeBin./2;
+%Range.rm_raw_o2 = Range.rm_raw_o2(1:2:end)+Range.rangeBin./2;
+Range.rm_raw_o2 = Range.rm_raw_o2(1:Options.intRange:end)+Range.rangeBin./Options.intRange;
 
 %%
 
-% Interpolating to shorter range vector
+% ===Interpolating to shorter range vector===
 % Counts.o2on_noise = interp2(Time.ts,Range.rm_raw_o2,Counts.o2on_bgsub,Time.ts,Range.rm);
 % Counts.o2on_noise_mol = interp2(Time.ts,Range.rm_raw_o2,Counts.o2on_bgsub_mol,Time.ts,Range.rm);
 % Counts.o2off_noise = interp2(Time.ts,Range.rm_raw_o2,Counts.o2off_bgsub,Time.ts,Range.rm);
 % Counts.o2off_noise_mol = interp2(Time.ts,Range.rm_raw_o2,Counts.o2off_bgsub_mol,Time.ts,Range.rm);
-% Counts.wvon_noise = interp2(Time.ts,Range.rm_raw_o2,Counts.wvon_bgsub,Time.ts,Range.rm);
-% Counts.wvoff_noise = interp2(Time.ts,Range.rm_raw_o2,Counts.wvoff_bgsub,Time.ts,Range.rm);
 
+Counts.o2on_noise = Counts.o2on_bgsub(1:length(Range.rm),:);
+Counts.o2on_noise_mol = Counts.o2on_bgsub_mol(1:length(Range.rm),:);
+Counts.o2off_noise = Counts.o2off_bgsub(1:length(Range.rm),:);
+Counts.o2off_noise_mol = Counts.o2off_bgsub_mol(1:length(Range.rm),:);
 
-Counts.o2on_noise = Counts.o2on_bgsub(1:80,:);
-Counts.o2on_noise_mol = Counts.o2on_bgsub_mol(1:80,:);
-Counts.o2off_noise = Counts.o2off_bgsub(1:80,:);
-Counts.o2off_noise_mol = Counts.o2off_bgsub_mol(1:80,:);
-Counts.wvon_noise = Counts.wvon_bgsub(1:80,:);
-Counts.wvoff_noise = Counts.wvoff_bgsub(1:80,:);
+Counts.wvon_noise = Counts.wvon_bgsub(1:length(Range.rm),:);
+Counts.wvoff_noise = Counts.wvoff_bgsub(1:length(Range.rm),:);
 
-% Counts.o2on_noise = Counts.o2on_bgsub(7:86,:);
-% Counts.o2on_noise_mol = Counts.o2on_bgsub_mol(7:86,:);
-% Counts.o2off_noise = Counts.o2off_bgsub(7:86,:);
-% Counts.o2off_noise_mol = Counts.o2off_bgsub_mol(7:86,:);
-% Counts.wvon_noise = Counts.wvon_bgsub(7:86,:);
-% Counts.wvoff_noise = Counts.wvoff_bgsub(7:86,:);
+%integrate Bins to new range
+%Counts.NBins = Data.MCS.Channel0.NBins*2;
+Counts.NBins = Data.MCS.Channel0.NBins*Options.intRange;
+%Counts.NBins = Data.MCS.Channel0.NBins;
 
-Counts.NBins = Data.MCS.Channel0.NBins.*2;
 
 %%
 %-----Create Spectrum vectors----
@@ -440,15 +481,29 @@ o2nuCentralon = 10^7/o2lambdaCentralon;
 o2nuCentraloff = 10^7/o2lambdaCentraloff;
 
 
+o2on = 769.7962;
+o2off = 770.1085;
+wvon = 828.19400;
+wvoff = 828.29315;
+
+
 Spectrum.lambda_online = double(fillmissing(filloutliers(Data.Laser.O2Online.WavelengthActual,'linear','movmedian',5),'linear'));
 Spectrum.lambda_offline = double(fillmissing(filloutliers(Data.Laser.O2Offline.WavelengthActual,'linear','movmedian',5),'linear'));
 
+Data.Laser.O2Online.TimeStamp=fillmissing(Data.Laser.O2Online.TimeStamp,'linear');
+Data.Laser.O2Offline.TimeStamp=fillmissing(Data.Laser.O2Offline.TimeStamp,'linear');
+Spectrum.lambda_online = fillmissing(interp1(Data.Laser.O2Online.TimeStamp,Spectrum.lambda_online,Time.thr),'linear');
+Spectrum.lambda_offline = fillmissing(interp1(Data.Laser.O2Offline.TimeStamp,Spectrum.lambda_offline,Time.thr),'linear');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Spectrum.lambda_online = o2lambdaCentralon*ones(size(Time.ts));
+
 % Spectrum.lambda_wvon = 828.1959 *ones(size(Time.ts));
 % Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
-% Spectrum.lambda_wvon = 828.187 *ones(size(Time.ts));
-% Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
-Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
-Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
+ Spectrum.lambda_wvon = 828.187 *ones(size(Time.ts));
+ Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
+%Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
+%Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
 
 Spectrum.lambda_wvon = double(Spectrum.lambda_wvon); %single values mess up conversion to wavenumber
 Spectrum.lambda_wvoff = double(Spectrum.lambda_wvoff);
@@ -466,7 +521,7 @@ Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offlin
 nuMin = o2nuCentralon-0.334;                                 %[cm-1] Scan lower bound
 nuMax = o2nuCentralon+0.334;                                 %[cm-1] Scan upper bound
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
-%Spectrum.nuBin = 0.00222/2;   
+Spectrum.nuBin = 0.00222/2;   
 nu_scan = (nuMin:Spectrum.nuBin:nuMax);                      %[cm-1](1 x nu) Scan vector
 
 nuwvMin = wvnuCentralon-0.334;                                 %[cm-1] Scan lower bound
@@ -474,6 +529,9 @@ nuwvMax = wvnuCentralon+0.334;                                 %[cm-1] Scan uppe
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
 %Spectrum.nuBin = 0.00222/2;
 nu_scanwv = (nuwvMin:Spectrum.nuBin:nuwvMax);                      %[cm-1](1 x nu) Scan vector
+
+
+Spectrum.nuBin = 0.00222/2;
 
 nuMin_off = o2nuCentraloff-0.334;                                 %[cm-1] Scan lower bound
 nuMax_off = o2nuCentraloff+0.334;                                 %[cm-1] Scan upper bound
@@ -496,8 +554,11 @@ Spectrum.lambda_scanwv_3D_short = 10^7./Spectrum.nu_scan_3D_short;
 
 Spectrum.lambda_online = Spectrum.lambda_online+Spectrum.WavemeterOffset;
 Spectrum.lambda_offline = Spectrum.lambda_offline+Spectrum.WavemeterOffset;
-Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
-Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
+% Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
+% Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
+ Spectrum.lambda_wvon = 828.187 *ones(size(Time.ts));
+ Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
+
 Spectrum.lambda_wvon = double(Spectrum.lambda_wvon)+Spectrum.WavemeterOffset; %single values mess up conversion to wavenumber
 Spectrum.lambda_wvoff = double(Spectrum.lambda_wvoff)+Spectrum.WavemeterOffset;
 Spectrum.nu_online = 10^7./Spectrum.lambda_online;                    %[cm-1] Online wavenumber
@@ -509,28 +570,47 @@ Spectrum.nu_wvoff = 10^7./Spectrum.lambda_wvoff;                  %[cm-1] Offlin
 [~,Spectrum.online_index] = min(abs(Spectrum.nu_online - Spectrum.nu_scan_3D_short),[],3);%finding index of online wavenumber
 [~,Spectrum.offline_index] = min(abs(Spectrum.nu_offline - Spectrum.nu_scan_3D_short_off),[],3);%finding index of online wavenumber
 
+%Adjust index to match wavelength
+Spectrum.nu_scan_3D_short=Spectrum.nu_scan_3D_short-(Spectrum.nu_scan_3D_short(:,:,Spectrum.online_index(1))-Spectrum.nu_online(1));
+Spectrum.nu_scan_3D_short_off=Spectrum.nu_scan_3D_short_off-(Spectrum.nu_scan_3D_short_off(:,:,Spectrum.offline_index(1))-Spectrum.nu_offline(1));
+Spectrum.lambda_scan_3D_short = 10^7./Spectrum.nu_scan_3D_short;
+Spectrum.lambda_scan_3D_short_off = 10^7./Spectrum.nu_scan_3D_short_off;
+
 [~,Spectrum.online_indexwv] = min(abs(Spectrum.nu_wvon - Spectrum.nu_scanwv_3D_short),[],3);%finding index of online wavenumber
 
 %%
-Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
-%Model.transmission = exp(-cumtrapz(Range.rm,Model.absorption));
+%===== Calculate Model absorption from Model T and P =======
+%%%%Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
+
+Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV);
+
 Model.absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
+Model.transmission = exp(-cumtrapz(Range.rm,Model.absorption));
 
-
+%===== Calucation Model absorption for radiosondes =======
+for i=1:numel(sonde_datetime) 
+        if isdatetime(sonde_datetime(i)) %Check if there are any sondes
+            Sonde.absorption_sonde{i} = diag(absorption_O2_770_model(Sonde.T_sonde(:,i),Sonde.P_sonde(:,i),Spectrum.nu_online(Sonde.sonde_ind(:,i)),Model.WV(:,Sonde.sonde_ind(:,i)))); %[m-1] Funcrtion to calculate theoretical absorption
+             Sonde.absorption_sonde{i} = diag(absorption_O2_770_model(Sonde.T_sonde(:,i),Sonde.P_sonde(:,i),Spectrum.nu_online(Sonde.sonde_ind(:,i)),Sonde.WV_sonde(:,i))); %[m-1] Funcrtion to calculate theoretical absorption
+            Sonde.trasmission_sonde{i} = exp(-cumtrapz(Range.rm,Sonde.absorption_sonde{i})); %O2 transmission
+        else
+            Sonde.absorption_sonde{i} = nan(Range.i_range,1);
+            Sonde.trasmission_sonde{i} = nan(Range.i_range,1);
+            Sonde.T_sonde = nan(Range.i_range,1);
+            Sonde.P_sonde = nan(Range.i_range,1);
+            Sonde.WV_sonde = nan(Range.i_range,1);
+        end
+end
 %%
 disp('calculating RB PCA')
 [Spectrum] = PCAconstrunctionRB2(Spectrum);
 %%
-%Count filtering
-k = ones(Options.oversample,Options.t_avg)./(Options.oversample*Options.t_avg);     % Kernel
-
-Counts.o2on = filter2(k,Counts.o2on_noise,'same');
-Counts.o2on_mol = filter2(k,Counts.o2on_noise_mol,'same');
-Counts.o2off = filter2(k,Counts.o2off_noise,'same');
-Counts.o2off_mol = filter2(k,Counts.o2off_noise_mol,'same');
-
-Counts.wvon = filter2(k,Counts.wvon_noise,'same');
-Counts.wvoff = filter2(k,Counts.wvoff_noise,'same');
+%====Count filtering====
+% k = ones(Options.oversample,Options.t_avg)./(Options.oversample*Options.t_avg);     % Kernel
+% Counts.o2on = filter2(k,Counts.o2on_noise,'same');
+% Counts.o2on_mol = filter2(k,Counts.o2on_noise_mol,'same');
+% Counts.o2off = filter2(k,Counts.o2off_noise,'same');
+% Counts.o2off_mol = filter2(k,Counts.o2off_noise_mol,'same');
 
 Counts.o2on = Counts.o2on_noise;
 Counts.o2on_mol = Counts.o2on_noise_mol;
@@ -578,20 +658,7 @@ Counts.wvoff = Counts.wvoff_noise;
 % Counts.o2off_mol = 2*Counts.o2off_mol - off_molConv(2:end,:);
 % Counts.o2off_mol(Counts.o2off_mol<0)=0;
 
-%%
-%===== Calucation Model absorption for radiosondes =======
-for i=1:numel(sonde_datetime) 
-        if isdatetime(sonde_datetime(i)) %Check if there are any sondes
-           % Sonde.absorption_sonde{i} = diag(absorption_O2_770_model(Sonde.T_sonde(:,i),Sonde.P_sonde(:,i),Spectrum.nu_online(Sonde.sonde_ind(:,i)),Model.WV(:,Sonde.sonde_ind(:,i)))); %[m-1] Funcrtion to calculate theoretical absorption
-           Sonde.absorption_sonde{i} = absorption_O2_770_model(Sonde.T_sonde(:,i),Sonde.P_sonde(:,i),Spectrum.nu_online(Sonde.sonde_ind(1,i)),Sonde.WV_sonde(:,i)); %[m-1] Funcrtion to calculate theoretical absorption
-            Sonde.trasmission_sonde{i} = exp(-cumtrapz(Range.rm,Sonde.absorption_sonde{i})); %O2 transmission
-        else
-            Sonde.absorption_sonde{i} = nan(Range.i_range,1);
-            Sonde.trasmission_sonde{i} = nan(Range.i_range,1);
-            Sonde.T_sonde = nan(Range.i_range,1);
-            Sonde.P_sonde = nan(Range.i_range,1);
-        end
-end
+
 %%
 Data.Thermocouple.TSOA.Temperature = nan(size(Data.Thermocouple.InsideCell.Temperature));
 Data.Thermocouple.OutsideCell.Temperature = nan(size(Data.Thermocouple.InsideCell.Temperature));
