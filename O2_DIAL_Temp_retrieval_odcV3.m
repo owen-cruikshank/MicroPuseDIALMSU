@@ -25,6 +25,12 @@ date_end = datetime(2022,09,12,'TimeZone','UTC');%yyyy,mm,dd
 date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
 
+date_start = datetime(2021,7,1,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2021,7,1,'TimeZone','UTC');%yyyy,mm,dd
+
+date_start = datetime(2021,6,20,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2021,8,15,'TimeZone','UTC');%yyyy,mm,dd
+
 span_days = date_start:date_end;
 
 %=Time and range averaging
@@ -58,6 +64,7 @@ Constant.No = 2.47937E25;            %[1/m^3] Loschmidt's number  (referenced to
 
 Options.MPDname = '00';
 Options.MPDname = '03';
+Options.MPDname = '05';
 
 Options.DataPath = 'C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data';
 if strcmp(Options.MPDname,'00')
@@ -183,7 +190,7 @@ for jjjj = 1:iter
         HSRLfull.BSR = nanconv(HSRLfull.BSR,k,'edge','nanout');
 
     
-    elseif strcmp(Options.MPDname,'03')
+    elseif strcmp(Options.MPDname,'03') || strcmp(Options.MPDname,'05')
         Counts.Nc_on = Counts.o2on;%.*Counts.NBins;
         Counts.Nc_off = Counts.o2off;%.*Counts.NBins;
         Counts.Nm_on = Counts.o2on_mol;%.*Counts.NBins;
@@ -201,6 +208,7 @@ for jjjj = 1:iter
         [HSRLfull] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
 
         k = ones(4,6)./(4*6);
+        k = ones(1,1)./(1*1);
         HSRL.BSR = nanconv(HSRL.BSR,k,'edge','nanout');
     
     end
@@ -257,13 +265,14 @@ for jjjj = 1:iter
         HSRL.gBSR(:,:,jjjj) = nanconv(HSRL.gBSR(:,:,jjjj),k,'edge','nanout');
         
 
-    elseif strcmp(Options.MPDname,'03')
+    elseif strcmp(Options.MPDname,'03') || strcmp(Options.MPDname,'05')
         Counts.Nc_on = Counts.fon(:,:,jjjj);
         Counts.Nc_off = Counts.foff(:,:,jjjj);
         Counts.Nm_on = Counts.fon_mol(:,:,jjjj);
         Counts.Nm_off = Counts.foff_mol(:,:,jjjj);
         [HSRLf] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         HSRL.fBSR(:,:,jjjj) = HSRLf.BSR;
+        HSRL.fBSR828(:,:,jjjj) = HSRLf.BSR*828/770;
 
         Counts.Nc_on = Counts.gon(:,:,jjjj);
         Counts.Nc_off = Counts.goff(:,:,jjjj);
@@ -271,6 +280,7 @@ for jjjj = 1:iter
         Counts.Nm_off = Counts.goff_mol(:,:,jjjj);
         [HSRLg] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
         HSRL.gBSR(:,:,jjjj) = HSRLg.BSR;
+        HSRL.gBSR828(:,:,jjjj) = HSRLg.BSR*828/770;
 
     else
 
@@ -309,18 +319,20 @@ for jjjj = 1:iter
         HSRL.gBSR828 =LidarData.UnmaskedBackscatterRatio828;
         HSRL.gBSR(:,:,jjjj) = fillmissing(LidarData.UnmaskedBackscatterRatio828,'linear');
     end
-
 %%
-    % ==== Afterpulse correction ====
-    % pulseON = 4.146e+07*10*(Range.rm).^(-2.536*1);
-    % % pulseOFF = 4.146e+07*1*(rm_over).^(-2.536*1.0);
-    % pulseOFF = 3.682e+07*10*1.3*(Range.rm).^(-2.512*1);
-    % 
-    % % pulseON = 4.146e+07*10*1.3*(Range.rm).^(-2.536*1);
-    % % % pulseOFF = 4.146e+07*1*(rm_over).^(-2.536*1.0);
-    % % pulseOFF = 3.682e+07*10*1*(Range.rm).^(-2.512*1);
-    % Counts.o2on = Counts.o2on-pulseON;
-    % Counts.o2off = Counts.o2off-pulseOFF;
+k = ones(4,6)./(4*6);
+%k = ones(2,3)./(2*3);
+k = ones(1,1)./(1*1);
+
+%=== apply mask
+
+%==== Smooth temperature
+%Temperature.T_final_tests = nanconv(Temperature.T_final_test(:,:,end),k,'edge','nanout');
+HSRL.BSR = nanconv(HSRL.BSR(:,:,end),k,'edge','nanout');
+HSRLfull.BSR = nanconv(HSRLfull.BSR(:,:,end),k,'edge','nanout');
+HSRL.gBSR(:,:,jjjj) = nanconv(HSRL.gBSR(:,:,jjjj),k,'edge','nanout');
+HSRL.gBSR(:,:,jjjj) = nanconv(HSRL.fBSR(:,:,jjjj),k,'edge','nanout');
+
     
 %%
     %==========================
@@ -329,45 +341,10 @@ for jjjj = 1:iter
     disp('Calculating absorption')
             
     % === Zeroth Order ===
-    ind_r_lo = 1:Range.i_range-Options.oversample;                                            % High range vector
-    ind_r_hi = 1+Options.oversample:Range.i_range;                                            % Low range vector
-    ln_o2 = log((Counts.o2on(ind_r_lo,:).*Counts.o2off(ind_r_hi,:))./(Counts.o2on(ind_r_hi,:).*Counts.o2off(ind_r_lo,:))); % Natural log of counts
-        
-    Alpha.alpha_0_raw = ln_o2./2./(Range.rangeBin*Options.oversample);                              %[1/m] 
-    %Alpha.alpha_0 = interp2(Time.ts,Range.rm(ind_r_lo),Alpha.alpha_0_raw,Time.ts,Range.rm);
-    Alpha.alpha_0 = interp2(Time.ts,Range.rm(ind_r_lo)+Range.rangeBin./2,Alpha.alpha_0_raw,Time.ts,Range.rm);
-    Alpha.alpha_0_raw = real(Alpha.alpha_0_raw);
-    Alpha.alpha_0 = real(Alpha.alpha_0);
-    %alpha_0 = fillmissing(Alpha.alpha_0,'nearest');
     
     %2nd order error
-        alpha_0 = zeros(size(Counts.o2on));
-        alpha_0(1,:,:) = log((Counts.o2on(1,:).*Counts.o2off(2,:))./(Counts.o2on(2,:).*Counts.o2off(1,:)))./2./Range.rangeBin;
-        for iii = 2:length(Range.rm)-1
-            %dg1(iii,:,:) = (g1(iii+1,:,:)-g1(iii-1,:,:))/2/Range.rangeBin;
-            alpha_0(iii,:)=log((Counts.o2on(iii-1,:).*Counts.o2off(iii+1,:))./(Counts.o2on(iii+1,:).*Counts.o2off(iii-1,:)))./2./Range.rangeBin./2;
-        end
-        alpha_0(end,:,:) = log((Counts.o2on(end-1,:).*Counts.o2off(end,:))./(Counts.o2on(end,:).*Counts.o2off(end-1,:)))./2./Range.rangeBin;
-    
-        alpha_0 = real(alpha_0);
-    
-    alpha_0_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV);
-    
-    Alpha.alpha_0 = alpha_0+alpha_0_off;
-    
-    nanAlpha = isnan(Alpha.alpha_0);
-    Alpha.alpha_0(nanAlpha) = Model.absorption(nanAlpha);
 
-
-
-        alpha_0_full = zeros(size(Counts.o2on_noise));
-        alpha_0_full(1,:,:) = log((Counts.o2on_noise(1,:).*Counts.o2off_noise(2,:))./(Counts.o2on_noise(2,:).*Counts.o2off_noise(1,:)))./2./Range.rangeBin;
-        for iii = 2:length(Range.rm)-1
-            %dg1(iii,:,:) = (g1(iii+1,:,:)-g1(iii-1,:,:))/2/Range.rangeBin;
-            alpha_0_full(iii,:)=log((Counts.o2on_noise(iii-1,:).*Counts.o2off_noise(iii+1,:))./(Counts.o2on_noise(iii+1,:).*Counts.o2off_noise(iii-1,:)))./2./Range.rangeBin./2;
-        end
-        alpha_0_full(end,:,:) = log((Counts.o2on_noise(end-1,:).*Counts.o2off_noise(end,:))./(Counts.o2on_noise(end,:).*Counts.o2off_noise(end-1,:)))./2./Range.rangeBin;
-    
+    [alpha_0_full] = alpha_0(Counts.o2on_noise,Counts.o2off_noise,Range.rangeBin);
         alpha_0_full = real(alpha_0_full);
     
     alpha_0_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV);
@@ -377,80 +354,34 @@ for jjjj = 1:iter
     nanAlpha = isnan(Alpha.alpha_0_full);
     Alpha.alpha_0_full(nanAlpha) = Model.absorption(nanAlpha);
 
-    
-    Counts.o2off_mol_cor = Counts.o2off_mol.*HSRL.BSR;
-        alpha_0_mol = zeros(size(Counts.o2on));
-        alpha_0_mol(1,:,:) = log((Counts.o2on_mol(1,:).*Counts.o2off_mol_cor(2,:))./(Counts.o2on_mol(2,:).*Counts.o2off_mol_cor(1,:)))./2./Range.rangeBin;
-        for iii = 2:length(Range.rm)-1
-            alpha_0_mol(iii,:)=log((Counts.o2on_mol(iii-1,:).*Counts.o2off_mol_cor(iii+1,:))./(Counts.o2on_mol(iii+1,:).*Counts.o2off_mol_cor(iii-1,:)))./2./Range.rangeBin./2;
-        end
-        alpha_0_mol(end,:,:) = log((Counts.o2on_mol(end-1,:).*Counts.o2off_mol_cor(end,:))./(Counts.o2on_mol(end,:).*Counts.o2off_mol_cor(end-1,:)))./2./Range.rangeBin;
-    
-    ln_o2 = log((Counts.fon(ind_r_lo,:,jjjj).*Counts.foff(ind_r_hi,:,jjjj))./(Counts.fon(ind_r_hi,:,jjjj).*Counts.foff(ind_r_lo,:,jjjj))); % Natural log of counts
-        
-    Alpha.alpha_0f_raw = real(ln_o2)./2./(Range.rangeBin*Options.oversample);                              %[1/m] 
-    %Alpha.alpha_0 = interp2(Time.ts,Range.rm(ind_r_lo),Alpha.alpha_0_raw,Time.ts,Range.rm);
-    Alpha.alpha_0f(:,:,jjjj) = interp2(Time.ts,Range.rm(ind_r_lo)+Range.rangeBin./2,Alpha.alpha_0f_raw,Time.ts,Range.rm);
-    Alpha.alpha_0f(:,:,jjjj) = fillmissing(Alpha.alpha_0f(:,:,jjjj),'nearest');
-    
-    ln_o2 = log((Counts.gon(ind_r_lo,:,jjjj).*Counts.goff(ind_r_hi,:,jjjj))./(Counts.gon(ind_r_hi,:,jjjj).*Counts.goff(ind_r_lo,:,jjjj))); % Natural log of counts
-        
-    Alpha.alpha_0g_raw = real(ln_o2)./2./(Range.rangeBin*Options.oversample);                              %[1/m] 
-    %Alpha.alpha_0 = interp2(Time.ts,Range.rm(ind_r_lo),Alpha.alpha_0_raw,Time.ts,Range.rm);
-    Alpha.alpha_0g(:,:,jjjj) = interp2(Time.ts,Range.rm(ind_r_lo)+Range.rangeBin./2,Alpha.alpha_0g_raw,Time.ts,Range.rm);
-    Alpha.alpha_0g(:,:,jjjj) = fillmissing(Alpha.alpha_0g(:,:,jjjj),'nearest');
-    
-    
-    %central diff
-    % don = zeros(size(Counts.o2on));
-    % don(1,:) = log(Counts.o2on(2,:))-log(Counts.o2on(1,:));
-    % doff = zeros(size(Counts.o2on));
-    % doff(1,:) = log(Counts.o2off(2,:))-log(Counts.o2off(1,:));
-    % for iii = 2:length(Range.rm)-1
-    % don(iii,:) = (log(Counts.o2on(iii+1,:))-log(Counts.o2on(iii-1,:)))./2;
-    % doff(iii,:) = (log(Counts.o2off(iii+1,:))-log(Counts.o2off(iii-1,:)))./2;
-    % end
-    % don(end,:) = log(Counts.o2on(end,:))-log(Counts.o2on(end-1,:));
-    % doff(end,:) = log(Counts.o2off(end,:))-log(Counts.o2off(end-1,:));
-    % 
-    % alpha_0_center = (doff-don)./2./Range.rm;
-    %Alpha.alpha_0 = alpha_0_center;
-    
-    %%%%%Alpha.alpha_0 = Alpha.alpha_0 - Model.absorption_off; %Subtract offline absorption
+  
+    Alpha.alpha_0f(:,:,jjjj) = alpha_0(Counts.fon(:,:,jjjj),Counts.foff(:,:,jjjj),Range.rangeBin);
+    Alpha.alpha_0f(:,:,jjjj) = real(Alpha.alpha_0f(:,:,jjjj))+alpha_0_off;
+    %Alpha.alpha_0f(nanAlpha) = Model.absorption(nanAlpha);
+
+    Alpha.alpha_0g(:,:,jjjj) = alpha_0(Counts.gon(:,:,jjjj),Counts.goff(:,:,jjjj),Range.rangeBin);
+    Alpha.alpha_0g(:,:,jjjj) = real(Alpha.alpha_0g(:,:,jjjj))+alpha_0_off;
+    %Alpha.alpha_0g(nanAlpha) = Model.absorption(nanAlpha);
     
     
     %zero order error alpha
-    Alpha.alpha_0_err = (1./2./(Range.rangeBin*Options.oversample)) .* sqrt(1./Counts.NBins) .*  sqrt(...
-     (-sqrt(Counts.o2on(ind_r_lo,:)+Counts.bg_o2on)./Counts.o2on(ind_r_lo,:)).^2 ...
-    +(sqrt(Counts.o2on(ind_r_hi,:)+Counts.bg_o2on)./Counts.o2on(ind_r_hi,:)).^2 ...
-    +(sqrt(Counts.o2off(ind_r_lo,:)+Counts.bg_o2off)./Counts.o2off(ind_r_lo,:)).^2 ...
-    +(-sqrt(Counts.o2off(ind_r_hi,:)+Counts.bg_o2off)./Counts.o2off(ind_r_hi,:)).^2);
+    % Alpha.alpha_0_err = (1./2./(Range.rangeBin*Options.oversample)) .* sqrt(1./Counts.NBins) .*  sqrt(...
+    %  (-sqrt(Counts.o2on(ind_r_lo,:)+Counts.bg_o2on)./Counts.o2on(ind_r_lo,:)).^2 ...
+    % +(sqrt(Counts.o2on(ind_r_hi,:)+Counts.bg_o2on)./Counts.o2on(ind_r_hi,:)).^2 ...
+    % +(sqrt(Counts.o2off(ind_r_lo,:)+Counts.bg_o2off)./Counts.o2off(ind_r_lo,:)).^2 ...
+    % +(-sqrt(Counts.o2off(ind_r_hi,:)+Counts.bg_o2off)./Counts.o2off(ind_r_hi,:)).^2);
+    % 
+    % Alpha.alpha_0_err(end+1,:,:)=Alpha.alpha_0_err(end,:,:);
     
-    Alpha.alpha_0_err(end+1,:,:)=Alpha.alpha_0_err(end,:,:);
-    
-    
-    % ln_o2 = log((Counts.wvon(ind_r_lo,:).*Counts.wvoff(ind_r_hi,:))./(Counts.wvon(ind_r_hi,:).*Counts.wvoff(ind_r_lo,:))); % Natural log of counts  
-    % Alpha.alpha_0wv_raw = ln_o2./2./(Range.rangeBin*Options.oversample); 
-    % %Alpha.alpha_0wv = interp2(Time.ts,Range.rm(ind_r_lo),Alpha.alpha_0wv_raw,Time.ts,Range.rm);
-    % Alpha.alpha_0wv = interp2(Time.ts,Range.rm(ind_r_lo)+Range.rangeBin./2,Alpha.alpha_0wv_raw,Time.ts,Range.rm);
-    % Alpha.alpha_0wv = interp2(Time.ts,Range.rm(ind_r_lo),Alpha.alpha_0wv_raw,Time.ts,Range.rm);
-    % Alpha.alpha_0wv = fillmissing(Alpha.alpha_0wv,'nearest');
 
+    [Alpha.alpha_0wv] = alpha_0(Counts.wvon_noise,Counts.wvoff_noise,Range.rangeBin);
+    Alpha.alpha_0wv = real(Alpha.alpha_0wv);
 
-            alpha_0wv = zeros(size(Counts.wvon));
-        alpha_0wv(1,:,:) = log((Counts.wvon(1,:).*Counts.wvoff(2,:))./(Counts.wvon(2,:).*Counts.wvoff(1,:)))./2./Range.rangeBin;
-        for iii = 2:length(Range.rm)-1
-            %dg1(iii,:,:) = (g1(iii+1,:,:)-g1(iii-1,:,:))/2/Range.rangeBin;
-            alpha_0wv(iii,:)=log((Counts.wvon(iii-1,:).*Counts.wvoff(iii+1,:))./(Counts.wvon(iii+1,:).*Counts.wvoff(iii-1,:)))./2./Range.rangeBin./2;
-        end
-        alpha_0wv(end,:,:) = log((Counts.wvon(end-1,:).*Counts.wvoff(end,:))./(Counts.wvon(end,:).*Counts.wvoff(end-1,:)))./2./Range.rangeBin;
+  
+    Alpha.alpha_0wvf(:,:,jjjj) = real(alpha_0(Counts.fwvon(:,:,jjjj),Counts.fwvoff(:,:,jjjj),Range.rangeBin));
+
+    Alpha.alpha_0wvg(:,:,jjjj) = real(alpha_0(Counts.gwvon(:,:,jjjj),Counts.gwvoff(:,:,jjjj),Range.rangeBin));
     
-        alpha_0wv = real(alpha_0wv);
-        Alpha.alpha_0wv_raw = alpha_0wv;
-        Alpha.alpha_0wv = Alpha.alpha_0wv_raw;
-        Alpha.alpha_0wv = fillmissing(Alpha.alpha_0wv,'nearest');
-    
-    clear ln_o2 foff fon goff gon
     
     [~,cross_section,~,~,g_wv] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvon,Alpha.alpha_0wv);
     
@@ -475,10 +406,23 @@ for jjjj = 1:iter
     %altitude in km
     altitude = 1.5719;
 
-    [Alpha.alpha_1wv, Alpha.alpha_2wv,Spectrum] = pertAbsorptionwv(Alpha.alpha_0wv, T_etalonwv_on, Model, Range, Time, Spectrum, HSRL.BSR828, ind_r_lo,ind_r_hi, Options, Constant, altitude);
+    [Alpha.alpha_1wv, Alpha.alpha_2wv,Spectrum] = pertAbsorptionwv(Alpha.alpha_0wv, T_etalonwv_on, Model, Range, Time, Spectrum, HSRL.BSR828, Options, Constant, altitude);
     
     N_wv = (Alpha.alpha_0wv+Alpha.alpha_1wv+ Alpha.alpha_2wv)./(cross_section-cross_sectionOff);
+
+
+    [Alpha.alpha_1wvf(:,:,jjjj), Alpha.alpha_2wvf,Spectrum] = pertAbsorptionwv(Alpha.alpha_0wvf(:,:,jjjj), T_etalonwv_on, Model, Range, Time, Spectrum, HSRL.fBSR828(:,:,jjjj), Options, Constant, altitude);
     
+    N_wvf(:,:,jjjj) = (Alpha.alpha_0wvf(:,:,jjjj)+Alpha.alpha_1wvf(:,:,jjjj)+ Alpha.alpha_2wvf)./(cross_section-cross_sectionOff);
+   
+
+
+    [Alpha.alpha_1wvg(:,:,jjjj), Alpha.alpha_2wvg,Spectrum] = pertAbsorptionwv(Alpha.alpha_0wvg(:,:,jjjj), T_etalonwv_on, Model, Range, Time, Spectrum, HSRL.gBSR828(:,:,jjjj), Options, Constant, altitude);
+    
+    N_wvg(:,:,jjjj) = (Alpha.alpha_0wvg(:,:,jjjj)+Alpha.alpha_1wvg(:,:,jjjj)+ Alpha.alpha_2wvg)./(cross_section-cross_sectionOff);
+   
+    N_wv0f(:,:,jjjj) = Alpha.alpha_0wvf(:,:,jjjj)./(cross_section-cross_sectionOff);
+    N_wv0g(:,:,jjjj) = Alpha.alpha_0wvg(:,:,jjjj)./(cross_section-cross_sectionOff);
     %Smooth WV
     % k = ones(4,8)./(4*8);     % Kernel
     % %k = ones(3,7)./(3*7);     % Kernel
@@ -488,10 +432,10 @@ for jjjj = 1:iter
     k = ones(4,6)./(4*6);
 
     N_wvm = nanconv(N_wv,k,'edge','nanout');
-    N_wvm(cloud_SDm_above)=nan;
+    %N_wvm(cloud_SDm_above)=nan;
     
     N_wv0m = nanconv(N_wv0,k,'edge','nanout');
-    N_wv0m(cloud_SDm_above)=nan;
+    %N_wv0m(cloud_SDm_above)=nan;
     
     AbsHumm = N_wvm.*Constant.mWV*1000; %[g/m3]
     AbsHum0m = N_wv0m.*Constant.mWV*1000; %[g/m3]
@@ -503,7 +447,8 @@ for jjjj = 1:iter
     %%%%%%SET MODEL TO WV RETRIEVAL
     %Model.WV = fillmissing(N_wvm,'linear');
     Model.WV(~isnan(N_wv0m)) = N_wv0m(~isnan(N_wv0m));
-    Model.WV = fillmissing(Model.WV,'linear');
+    Model.WV = fillmissing(Model.WV,'linear',1);
+    Model.WV = fillmissing(Model.WV,'linear',2);
     
     Alpha.AbsHum0Rawm = AbsHum0Rawm;
     Alpha.AbsHumRawm = AbsHumRawm;
@@ -518,18 +463,18 @@ for jjjj = 1:iter
     
     % === Smoothing zeroth order
     
-    Alpha.alpha_0=real(Alpha.alpha_0);
+    Alpha.alpha_0_full=real(Alpha.alpha_0_full);
     
     % === Molecular alpha calcultion =====
     
 %%
     % === Purtabative absorption ===
     %[Alpha.alpha_total_raw,Alpha.alpha_1,Alpha.alpha_2,Spectrum] = pertAbsorption(Alpha.alpha_0, T_etalon_on, Model, Range, Time, Spectrum, HSRL.BSR, ind_r_lo,ind_r_hi, Options,true);
-    [Alpha.alpha_total_rawFull,Alpha.alpha_1,Alpha.alpha_2,~] = pertAbsorption(Alpha.alpha_0_full, T_etalon_on, T_etalon_off, Model, Range, Time, Spectrum, HSRLfull.BSR, ind_r_lo,ind_r_hi, Options,true);
+    [Alpha.alpha_total_rawFull,Alpha.alpha_1,Alpha.alpha_2,~] = pertAbsorption(Alpha.alpha_0_full, T_etalon_on, T_etalon_off, Model, Range, Time, Spectrum, HSRLfull.BSR, Options,true);
     
     Alpha.alpha_total_raw = Alpha.alpha_total_rawFull;
-    [Alpha.alpha_total_rawf(:,:,jjjj)] = pertAbsorption(Alpha.alpha_0f(:,:,jjjj), T_etalon_on, T_etalon_off, Model, Range, Time, Spectrum, HSRL.fBSR(:,:,jjjj), ind_r_lo,ind_r_hi, Options,true);
-    [Alpha.alpha_total_rawg(:,:,jjjj)] = pertAbsorption(Alpha.alpha_0g(:,:,jjjj), T_etalon_on, T_etalon_off, Model, Range, Time, Spectrum, HSRL.gBSR(:,:,jjjj), ind_r_lo,ind_r_hi, Options,true);
+    [Alpha.alpha_total_rawf(:,:,jjjj)] = pertAbsorption(Alpha.alpha_0f(:,:,jjjj), T_etalon_on, T_etalon_off, Model, Range, Time, Spectrum, HSRL.fBSR(:,:,jjjj), Options,true);
+    [Alpha.alpha_total_rawg(:,:,jjjj)] = pertAbsorption(Alpha.alpha_0g(:,:,jjjj), T_etalon_on, T_etalon_off, Model, Range, Time, Spectrum, HSRL.gBSR(:,:,jjjj), Options,true);
     
 %%
     Alpha.alpha_total_err = zeros(size(Alpha.alpha_total_rawFull));
@@ -577,7 +522,7 @@ for jjjj = 1:iter
     Alpha.alpha_total_rawg(:,:,jjjj) = nanconv(Alpha.alpha_total_rawg(:,:,jjjj),k,'edge','nanout');
     Alpha.alpha_total_rawFull = nanconv(Alpha.alpha_total_rawFull,k,'edge','nanout');
     
-    Alpha.alpha_0m = Alpha.alpha_0;
+    Alpha.alpha_0m = Alpha.alpha_0_full;
     Alpha.alpha_0m(cloud_SDm_above)=nan;
     Alpha.alpha_0s= nanconv(Alpha.alpha_0m,k,'edge','nanout');
     
@@ -611,7 +556,7 @@ for jjjj = 1:iter
     
 %%
     % apply SNR mask again
-    Alpha.alpha_0m = Alpha.alpha_0;
+    Alpha.alpha_0m = Alpha.alpha_0_full;
     Alpha.alpha_0m(cloud_SDm_above) = NaN;                  % Replace mask with NaNs
     
     Alpha.alpha_total = real(Alpha.alpha_totals);
@@ -660,6 +605,10 @@ deltaTMask = false(size(Temperature.T_final_testFull(:,:,end)));
 deltaTMask(abs(Temperature.deltaTFull(:,:,end))>=2e-5) = true;
 
 Temperature.T_final_testFull(deltaTMask)=nan;
+
+alpha0wvStd = sqrt((1/(2*(B-1))) *sum((Alpha.alpha_0wvf-Alpha.alpha_0wvg).^2,3) );
+N_wv0Std = sqrt((1/(2*(B-1))) *sum((N_wv0f-N_wv0g).^2,3) );
+N_wvStd = sqrt((1/(2*(B-1))) *sum((N_wvf-N_wvg).^2,3) );
 
 
 %%%%Temperature.TempSTD = 0;
@@ -984,6 +933,19 @@ tempStds = sqrt((1/(2*(B-1))) *sum((Temperature.T_final_testfs-Temperature.T_fin
 tempStd = sqrt((1./(2.*(permute(1:B,[1 3 2])-1))) .*cumsum((Temperature.T_final_testf-Temperature.T_final_testg).^2,3) );
 
 tempStds = tempStdssSS;
+Temperature.TempStds = tempStds;
+
+%%
+k = ones(2,1)./(2*1);
+N_wv0s = nanconv(N_wv0(:,:,end),k.*numel(k),'edge','nanout');
+N_wvs = nanconv(N_wv(:,:,end),k.*numel(k),'edge','nanout');
+N_wvStds = sqrt(nanconv(N_wvStd(:,:,end).^2,k.*numel(k),'edge','nanout').*numel(k))./numel(k);
+N_wv0Stds = sqrt(nanconv(N_wv0Std(:,:,end).^2,k.*numel(k),'edge','nanout').*numel(k))./numel(k);
+
+AbsHum0s = N_wv0s.*Constant.mWV*1000;
+AbsHums = N_wvs.*Constant.mWV*1000;
+AbsHum0Stds = N_wv0Stds.*Constant.mWV*1000;
+AbsHumStds = N_wvStds.*Constant.mWV*1000;
 %%
 %=== apply mask
 %Temperature.T_finalm = Temperature.T_final_tests ;
@@ -1140,16 +1102,23 @@ plot_time = datetime(2023,8,1,12,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 p_point(1:length(Range.rm),1)=p_point;
 
 %= Plot time for profiles with sondes
-sonde_index = 1;
-%p_point = Sonde.sonde_ind(:,sonde_index);
+sonde_index = 31;
+p_point = Sonde.sonde_ind(:,sonde_index);
 
 %mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
 %mask = logical(tempStds>2) | cloud_SDm_above;
-mask = logical(tempStds>5);
+mask = logical(tempStds>5) | isnan(tempStds);
+wvmask = logical(AbsHumStds>5) | isnan(AbsHumStds);
 
 %mask = cloud_SDm_above;
 Temperature.T_finalm(mask) = nan;
 Alpha.Alpha_totalm(mask)=nan;
+AbsHum0sm = AbsHum0s;
+AbsHum0sm(wvmask)=nan;
+AbsHum0sm(1:lowAltindex,:)=nan;
+AbsHumsm = AbsHums;
+AbsHumsm(wvmask)=nan;
+AbsHumsm(1:lowAltindex,:)=nan;
 %HSRL.BSR(mask)=nan;
 
 Alpha.alpha_totals(mask) = nan;

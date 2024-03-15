@@ -320,7 +320,8 @@ hold off
 
 %=Absorption profile
 figure(4)
-alpha = Alpha.alpha_0;
+%alpha = Alpha.alpha_0;
+alpha = Alpha.alpha_0_full;
 %alpha(cloud_SDm_above)=nan;
 %alpha(mask)=nan;
 

@@ -2,7 +2,7 @@
 % author: Owen Cruikshank
 % date: 11/30/2020
 
-function [alpha_final,alpha_1_raw,alpha_2_raw,Spectrum] = pertAbsorption(alpha, T_etalon, T_etalon_off, Model, Range, Time, Spectrum, BSR, ind_r_lo,ind_r_hi, Options, UseRBspectrum,usePCAabsorption)
+function [alpha_final,alpha_1_raw,alpha_2_raw,Spectrum] = pertAbsorption(alpha, T_etalon, T_etalon_off, Model, Range, Time, Spectrum, BSR, Options, UseRBspectrum,usePCAabsorption)
     % --- Spectral distribution using the initial temperature profile guess ---
 
      cB = 1.2;%Brullouion correction to doppler gaussian half width

@@ -4,7 +4,7 @@
 
 % function [alpha_1, alpha_2,Spectrum] = pertAbsorptionwv(alpha_0, T_etalon, T, P, rm,ts,rkm,m_air, nu_online, nu_scanwv_3D_short,nuBin,BSR,ind_r_lo,ind_r_hi,WV,online_index,i_range,i_time,i_scan_3D_short,rangeBin,oversample,t_avg,c,kb,altitude,Spectrum)
 %     function [alpha_1, alpha_2,Spectrum] = pertAbsorptionwv(alpha_0, T_etalon,Model, Range, Time,Constant,Spectrum, nu_online, nu_scanwv_3D_short,nuBin,BSR,ind_r_lo,ind_r_hi,WV,online_index,i_range,i_time,i_scan_3D_short,rangeBin,oversample,t_avg,c,kb,altitude,Spectrum)
- function [alpha_1, alpha_2,Spectrum] = pertAbsorptionwv(alpha_0, T_etalon, Model, Range, Time, Spectrum, BSR828, ind_r_lo,ind_r_hi, Options, Constant, altitude)
+ function [alpha_1, alpha_2,Spectrum] = pertAbsorptionwv(alpha_0, T_etalon, Model, Range, Time, Spectrum, BSR828, Options, Constant, altitude)
     % --- Spectral distribution using the initial temperature profile guess ---
 
     cB = -0.01*(Range.rkm+altitude) + 1.2;%Brullouin correction for 1.2 at 0km and 1.1 at 10km

@@ -39,6 +39,59 @@ elseif strcmp(Options.MPDname,'00')
     offlineMolecularTransmission = interp1((Data_Wavelength.lambda_off.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nm_off,Spectrum.lambda_scan_3D_short_off);
     
     WVOnlineTransmission = ones(size(offlineMolecularTransmission));
+
+elseif strcmp(Options.MPDname,'05')
+    load('CalibrationData\CalibrationTablesBoulderSponS6062021.mat','BoulderHSRLcoefficentsSponS6_062021')
+
+    BoulderHSRLcoefficents062021 = BoulderHSRLcoefficentsSponS6_062021;
+    %cd(file)
+    P=BoulderHSRLcoefficents062021.P; 
+    T=permute(BoulderHSRLcoefficents062021.T,[2 1]);
+    Eta_m=1;
+    Eta_c=1;
+    Cmm=permute(BoulderHSRLcoefficents062021.Cmm,[3 2 1]);
+    Cmc=permute(BoulderHSRLcoefficents062021.Cmc,[3 2 1]); 
+    Cam=BoulderHSRLcoefficents062021.Cam; 
+    Cac=BoulderHSRLcoefficents062021.Cac;
+    
+    
+    Cmm2=zeros(size(Counts.o2on));
+    Cmc2=zeros(size(Counts.o2on));
+
+    wdP = Model.P;
+    wdT = Model.T;
+
+%     for i=1:length(LidarData.Time)
+%        parfor j=1:length(LidarData.Range)
+%         Cmm2(j,i)=interp2(P,T,Cmm,wdP(j,i),wdT(j,i));
+%         Cmc2(j,i)=interp2(P,T,Cmc,wdP(j,i),wdT(j,i));
+%        end
+%     end
+
+    for j=1:size(Counts.o2on,1)
+    Cmm2(j,:)=interp2(P,T,Cmm,wdP(j,:),wdT(j,:));
+    Cmc2(j,:)=interp2(P,T,Cmc,wdP(j,:),wdT(j,:));
+    end
+
+    Cmm = Cmm2;
+    Cmc = Cmc2;
+    
+    %Calibration Constants
+    LidarData.Cac=Cac; %Aerosol in Combined
+    LidarData.Cam=Cam; %Aerosol in Molecular
+
+    %Beamsplitter and Detector Efficiencies
+    etac=Eta_c;
+    etam=Eta_m;
+        eta_c=Eta_c;
+    eta_m=Eta_m;
+
+    onlineCombinedTransmission   = ones(size(Spectrum.lambda_scan_3D_short));
+    onlineMolecularTransmission  = ones(size(Spectrum.lambda_scan_3D_short));
+    offlineCombinedTransmission  = ones(size(Spectrum.lambda_scan_3D_short));
+    offlineMolecularTransmission = ones(size(Spectrum.lambda_scan_3D_short));
+    
+    WVOnlineTransmission = ones(size(Spectrum.nu_scanwv_3D_short));
 end
 
 HSRL.offlineMolecularTransmission = offlineMolecularTransmission;
@@ -47,6 +100,7 @@ HSRL.onlineMolecularTransmission = onlineMolecularTransmission;
 HSRL.onlineCombinedTransmission = onlineCombinedTransmission;
 HSRL.WVOnlineTransmission =WVOnlineTransmission;
 
+if strcmp(Options.MPDname,'00') || strcmp(Options.MPDname,'03')
 int = [1:50 size(offlineMolecularTransmission,3)-50:size(offlineMolecularTransmission,3)];
 
 eta_m=(mean(offlineCombinedTransmission(:,:,int)./offlineMolecularTransmission(:,:,int))+1).^-1;
@@ -87,7 +141,7 @@ Cmm = trapz(permute(Spectrum.nu_scan_3D_short_off,[3 2 1]),sponts6_off.*offlineM
 Cmc = trapz(permute(Spectrum.nu_scan_3D_short_off,[3 2 1]),sponts6_off.*offlineCombinedTransmission,3);
 Cam = trapz(permute(Spectrum.nu_scan_3D_short_off,[3 2 1]),aerosolSpectrum.*offlineMolecularTransmission,3);
 Cac = trapz(permute(Spectrum.nu_scan_3D_short_off,[3 2 1]),aerosolSpectrum.*offlineCombinedTransmission,3);
-
+end
 
 Cmm = Cmm./Cac;
 Cam = Cam./Cac;
