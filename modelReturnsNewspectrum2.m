@@ -399,416 +399,421 @@ hsrlRange=[
 5943.32321725000];
 
 %%
-Ba=[4.6613204e-07
-4.1047431e-07
-5.7582895e-07
-1.3570170e-07
-1.3161906e-07
-1.2765082e-07
-1.2276352e-07
-1.2303390e-07
-1.1718502e-07
-1.1898334e-07
-1.0745936e-07
-1.1723892e-07
-1.1649375e-07
-1.1805292e-07
-1.1192841e-07
-1.0862890e-07
-1.1089907e-07
-1.1256763e-07
-1.0898042e-07
-1.1106663e-07
-1.0765420e-07
-1.1204284e-07
-1.0690287e-07
-1.1209287e-07
-1.1080180e-07
-1.1635665e-07
-1.1331431e-07
-1.1385733e-07
-1.1213751e-07
-1.1782267e-07
-1.1645337e-07
-1.1585025e-07
-1.2495643e-07
-1.1891133e-07
-1.1513252e-07
-1.2463370e-07
-1.2590860e-07
-1.3135123e-07
-1.2629938e-07
-1.2727517e-07
-1.2929412e-07
-1.2085943e-07
-1.0104966e-07
-8.8880249e-08
-6.3357447e-08
-3.6959669e-08
-2.3852035e-08
-1.8021296e-08
-2.4797666e-08
-3.0249964e-08
-2.7557578e-08
-2.0404345e-08
-3.3469462e-08
-1.9044329e-08
-2.3232468e-08
-2.5082905e-08
-3.0843974e-08
-3.8060968e-08
-3.2537102e-08
-2.0391640e-08
-3.5210391e-08
-5.2044104e-08
-3.6961101e-08
-5.1240381e-08
-2.5100039e-08
-2.6902645e-08
-4.0523894e-08
-5.5383019e-08
-4.0988994e-08
-5.3440385e-08
-3.7596585e-08
-3.8991800e-08
-4.8220500e-08
-7.6745209e-08
-3.6774896e-08
-4.2631818e-08
-4.2929582e-08
-4.7819249e-08
-5.1587488e-08
-4.0568914e-08
-4.7318927e-08];
-Bm = [
-2.81186439741600e-07
-2.79263655924774e-07
-2.77350920847412e-07
-2.75448198244344e-07
-2.73555451922439e-07
-2.71672645760581e-07
-2.69799743709638e-07
-2.67936709792442e-07
-2.66083508103758e-07
-2.64240102810260e-07
-2.62406458150507e-07
-2.60582538434914e-07
-2.58768308045728e-07
-2.56963731436998e-07
-2.55168773134555e-07
-2.53383397735982e-07
-2.51607569910587e-07
-2.49841254399380e-07
-2.48084416015045e-07
-2.46337019641911e-07
-2.44599030235931e-07
-2.42870412824651e-07
-2.41151132507188e-07
-2.39441154454198e-07
-2.37740443907855e-07
-2.36048966181821e-07
-2.34366686661220e-07
-2.32693570802613e-07
-2.31029584133969e-07
-2.29374692254641e-07
-2.27728860835338e-07
-2.26092055618096e-07
-2.24464242416257e-07
-2.22845387114436e-07
-2.21235455668496e-07
-2.19634414105526e-07
-2.18042228523805e-07
-2.16458865092785e-07
-2.14884290053056e-07
-2.13318469716322e-07
-2.11761370465376e-07
-2.10212958754071e-07
-2.08673201107289e-07
-2.07142064120924e-07
-2.05619514461842e-07
-2.04105518867866e-07
-2.02600044147738e-07
-2.01103057181101e-07
-1.99614524918464e-07
-1.98134414381180e-07
-1.96662692661416e-07
-1.95199326922126e-07
-1.93744284397023e-07
-1.92297532390554e-07
-1.90859038277867e-07
-1.89428769504791e-07
-1.88006693587801e-07
-1.86592778113996e-07
-1.85186990741066e-07
-1.83789299197269e-07
-1.82399671281402e-07
-1.81018074862770e-07
-1.79644477881162e-07
-1.78278848346821e-07
-1.76921154340418e-07
-1.75571364013022e-07
-1.74229445586070e-07
-1.72895367351346e-07
-1.71569097670945e-07
-1.70250604977249e-07
-1.68939857772899e-07
-1.67636824630766e-07
-1.66341474193921e-07
-1.65053775175609e-07
-1.63773696359219e-07
-1.62501206598258e-07
-1.61236274816321e-07
-1.59978870007061e-07
-1.58728961234162e-07
-1.57486517631313e-07
-1.56251508402174e-07];
-hsrlRange = [
-    0
-74.9481145000000
-149.896229000000
-224.844343500000
-299.792458000000
-374.740572500000
-449.688687000000
-524.636801500000
-599.584916000000
-674.533030500000
-749.481145000000
-824.429259500000
-899.377374000000
-974.325488500000
-1049.27360300000
-1124.22171750000
-1199.16983200000
-1274.11794650000
-1349.06606100000
-1424.01417550000
-1498.96229000000
-1573.91040450000
-1648.85851900000
-1723.80663350000
-1798.75474800000
-1873.70286250000
-1948.65097700000
-2023.59909150000
-2098.54720600000
-2173.49532050000
-2248.44343500000
-2323.39154950000
-2398.33966400000
-2473.28777850000
-2548.23589300000
-2623.18400750000
-2698.13212200000
-2773.08023650000
-2848.02835100000
-2922.97646550000
-2997.92458000000
-3072.87269450000
-3147.82080900000
-3222.76892350000
-3297.71703800000
-3372.66515250000
-3447.61326700000
-3522.56138150000
-3597.50949600000
-3672.45761050000
-3747.40572500000
-3822.35383950000
-3897.30195400000
-3972.25006850000
-4047.19818300000
-4122.14629750000
-4197.09441200000
-4272.04252650000
-4346.99064100000
-4421.93875550000
-4496.88687000000
-4571.83498450000
-4646.78309900000
-4721.73121350000
-4796.67932800000
-4871.62744250000
-4946.57555700000
-5021.52367150000
-5096.47178600000
-5171.41990050000
-5246.36801500000
-5321.31612950000
-5396.26424400000
-5471.21235850000
-5546.16047300000
-5621.10858750000
-5696.05670200000
-5771.00481650000
-5845.95293100000
-5920.90104550000
-5995.84916000000];
-%%
-Ba = [
-    5.2134612e-07
-4.3726834e-07
-3.5601121e-07
-2.8319079e-07
-1.7023110e-07
-1.6213863e-07
-1.5790022e-07
-1.5479763e-07
-1.5162421e-07
-1.5018401e-07
-1.4886989e-07
-1.4750792e-07
-1.4606844e-07
-1.4507161e-07
-1.4369343e-07
-1.4280425e-07
-1.4168602e-07
-1.4049969e-07
-1.3887345e-07
-1.3709148e-07
-1.3566243e-07
-1.3395567e-07
-1.3284908e-07
-1.3128975e-07
-1.3008751e-07
-1.2933755e-07
-1.2791492e-07
-1.2812750e-07
-1.2818411e-07
-1.2834947e-07
-1.2861798e-07
-1.2808525e-07
-1.2714708e-07
-1.2632697e-07
-1.2509165e-07
-1.2426499e-07
-1.2363002e-07
-1.2180534e-07
-1.2145526e-07
-1.2086969e-07
-1.2018258e-07
-1.2080885e-07
-1.2081281e-07
-1.2075546e-07
-1.2119908e-07
-1.2261300e-07
-1.2534436e-07
-1.2640959e-07
-1.2215129e-07
-1.0907983e-07
-8.7132769e-08
-6.5496849e-08
-4.8653927e-08
-3.8614491e-08
-3.5801506e-08
-3.2451439e-08
-3.0297539e-08
-2.8680056e-08
-2.7158357e-08
-2.8170335e-08
-2.8481233e-08
-2.9564601e-08
-3.0449463e-08
-3.1974338e-08
-3.6019973e-08
-4.0316724e-08
-4.6278682e-08
-4.9104489e-08
-4.9653529e-08
-4.8790913e-08
-4.7481816e-08
-4.6222343e-08
-4.3228642e-08
-4.3845962e-08
-4.0778104e-08
-3.9834198e-08
-4.1223409e-08
-3.7333930e-08
-3.6928320e-08
-3.6614889e-08
-3.4177713e-08];
-Bm =[
-    2.86644936177689e-07
-2.85638999516620e-07
-2.83628918037259e-07
-2.81629647996234e-07
-2.79641149234903e-07
-2.77663381676735e-07
-2.75696305327277e-07
-2.73739880274131e-07
-2.71794066686914e-07
-2.69858824817236e-07
-2.67934114998664e-07
-2.66019897646696e-07
-2.64116133258724e-07
-2.62222782414012e-07
-2.60339805773657e-07
-2.58467164080563e-07
-2.56604818159411e-07
-2.54752728916624e-07
-2.52910857340342e-07
-2.51079164500385e-07
-2.49257611548225e-07
-2.47446159716959e-07
-2.45644770321269e-07
-2.43853404757399e-07
-2.42072024503121e-07
-2.40300591117704e-07
-2.38539066241882e-07
-2.36787411597824e-07
-2.35045588989103e-07
-2.33313560300664e-07
-2.31591287498793e-07
-2.29878732631085e-07
-2.28175857826414e-07
-2.26482625294900e-07
-2.24798997327878e-07
-2.23124936297868e-07
-2.21460404658542e-07
-2.19805364944692e-07
-2.18159779772198e-07
-2.16523611837998e-07
-2.14896823920058e-07
-2.13279378877333e-07
-2.11671239649744e-07
-2.10072369258140e-07
-2.08482730804268e-07
-2.06902287470741e-07
-2.05331002521009e-07
-2.03768839299320e-07
-2.02215761230694e-07
-2.00671731820890e-07
-1.99136714656370e-07
-1.97610673404271e-07
-1.96093571812371e-07
-1.94585373709056e-07
-1.93086043003291e-07
-1.91595543684583e-07
-1.90113839822950e-07
-1.88640895568890e-07
-1.87176675153347e-07
-1.85721142887681e-07
-1.84274263163630e-07
-1.82836000453284e-07
-1.81406319309045e-07
-1.79985184363601e-07
-1.78572560329890e-07
-1.77168412001066e-07
-1.75772704250468e-07
-1.74385402031587e-07
-1.73006470378031e-07
-1.71635874403494e-07
-1.70273579301722e-07
-1.68919550346482e-07
-1.67573752891523e-07
-1.66236152370550e-07
-1.64906714297185e-07
-1.63585404264935e-07
-1.62272187947164e-07
-1.60967031097049e-07
-1.59669899547556e-07
-1.59022006807108e-07
-1.58376780628436e-07];
+% Ba=[4.6613204e-07
+% 4.1047431e-07
+% 5.7582895e-07
+% 1.3570170e-07
+% 1.3161906e-07
+% 1.2765082e-07
+% 1.2276352e-07
+% 1.2303390e-07
+% 1.1718502e-07
+% 1.1898334e-07
+% 1.0745936e-07
+% 1.1723892e-07
+% 1.1649375e-07
+% 1.1805292e-07
+% 1.1192841e-07
+% 1.0862890e-07
+% 1.1089907e-07
+% 1.1256763e-07
+% 1.0898042e-07
+% 1.1106663e-07
+% 1.0765420e-07
+% 1.1204284e-07
+% 1.0690287e-07
+% 1.1209287e-07
+% 1.1080180e-07
+% 1.1635665e-07
+% 1.1331431e-07
+% 1.1385733e-07
+% 1.1213751e-07
+% 1.1782267e-07
+% 1.1645337e-07
+% 1.1585025e-07
+% 1.2495643e-07
+% 1.1891133e-07
+% 1.1513252e-07
+% 1.2463370e-07
+% 1.2590860e-07
+% 1.3135123e-07
+% 1.2629938e-07
+% 1.2727517e-07
+% 1.2929412e-07
+% 1.2085943e-07
+% 1.0104966e-07
+% 8.8880249e-08
+% 6.3357447e-08
+% 3.6959669e-08
+% 2.3852035e-08
+% 1.8021296e-08
+% 2.4797666e-08
+% 3.0249964e-08
+% 2.7557578e-08
+% 2.0404345e-08
+% 3.3469462e-08
+% 1.9044329e-08
+% 2.3232468e-08
+% 2.5082905e-08
+% 3.0843974e-08
+% 3.8060968e-08
+% 3.2537102e-08
+% 2.0391640e-08
+% 3.5210391e-08
+% 5.2044104e-08
+% 3.6961101e-08
+% 5.1240381e-08
+% 2.5100039e-08
+% 2.6902645e-08
+% 4.0523894e-08
+% 5.5383019e-08
+% 4.0988994e-08
+% 5.3440385e-08
+% 3.7596585e-08
+% 3.8991800e-08
+% 4.8220500e-08
+% 7.6745209e-08
+% 3.6774896e-08
+% 4.2631818e-08
+% 4.2929582e-08
+% 4.7819249e-08
+% 5.1587488e-08
+% 4.0568914e-08
+% 4.7318927e-08];
+% Bm = [
+% 2.81186439741600e-07
+% 2.79263655924774e-07
+% 2.77350920847412e-07
+% 2.75448198244344e-07
+% 2.73555451922439e-07
+% 2.71672645760581e-07
+% 2.69799743709638e-07
+% 2.67936709792442e-07
+% 2.66083508103758e-07
+% 2.64240102810260e-07
+% 2.62406458150507e-07
+% 2.60582538434914e-07
+% 2.58768308045728e-07
+% 2.56963731436998e-07
+% 2.55168773134555e-07
+% 2.53383397735982e-07
+% 2.51607569910587e-07
+% 2.49841254399380e-07
+% 2.48084416015045e-07
+% 2.46337019641911e-07
+% 2.44599030235931e-07
+% 2.42870412824651e-07
+% 2.41151132507188e-07
+% 2.39441154454198e-07
+% 2.37740443907855e-07
+% 2.36048966181821e-07
+% 2.34366686661220e-07
+% 2.32693570802613e-07
+% 2.31029584133969e-07
+% 2.29374692254641e-07
+% 2.27728860835338e-07
+% 2.26092055618096e-07
+% 2.24464242416257e-07
+% 2.22845387114436e-07
+% 2.21235455668496e-07
+% 2.19634414105526e-07
+% 2.18042228523805e-07
+% 2.16458865092785e-07
+% 2.14884290053056e-07
+% 2.13318469716322e-07
+% 2.11761370465376e-07
+% 2.10212958754071e-07
+% 2.08673201107289e-07
+% 2.07142064120924e-07
+% 2.05619514461842e-07
+% 2.04105518867866e-07
+% 2.02600044147738e-07
+% 2.01103057181101e-07
+% 1.99614524918464e-07
+% 1.98134414381180e-07
+% 1.96662692661416e-07
+% 1.95199326922126e-07
+% 1.93744284397023e-07
+% 1.92297532390554e-07
+% 1.90859038277867e-07
+% 1.89428769504791e-07
+% 1.88006693587801e-07
+% 1.86592778113996e-07
+% 1.85186990741066e-07
+% 1.83789299197269e-07
+% 1.82399671281402e-07
+% 1.81018074862770e-07
+% 1.79644477881162e-07
+% 1.78278848346821e-07
+% 1.76921154340418e-07
+% 1.75571364013022e-07
+% 1.74229445586070e-07
+% 1.72895367351346e-07
+% 1.71569097670945e-07
+% 1.70250604977249e-07
+% 1.68939857772899e-07
+% 1.67636824630766e-07
+% 1.66341474193921e-07
+% 1.65053775175609e-07
+% 1.63773696359219e-07
+% 1.62501206598258e-07
+% 1.61236274816321e-07
+% 1.59978870007061e-07
+% 1.58728961234162e-07
+% 1.57486517631313e-07
+% 1.56251508402174e-07];
+% hsrlRange = [
+%     0
+% 74.9481145000000
+% 149.896229000000
+% 224.844343500000
+% 299.792458000000
+% 374.740572500000
+% 449.688687000000
+% 524.636801500000
+% 599.584916000000
+% 674.533030500000
+% 749.481145000000
+% 824.429259500000
+% 899.377374000000
+% 974.325488500000
+% 1049.27360300000
+% 1124.22171750000
+% 1199.16983200000
+% 1274.11794650000
+% 1349.06606100000
+% 1424.01417550000
+% 1498.96229000000
+% 1573.91040450000
+% 1648.85851900000
+% 1723.80663350000
+% 1798.75474800000
+% 1873.70286250000
+% 1948.65097700000
+% 2023.59909150000
+% 2098.54720600000
+% 2173.49532050000
+% 2248.44343500000
+% 2323.39154950000
+% 2398.33966400000
+% 2473.28777850000
+% 2548.23589300000
+% 2623.18400750000
+% 2698.13212200000
+% 2773.08023650000
+% 2848.02835100000
+% 2922.97646550000
+% 2997.92458000000
+% 3072.87269450000
+% 3147.82080900000
+% 3222.76892350000
+% 3297.71703800000
+% 3372.66515250000
+% 3447.61326700000
+% 3522.56138150000
+% 3597.50949600000
+% 3672.45761050000
+% 3747.40572500000
+% 3822.35383950000
+% 3897.30195400000
+% 3972.25006850000
+% 4047.19818300000
+% 4122.14629750000
+% 4197.09441200000
+% 4272.04252650000
+% 4346.99064100000
+% 4421.93875550000
+% 4496.88687000000
+% 4571.83498450000
+% 4646.78309900000
+% 4721.73121350000
+% 4796.67932800000
+% 4871.62744250000
+% 4946.57555700000
+% 5021.52367150000
+% 5096.47178600000
+% 5171.41990050000
+% 5246.36801500000
+% 5321.31612950000
+% 5396.26424400000
+% 5471.21235850000
+% 5546.16047300000
+% 5621.10858750000
+% 5696.05670200000
+% 5771.00481650000
+% 5845.95293100000
+% 5920.90104550000
+% 5995.84916000000];
+% %
+% Ba = [
+%     5.2134612e-07
+% 4.3726834e-07
+% 3.5601121e-07
+% 2.8319079e-07
+% 1.7023110e-07
+% 1.6213863e-07
+% 1.5790022e-07
+% 1.5479763e-07
+% 1.5162421e-07
+% 1.5018401e-07
+% 1.4886989e-07
+% 1.4750792e-07
+% 1.4606844e-07
+% 1.4507161e-07
+% 1.4369343e-07
+% 1.4280425e-07
+% 1.4168602e-07
+% 1.4049969e-07
+% 1.3887345e-07
+% 1.3709148e-07
+% 1.3566243e-07
+% 1.3395567e-07
+% 1.3284908e-07
+% 1.3128975e-07
+% 1.3008751e-07
+% 1.2933755e-07
+% 1.2791492e-07
+% 1.2812750e-07
+% 1.2818411e-07
+% 1.2834947e-07
+% 1.2861798e-07
+% 1.2808525e-07
+% 1.2714708e-07
+% 1.2632697e-07
+% 1.2509165e-07
+% 1.2426499e-07
+% 1.2363002e-07
+% 1.2180534e-07
+% 1.2145526e-07
+% 1.2086969e-07
+% 1.2018258e-07
+% 1.2080885e-07
+% 1.2081281e-07
+% 1.2075546e-07
+% 1.2119908e-07
+% 1.2261300e-07
+% 1.2534436e-07
+% 1.2640959e-07
+% 1.2215129e-07
+% 1.0907983e-07
+% 8.7132769e-08
+% 6.5496849e-08
+% 4.8653927e-08
+% 3.8614491e-08
+% 3.5801506e-08
+% 3.2451439e-08
+% 3.0297539e-08
+% 2.8680056e-08
+% 2.7158357e-08
+% 2.8170335e-08
+% 2.8481233e-08
+% 2.9564601e-08
+% 3.0449463e-08
+% 3.1974338e-08
+% 3.6019973e-08
+% 4.0316724e-08
+% 4.6278682e-08
+% 4.9104489e-08
+% 4.9653529e-08
+% 4.8790913e-08
+% 4.7481816e-08
+% 4.6222343e-08
+% 4.3228642e-08
+% 4.3845962e-08
+% 4.0778104e-08
+% 3.9834198e-08
+% 4.1223409e-08
+% 3.7333930e-08
+% 3.6928320e-08
+% 3.6614889e-08
+% 3.4177713e-08];
+% Bm =[
+%     2.86644936177689e-07
+% 2.85638999516620e-07
+% 2.83628918037259e-07
+% 2.81629647996234e-07
+% 2.79641149234903e-07
+% 2.77663381676735e-07
+% 2.75696305327277e-07
+% 2.73739880274131e-07
+% 2.71794066686914e-07
+% 2.69858824817236e-07
+% 2.67934114998664e-07
+% 2.66019897646696e-07
+% 2.64116133258724e-07
+% 2.62222782414012e-07
+% 2.60339805773657e-07
+% 2.58467164080563e-07
+% 2.56604818159411e-07
+% 2.54752728916624e-07
+% 2.52910857340342e-07
+% 2.51079164500385e-07
+% 2.49257611548225e-07
+% 2.47446159716959e-07
+% 2.45644770321269e-07
+% 2.43853404757399e-07
+% 2.42072024503121e-07
+% 2.40300591117704e-07
+% 2.38539066241882e-07
+% 2.36787411597824e-07
+% 2.35045588989103e-07
+% 2.33313560300664e-07
+% 2.31591287498793e-07
+% 2.29878732631085e-07
+% 2.28175857826414e-07
+% 2.26482625294900e-07
+% 2.24798997327878e-07
+% 2.23124936297868e-07
+% 2.21460404658542e-07
+% 2.19805364944692e-07
+% 2.18159779772198e-07
+% 2.16523611837998e-07
+% 2.14896823920058e-07
+% 2.13279378877333e-07
+% 2.11671239649744e-07
+% 2.10072369258140e-07
+% 2.08482730804268e-07
+% 2.06902287470741e-07
+% 2.05331002521009e-07
+% 2.03768839299320e-07
+% 2.02215761230694e-07
+% 2.00671731820890e-07
+% 1.99136714656370e-07
+% 1.97610673404271e-07
+% 1.96093571812371e-07
+% 1.94585373709056e-07
+% 1.93086043003291e-07
+% 1.91595543684583e-07
+% 1.90113839822950e-07
+% 1.88640895568890e-07
+% 1.87176675153347e-07
+% 1.85721142887681e-07
+% 1.84274263163630e-07
+% 1.82836000453284e-07
+% 1.81406319309045e-07
+% 1.79985184363601e-07
+% 1.78572560329890e-07
+% 1.77168412001066e-07
+% 1.75772704250468e-07
+% 1.74385402031587e-07
+% 1.73006470378031e-07
+% 1.71635874403494e-07
+% 1.70273579301722e-07
+% 1.68919550346482e-07
+% 1.67573752891523e-07
+% 1.66236152370550e-07
+% 1.64906714297185e-07
+% 1.63585404264935e-07
+% 1.62272187947164e-07
+% 1.60967031097049e-07
+% 1.59669899547556e-07
+% 1.59022006807108e-07
+% 1.58376780628436e-07];
+
+load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\Figures for Disseration\Modeling\BSR.mat','BaSmooth','BmSmooth','HSRLrange');
+Ba=BaSmooth;
+Bm =BmSmooth;
+hsrlRange =HSRLrange;
 %%
 
 Ba = fillmissing(interp1(hsrlRange,Ba',rm),'nearest');
@@ -816,6 +821,10 @@ Bm = fillmissing(interp1(hsrlRange,Bm',rm),'nearest');
 
 Ba = smoothdata(Ba,'movmean',60);
 Bm = smoothdata(Bm,'movmean',60);
+
+% Ba = smoothdata(Ba,'movmean',60);
+% Bm = smoothdata(Bm,'movmean',60);
+
 
 
 
@@ -1018,6 +1027,39 @@ eta_O_near = interp1(R,OVF_near,rm);
 eta_O_nearASE = interp1(R,OVF_near,rm);
  eta_O_nearASE = fillmissing(eta_O_nearASE,'nearest');
 
+
+ %%
+ load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\analysis\Overlap3_1_24.mat','OVF','OVF_near','R')
+
+ eta_O = fillmissing(interp1(R,OVF(2,:),rm),'nearest');
+ eta_O_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
+ spectralpurityO = .98;
+  spectralpurityO = .5;
+
+gaerosolASE = ones(size(gaerosol_off)).*gaerosol(online_index).*(1-spectralpurityO)./(length(gaerosol)-1);
+gaerosolASE_off = ones(size(gaerosol_off)).*gaerosol_off(offline_index).*(1-spectralpurityO)./(length(gaerosol)-1);
+
+ load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\analysis\Overlap23_1_24.mat','OVF2','OVF2_near','R')
+ load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\analysis\Overlap103_1_24.mat','OVF10','OVF10_near','R')
+  % OVF2 =OVF10;
+  % OVF2_near = OVF10_near;
+ eta_O2 = fillmissing(interp1(R,OVF2(2,:),rm),'nearest');
+ eta_O2_near = fillmissing(interp1(R,OVF2_near(2,:),rm),'nearest');
+
+
+%  load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\Figures for Disseration\Modeling\Overlap\lens 0607 difflection 9_18.mat','OVF','OVF_near','R')
+%  eta_O = fillmissing(interp1(R,OVF(2,:),rm),'nearest');
+%  eta_O_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
+% 
+%   eta_O(eta_O<=0) = .00001;
+% eta_O_near(eta_O_near<=0) =.0001;
+% 
+%   load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\Figures for Disseration\Modeling\Overlap\lens 0607 difflection 2 theta 9_18.mat','OVF','OVF_near','R')
+%  eta_O2 = fillmissing(interp1(R,OVF(2,:),rm),'nearest');
+%  eta_O2_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
+%  eta_O2(eta_O2<=0) = .00001;
+% eta_O2_near(eta_O2_near<=0) =.00001;
+
  %%
 
 Fon  = eta_O'*.98.*Tm.^2.*Ta.^2.*TO2.^2.*(Bm+Ba)./rm'.^2;
@@ -1051,6 +1093,49 @@ FoffSpectrumUpASE = trapz(Tm.*Ta.*TO2nu_off.*aseWidth,3).*Spectrum.nuBin*100;
 FoffSpectrumDownASE = trapz(eta_T_off.*Tm.*Ta.*TO2nu_off.*(Bm.*(convn(doppler_O2_ret_off,aseWidth,'same').*Spectrum.nuBin.*100) ...
     + Ba.*aseWidth),3).*Spectrum.nuBin*100;
 
+
+FonSpectrumUpASEO = trapz(Tm.*Ta.*TO2nu.*gaerosolASE,3).*Spectrum.nuBin*100;
+FonSpectrumDownASEO = trapz(eta_T_on.*Tm.*Ta.*TO2nu.*(Bm.*(convn(doppler_O2_ret,gaerosolASE,'same').*Spectrum.nuBin.*100) ...
+    + Ba.*laserWidth),3).*Spectrum.nuBin*100;
+
+FoffSpectrumUpASEO = trapz(Tm.*Ta.*TO2nu_off.*gaerosolASE_off,3).*Spectrum.nuBin*100;
+FoffSpectrumDownASEO = trapz(eta_T_off.*Tm.*Ta.*TO2nu_off.*(Bm.*(convn(doppler_O2_ret_off,gaerosolASE_off,'same').*Spectrum.nuBin.*100) ...
+    + Ba.*laserWidth_off),3).*Spectrum.nuBin*100;
+
+%%
+%Afterpulse
+
+x = rm/(250e-9*3e8/2);
+
+a = 148.0197;
+b = -0.6118;
+c = 13.7442;
+d = -0.0936;
+
+% a=2.1315e7;
+% b=-0.6118;
+% c=1.9792e6;
+% d=-0.0936;
+Correction_NC_off = a*exp(b*(x-5))+c*exp(d*(x-5));
+
+a = 152.7929;
+b = -0.6431;
+c = 16.1950;
+d = -0.1081;
+
+% a=2.2002e7;
+% b=-0.6431;
+% c=2.3321e6;
+% d=-0.1081;
+
+Correction_NC_on= a*exp(b*(x-5))+c*exp(d*(x-5));
+
+% Correction_NC_off = Correction_NC_off'*avg_time * 2*2;
+% Correction_NC_on  = Correction_NC_on'*avg_time * 2*2;
+
+Correction_NC_off = Correction_NC_off'*avg_time * 2*2/1000;
+Correction_NC_on  = Correction_NC_on'*avg_time * 2*2/1000;
+
 %%
 N_on  = transmitPhotons_on  .* eta_R .* eta_D .* A .* dr .* Fon *2.5*2;
 N_off = transmitPhotons_on .* eta_R .* eta_D .* A .* dr .* Foff *2.5*2;
@@ -1072,6 +1157,13 @@ N_offSpectrum = eta_O'.*.98.*FoffSpectrumUp.*FoffSpectrumDown.*eta_R.*eta_D.*A.*
 N_onSpectrumASE = eta_OASE'.*.98.*FonSpectrumUpASE.*FonSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2 + eta_O_nearASE'.*.02.*FonSpectrumUpASE.*FonSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2;
 N_offSpectrumASE = eta_OASE'.*.98.*FoffSpectrumUpASE.*FoffSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off*.01./rm'.^2 + eta_O_nearASE'.*.02.*FoffSpectrumUpASE.*FoffSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off*.01./rm'.^2;
 
+
+N_onSpectrumASEO = eta_O2'.*.98.*FonSpectrumUpASEO.*FonSpectrumDownASEO.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2 + eta_O2_near'.*.02.*FonSpectrumUpASEO.*FonSpectrumDownASEO.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2;
+N_offSpectrumASEO = eta_O2'.*.98.*FoffSpectrumUpASEO.*FoffSpectrumDownASEO.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off*.01./rm'.^2 + eta_O2_near'.*.02.*FoffSpectrumUpASEO.*FoffSpectrumDownASEO.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off*.01./rm'.^2;
+
+
+N_onSpectrumAfterpulse = N_onSpectrum+Correction_NC_on;
+N_offSpectrumAfterpulse = N_offSpectrum+Correction_NC_off;
 %%
 
 BSR = (Ba+Bm)./Bm;
@@ -1140,9 +1232,23 @@ N_offSpectrumPulse = conv(N_offSpectrum,smoothVector,'same');
  N_onSpectrumPulse(2:end)=N_onSpectrumPulse(1:end-1) ;
  N_offSpectrumPulse(2:end) = N_offSpectrumPulse(1:end-1) ;
 
+ N_onSpectrumPulseASEO = conv(N_onSpectrum+N_onSpectrumASEO,smoothVector,'same');
+N_offSpectrumPulseASEO = conv(N_offSpectrum+N_offSpectrumASEO,smoothVector,'same');
+ N_onSpectrumPulseASEO = conv(N_onSpectrum+N_onSpectrumASEO+N_offSpectrumASEO,smoothVector,'same');
+N_offSpectrumPulseASEO = conv(N_offSpectrum+N_offSpectrumASEO+N_onSpectrumASEO,smoothVector,'same');
+
 BSRPulse = conv(BSR,smoothVector,'same');
 
 %BSRPulse(1:end-smoothPoints./2) = BSR(smoothPoints./2+1:end);
+
+%%
+%Background correction
+%OnlineBackground nighttime 2021 
+% % N_onSpectrumPulse= N_onSpectrumPulse-2021*.01;
+% % N_offSpectrumPulse= N_offSpectrumPulse+2021*.01;
+% % %%
+% % N_onSpectrum= N_onSpectrum-2021*.01;
+% % N_offSpectrum= N_offSpectrum+2021*.01;
 
 %%
 [a_0] = alpha_0(N_on,N_off,dr);
@@ -1152,6 +1258,14 @@ BSRPulse = conv(BSR,smoothVector,'same');
 [a_0Afterpulse] = alpha_0(N_onAfterpulse,N_offAfterpulse,dr);
 [a_0PulseAfterpulse] = alpha_0(N_onPulseAfterpulse,N_offPulseAfterpulse,dr);
 
+[a_0SpectrumAfterpulse] = alpha_0(N_onSpectrumAfterpulse,N_offSpectrumAfterpulse,dr);
+[a_0SpectrumPulseAfterpulse] = alpha_0(N_onSpectrumPulse+Correction_NC_on,N_offSpectrumPulse+Correction_NC_off,dr);
+
+[a_0SpectrumASE] = alpha_0(N_onSpectrum+N_onSpectrumASEO,N_offSpectrum+N_offSpectrumASEO,dr);
+[a_0SpectrumASE] = alpha_0(N_onSpectrum+N_onSpectrumASEO+N_offSpectrumASEO,N_offSpectrum+N_offSpectrumASEO+N_onSpectrumASEO,dr);
+
+[a_0SpectrumPulseASE] = alpha_0(N_onSpectrumPulseASEO,N_offSpectrumPulseASEO,dr);
+
 
 a_0 = a_0+o2absorption_off;
 a_0Pulse = a_0Pulse+o2absorption_off;
@@ -1159,6 +1273,7 @@ a_0Spectrum = a_0Spectrum+o2absorption_off;
 a_0SpectrumPulse = a_0SpectrumPulse+o2absorption_off;
 a_0Afterpulse = a_0Afterpulse+o2absorption_off;
 a_0PulseAfterpulse = a_0PulseAfterpulse+o2absorption_off;
+a_0Spectrumfterpulse = a_0SpectrumAfterpulse+o2absorption_off;
 % 
 % figure(1)
 % plot(a_0,rm)
@@ -1178,6 +1293,8 @@ hold on
 plot(a_0Pulse-o2absorption(:,:,online_index),rm,'.-')
 plot(a_0Spectrum-o2absorption(:,:,online_index),rm,'--')
 plot(a_0SpectrumPulse-o2absorption(:,:,online_index),rm,'--')
+
+plot(a_0SpectrumASE-o2absorption(:,:,online_index),rm,'.')
 %plot(a_0Afterpulse-o2absorption(:,:,online_index),rm)
 %plot(a_0PulseAfterpulse-o2absorption(:,:,online_index),rm,'--')
 hold off
@@ -1216,6 +1333,20 @@ Spectrum.offline_index = offline_index;
 [alpha_final,alpha_1_rawSpectrum,alpha_2_rawSpectrum,Spectrum] = pertAbsorption(a_0Spectrum, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, 0,0, Options, 0,false);
 Alpha_totalSpectrum = a_0Spectrum+alpha_1_rawSpectrum+alpha_2_rawSpectrum;
 
+[alpha_final,alpha_1_rawSpectrumAfterpulse,alpha_2_rawSpectrumAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, 0,0, Options, 0,false);
+Alpha_totalSpectrumAfterpulse = a_0SpectrumAfterpulse+alpha_1_rawSpectrumAfterpulse+alpha_2_rawSpectrumAfterpulse;
+
+[alpha_final,alpha_1_rawSpectrumPulseAfterpulse,alpha_2_rawSpectrumPulseAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumPulseAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, 0,0, Options, 0,false);
+Alpha_totalSpectrumPulseAfterpulse = a_0SpectrumPulseAfterpulse+alpha_1_rawSpectrumPulseAfterpulse+alpha_2_rawSpectrumPulseAfterpulse;
+
+
+[alpha_final,alpha_1_rawSpectrumASE,alpha_2_rawSpectrumASE,Spectrum] = pertAbsorption(a_0SpectrumASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, 0,0, Options, 0,false);
+Alpha_totalSpectrumASE = a_0SpectrumASE+alpha_1_rawSpectrumASE+alpha_2_rawSpectrumASE;
+
+[alpha_final,alpha_1_rawSpectrumPulseASE,alpha_2_rawSpectrumPulseASE,Spectrum] = pertAbsorption(a_0SpectrumPulseASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, 0,0, Options, 0,false);
+Alpha_totalSpectrumPulseASE = a_0SpectrumPulseASE+alpha_1_rawSpectrumPulseASE+alpha_2_rawSpectrumPulseASE;
+
+
 [alpha_final,alpha_1_rawSpectrumPulse,alpha_2_rawSpectrumPulse,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, 0,0, Options, 0,false);
 Alpha_totalSpectrumPulse = a_0SpectrumPulse+alpha_1_rawSpectrumPulse+alpha_2_rawSpectrumPulse;
 
@@ -1234,16 +1365,27 @@ hold off
 legend('a_t','a_tPulse','a_tSpectrum','a_tSpectrumPulse','bsrShiftSpectrumpulse','absorption')
 
 figure(4)
-plot(a_0-absorption,rm)
+% plot(a_0-absorption,rm)
+% hold on
+% plot(a_0Pulse-absorption,rm)
+plot((Alpha_totalSpectrum-absorption)./absorption*100,rm/1000,'linewidth',2)
 hold on
-plot(a_0Pulse-absorption,rm)
-plot(Alpha_totalSpectrum-absorption,rm)
-plot(Alpha_totalSpectrumPulse-absorption,rm,'.-')
-plot(Alpha_totalSpectrumPulseBSRShift-absorption,rm,'--')
-plot(o2absorption(:,:,online_index)-absorption,rm,'--')
+%plot(Alpha_totalSpectrumPulse-absorption,rm/1000,'.-','linewidth',2)
+plot((Alpha_totalSpectrumPulseBSRShift-absorption)./absorption*100,rm/1000,'--','linewidth',2)
+%plot(o2absorption(:,:,online_index)-absorption,rm/1000,'--')
+plot((Alpha_totalSpectrumASE-absorption)./absorption*100,rm/1000,'-')
+plot((Alpha_totalSpectrumPulseASE-absorption)./absorption*100,rm/1000,'--')
+%plot((Alpha_totalSpectrumAfterpulse-absorption)./absorption*100,rm/1000,'LineWidth',2)
+%plot((Alpha_totalSpectrumPulseAfterpulse-absorption)./absorption*100,rm/1000,'--','LineWidth',2)
 hold off
 legend('a_t','a_tPulse','a_tSpectrum','a_tSpectrumPulse','bsrShiftSpectrumpulse','absorption')
-
+legend('Absorption','Absorption Pulse','Afterpulse','Afterpulse Pulse')
+legend('Absorption','Absorption Pulse','ASE')
+grid on
+ylim([0 6])
+xlim([-5 5])
+xlabel('Absorption % Difference (\alpha_{retrieved}-\alpha)')
+ylabel('Range (km)')
 
 figure(44)
 plot(alpha_1_rawSpectrum,rm)
@@ -1258,8 +1400,16 @@ legend('a_tSpectrum','a_tSpectrumPulse')
 [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,Titer] =                        temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,a_0,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
 [T_finalPulse,Lapse,Ts_fit,P_finalPulse,mean_lapse_rate,exclusion,Titer] =                   temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,a_0Pulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
 [T_finalSpectrum,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrum,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+[T_finalSpectrumAfterpulse,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumAfterpulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+[T_finalSpectrumPulseAfterpulse,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseAfterpulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+
+
 [T_finalSpectrumPulse,Lapse,Ts_fit,P_finalSpectrumPulse,mean_lapse_rate,exclusion,Titer] =           temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
 [T_finalSpectrumPulseBSRShift,Lapse,Ts_fit,P_finalPulseBSRShift,mean_lapse_rate,exclusion,Titer] =   temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseBSRShift,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+
+[T_finalSpectrumASE,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumASE,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+[T_finalSpectrumPulseASE,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseASE,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+
 
 figure(5)
 plot(T_final,rm)
@@ -1279,6 +1429,9 @@ plot(T-T_finalPulse,rm)
 plot(T-T_finalSpectrum,rm)
 plot(T-T_finalSpectrumPulse,rm)
 plot(T-T_finalSpectrumPulseBSRShift,rm,'--','linewidth',2)
+plot(T-T_finalSpectrumASE,rm,'.-')
+plot(T-T_finalSpectrumAfterpulse,rm,'.')
+plot(T-T_finalSpectrumPulseAfterpulse,rm,'.')
 %plot(T(1:end-smoothPoints)-T_finalSpectrumPulseBSRShift((smoothPoints+1):end),rm(1:end-smoothPoints),'--')
 hold off
 legend('Tfinal','TfinalPulse','TfinalSpectrum','TfinalSpectrumPulse','BSR shift')
@@ -1295,27 +1448,41 @@ legend('Tfinal','TfinalPulse','TfinalSpectrum','TfinalSpectrumPulse','BSR shift'
 % legend('Tfinal','TfinalPulse','TfinalSpectrum','TfinalSpectrumPulse')
 
 figure(8)
-plot(BSR,rm)
+plot(BSR,rm/1000,'linewidth',2)
 xlabel('BSR')
-ylabel('Range (rm)')
+ylabel('Range (km)')
+grid on
+ylim([0 6])
 
 figure(9)
-plot(eta_O,rm)
+plot(eta_O,rm/1000,'linewidth',2)
 hold on
-plot(eta_O_near,rm)
+plot(eta_O_near,rm/1000,'linewidth',2)
+% plot(eta_OASE,rm/1000,'--','linewidth',2)
+% plot(eta_O_nearASE,rm/1000,'--','linewidth',2)
+plot(eta_O2,rm/1000,'--','linewidth',2)
+plot(eta_O2_near,rm/1000,'--','linewidth',2)
 hold off
-xlabel('OVF')
-ylabel('Range rm')
-legend('Overlap','Wide overlap')
+xlabel('Lidar overlap function')
+ylabel('Range (km)')
+legend('Primary telescope','Secondary telescope','Primary telescope ASE','Secondary telescope ASE')
+ylim([0 6])
 
 figure(10)
-plot(N_on,rm)
+% plot(N_on,rm/1000,'linewidth',2)
+% hold on
+semilogx(N_onSpectrum,rm/1000,'linewidth',2)
 hold on
-plot(N_off,rm)
-plot(N_onSpectrumPulse,rm)
-plot(N_offSpectrumPulse,rm)
+semilogx(N_offSpectrum,rm/1000,'linewidth',2)
+%semilogx(N_onSpectrumPulse,rm/1000,'--','linewidth',2)
+%semilogx(N_offSpectrumPulse,rm/1000,'--','linewidth',2)
 hold off
-legend('N_on','N_off','N_onSpectrumPulse','N_offSpectrumPulse')
+xlim([500 0.5e6])
+ylim([0 6])
+legend('Online','Offline','Online Pulse','Offline Pulse')
+xlabel('Modeled Signal Counts')
+ylabel('Range (rkm)')
+grid on
 
 figure(11)
 plot(P_final-P,rm)
@@ -1325,6 +1492,24 @@ plot(P_finalSpectrum-P,rm,'--')
 plot(P_finalSpectrumPulse-P,rm,'--')
 hold off
 legend('P','P_pulse','P spectrum','P Spectrum pulse')
+
+
+figure(444)
+plot(T_finalSpectrum-T,rm/1000,'linewidth',2)
+hold on
+plot(T_finalSpectrumPulseBSRShift-T,rm/1000,'--','linewidth',2)
+% plot(T_finalSpectrumAfterpulse-T,rm/1000,'linewidth',2)
+% plot(T_finalSpectrumPulseAfterpulse-T,rm/1000,'--','linewidth',2)
+plot(T_finalSpectrumASE-T,rm/1000,'-')
+plot(T_finalSpectrumPulseASE-T,rm/1000,'-')
+hold off
+legend('a_t','a_tPulse','a_tSpectrum','a_tSpectrumPulse','bsrShiftSpectrumpulse','absorption')
+legend('Temperature','Temperature Pulse','Afterpulse','Afterpulse Pulse')
+grid on
+ylim([0 6])
+xlim([-3 3])
+xlabel('Temperature Difference (T_{retrieved}-T)')
+ylabel('Range (km)')
 
 
 
