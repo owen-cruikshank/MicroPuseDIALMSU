@@ -800,7 +800,7 @@ subplot(4,1,1)
 r_max_plot = 6; % Max range to plot [km]
 [~,ind_km_max] = min(abs(Range.rkm-r_max_plot));
 colorLimits = [-1e-4, 3e-4];
-h=pcolor(Time.date_ts,Range.rkm(1:ind_km_max),Alpha.alpha_0(1:ind_km_max,:));
+h=pcolor(Time.date_ts,Range.rkm(1:ind_km_max),Alpha.alpha_0_full(1:ind_km_max,:));
 set(h, 'EdgeColor', 'none');
 hold on
 clim(colorLimits)
@@ -1630,8 +1630,8 @@ ax2 = axes('Position',ax1_pos,...
     'XAxisLocation','top',...
     'YAxisLocation','right',...
     'Color','none');
-line(Time.thr,smooth(Alpha.alpha_0(4,:),10),'Parent',ax2,'Color','k')
-line(Time.thr,smooth(Alpha.alpha_0(9,:),10),'Parent',ax2,'Color','b')
+line(Time.thr,smooth(Alpha.alpha_0_full(4,:),10),'Parent',ax2,'Color','k')
+line(Time.thr,smooth(Alpha.alpha_0_full(9,:),10),'Parent',ax2,'Color','b')
 ylim([0 5e-4])
 grid on
 ylabel('alpha 0')
@@ -2085,9 +2085,9 @@ else
 end
 plot(stdTemp,Range.rkm)
 hold on
-plot(Alpha.alpha_0_err(:,p_point(1)),Range.rkm)
-plot(Alpha.alpha_total_err(:,p_point(1)),Range.rkm)
-plot(Alpha.alpha_total_errs(:,p_point(1)),Range.rkm)
+%plot(Alpha.alpha_0_err(:,p_point(1)),Range.rkm)
+%plot(Alpha.alpha_total_err(:,p_point(1)),Range.rkm)
+%plot(Alpha.alpha_total_errs(:,p_point(1)),Range.rkm)
 plot(std(Alpha.alpha_total_rawf(:,p_point(1),:),0,3),Range.rkm)
 hold off
 legend('Sonde-alpha std','alpha 0 err','total err','total alpha err smooth')

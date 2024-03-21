@@ -858,7 +858,7 @@ nuMax = Spectrum.nu_online+0.334*5;                                 %[cm-1] Scan
 nuMin = Spectrum.nu_online-0.334;                                 %[cm-1] Scan lower bound
 nuMax = Spectrum.nu_online+0.334;  
 Spectrum.nuBin = 0.00222;                                    %[cm-1] Scan increment
-%Spectrum.nuBin = 0.00222/3;  
+Spectrum.nuBin = 0.00222/2;  
 %Spectrum.nuBin = 4.6667e-4;
 nu_scan = (nuMin:Spectrum.nuBin:nuMax);                      %[cm-1](1 x nu) Scan vector
 
@@ -873,11 +873,11 @@ Spectrum.nu_scan_3D_short_off = permute(nu_scan_off, [3 1 2]);       %[cm-1] put
 Spectrum.lambda_scan_3D_short_off = 10^7./Spectrum.nu_scan_3D_short_off;
 Spectrum.lambda_scan_3D_short = 10^7./Spectrum.nu_scan_3D_short;
 
-[~,online_index] = min(abs(Spectrum.nu_online-Spectrum.nu_scan_3D_short));
-[~,offline_index] = min(abs(Spectrum.nu_offline-Spectrum.nu_scan_3D_short_off));
+[~,Spectrum.online_index] = min(abs(Spectrum.nu_online-Spectrum.nu_scan_3D_short));
+[~,Spectrum.offline_index] = min(abs(Spectrum.nu_offline-Spectrum.nu_scan_3D_short_off));
 
-Spectrum.nu_online = Spectrum.nu_scan_3D_short(:,:,online_index);
-Spectrum.nu_offline = Spectrum.nu_scan_3D_short_off(:,:,offline_index);
+Spectrum.nu_online = Spectrum.nu_scan_3D_short(:,:,Spectrum.online_index);
+Spectrum.nu_offline = Spectrum.nu_scan_3D_short_off(:,:,Spectrum.offline_index);
 
 lambda_online = 10^7./Spectrum.nu_online;
 lambda_offline = 10^7./Spectrum.nu_offline;
@@ -934,13 +934,13 @@ TO2nu_off = exp(-dr*cumtrapz(o2absorption_off));
     doppler_O2_ret_off = doppler_O2_un_ret./norm_O2_ret;                       %[m] Normalized doppler lineshape
 
 gaerosol = zeros(size(Spectrum.nu_scan_3D_short));
-gaerosol(online_index) = 1./(Spectrum.nuBin*100);
+gaerosol(Spectrum.online_index) = 1./(Spectrum.nuBin*100);
 
 gaerosol_off = zeros(size(Spectrum.nu_scan_3D_short_off));
-gaerosol_off(offline_index) = 1./(Spectrum.nuBin*100);
+gaerosol_off(Spectrum.offline_index) = 1./(Spectrum.nuBin*100);
 
 [Spectrum] = PCAconstrunctionRB2(Spectrum);
-[sponts6] = RB_O2_770_PCA(T,P,Spectrum.nu_scan_3D_short,Spectrum);
+[sponts6] = RB_O2_770_PCA_online(T,P,Spectrum.nu_scan_3D_short,Spectrum);
 [sponts6_off] = RB_O2_770_PCA(T,P,Spectrum.nu_scan_3D_short_off,Spectrum);
 %[sponts6_off] = RB_O2_770_PCA_offline(T,P,Spectrum.nu_scan_3D_short_off,Spectrum);
 doppler_O2_ret = sponts6;
@@ -974,13 +974,13 @@ transmitPhotons_off = E_pulse_off./(h*c./(Spectrum.lambda_offline*10^-9)) * (pul
 spectralpurity =.999;
 spectralpurity =.98;
 spectralpurity =1;
-gaerosol(online_index) = gaerosol(online_index).*spectralpurity;
-gaerosol(1:online_index-1) = gaerosol(online_index).*(1-spectralpurity)./(length(gaerosol)-1);
-gaerosol(online_index+1:end) = gaerosol(online_index).*(1-spectralpurity)./(length(gaerosol)-1);
+gaerosol(Spectrum.online_index) = gaerosol(Spectrum.online_index).*spectralpurity;
+gaerosol(1:Spectrum.online_index-1) = gaerosol(Spectrum.online_index).*(1-spectralpurity)./(length(gaerosol)-1);
+gaerosol(Spectrum.online_index+1:end) = gaerosol(Spectrum.online_index).*(1-spectralpurity)./(length(gaerosol)-1);
 
-gaerosol_off(offline_index) = gaerosol_off(offline_index).*spectralpurity;
-gaerosol_off(1:offline_index-1) = gaerosol_off(offline_index).*(1-spectralpurity)./(length(gaerosol)-1);
-gaerosol_off(offline_index+1:end) = gaerosol_off(offline_index).*(1-spectralpurity)./(length(gaerosol)-1);
+gaerosol_off(Spectrum.offline_index) = gaerosol_off(Spectrum.offline_index).*spectralpurity;
+gaerosol_off(1:Spectrum.offline_index-1) = gaerosol_off(Spectrum.offline_index).*(1-spectralpurity)./(length(gaerosol)-1);
+gaerosol_off(Spectrum.offline_index+1:end) = gaerosol_off(Spectrum.offline_index).*(1-spectralpurity)./(length(gaerosol)-1);
 
 laserWidth = gaerosol;
 
@@ -1035,9 +1035,10 @@ eta_O_nearASE = interp1(R,OVF_near,rm);
  eta_O_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
  spectralpurityO = .98;
   spectralpurityO = .5;
+    %spectralpurityO = .98;
 
-gaerosolASE = ones(size(gaerosol_off)).*gaerosol(online_index).*(1-spectralpurityO)./(length(gaerosol)-1);
-gaerosolASE_off = ones(size(gaerosol_off)).*gaerosol_off(offline_index).*(1-spectralpurityO)./(length(gaerosol)-1);
+gaerosolASE = ones(size(gaerosol_off)).*gaerosol(Spectrum.online_index).*(1-spectralpurityO)./(length(gaerosol)-1);
+gaerosolASE_off = ones(size(gaerosol_off)).*gaerosol_off(Spectrum.offline_index).*(1-spectralpurityO)./(length(gaerosol)-1);
 
  load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\analysis\Overlap23_1_24.mat','OVF2','OVF2_near','R')
  load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\analysis\Overlap103_1_24.mat','OVF10','OVF10_near','R')
@@ -1047,18 +1048,18 @@ gaerosolASE_off = ones(size(gaerosol_off)).*gaerosol_off(offline_index).*(1-spec
  eta_O2_near = fillmissing(interp1(R,OVF2_near(2,:),rm),'nearest');
 
 
-%  load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\Figures for Disseration\Modeling\Overlap\lens 0607 difflection 9_18.mat','OVF','OVF_near','R')
-%  eta_O = fillmissing(interp1(R,OVF(2,:),rm),'nearest');
-%  eta_O_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
-% 
-%   eta_O(eta_O<=0) = .00001;
-% eta_O_near(eta_O_near<=0) =.0001;
-% 
-%   load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\Figures for Disseration\Modeling\Overlap\lens 0607 difflection 2 theta 9_18.mat','OVF','OVF_near','R')
-%  eta_O2 = fillmissing(interp1(R,OVF(2,:),rm),'nearest');
-%  eta_O2_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
-%  eta_O2(eta_O2<=0) = .00001;
-% eta_O2_near(eta_O2_near<=0) =.00001;
+ load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\Figures for Disseration\Modeling\Overlap\lens 0607 difflection 9_18.mat','OVF','OVF_near','R')
+ eta_O = fillmissing(interp1(R,OVF(2,:),rm),'nearest');
+ eta_O_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
+
+  eta_O(eta_O<=0) = .00001;
+eta_O_near(eta_O_near<=0) =.0001;
+
+  load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\Figures for Disseration\Modeling\Overlap\lens 0607 difflection 2 theta 9_18.mat','OVF','OVF_near','R')
+ eta_O2 = fillmissing(interp1(R,OVF(2,:),rm),'nearest');
+ eta_O2_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
+ eta_O2(eta_O2<=0) = .00001;
+eta_O2_near(eta_O2_near<=0) =.00001;
 
  %%
 
@@ -1074,7 +1075,8 @@ Foff  = eta_O'*.98.*Tm.^2.*Ta.^2.*TO2_off.^2.*(Bm+Ba)./rm'.^2 + eta_O_near'*.02.
 load('CalibrationData\TransmissionData20220809.mat','Data_Wavelength')
 eta_T_on = interp1(Data_Wavelength.lambda_on.*10^9,Data_Wavelength.Tc_on./max(Data_Wavelength.Tc_on),Spectrum.lambda_scan_3D_short);
 eta_T_off = interp1(Data_Wavelength.lambda_off.*10^9,Data_Wavelength.Tc_off./max(Data_Wavelength.Tc_off),Spectrum.lambda_scan_3D_short_off);
-
+eta_T_on = ones(size(eta_T_on));
+eta_T_off = ones(size(eta_T_off));
 
 FonSpectrumUp = trapz(Tm.*Ta.*TO2nu.*laserWidth,3).*Spectrum.nuBin*100;
 FonSpectrumDown = trapz(eta_T_on.*Tm.*Ta.*TO2nu.*(Bm.*(convn(doppler_O2_ret,laserWidth,'same').*Spectrum.nuBin.*100) ...
@@ -1288,24 +1290,24 @@ a_0Spectrumfterpulse = a_0SpectrumAfterpulse+o2absorption_off;
 % legend('a_0','a_0Pulse','a_0Spectrum','a_0SpectrumPulse','a_0 afterpulse','absorption')
 
 figure(2)
-plot(a_0-o2absorption(:,:,online_index),rm)
+plot(a_0-o2absorption(:,:,Spectrum.online_index),rm)
 hold on
-plot(a_0Pulse-o2absorption(:,:,online_index),rm,'.-')
-plot(a_0Spectrum-o2absorption(:,:,online_index),rm,'--')
-plot(a_0SpectrumPulse-o2absorption(:,:,online_index),rm,'--')
+plot(a_0Pulse-o2absorption(:,:,Spectrum.online_index),rm,'.-')
+plot(a_0Spectrum-o2absorption(:,:,Spectrum.online_index),rm,'--')
+plot(a_0SpectrumPulse-o2absorption(:,:,Spectrum.online_index),rm,'--')
 
-plot(a_0SpectrumASE-o2absorption(:,:,online_index),rm,'.')
+plot(a_0SpectrumASE-o2absorption(:,:,Spectrum.online_index),rm,'.')
 %plot(a_0Afterpulse-o2absorption(:,:,online_index),rm)
 %plot(a_0PulseAfterpulse-o2absorption(:,:,online_index),rm,'--')
 hold off
 legend('a_0','a_0Pulse','a_0Spectrum','a_0SpectrumPulse')
 
 figure(22)
-plot((a_0-o2absorption(:,:,online_index))./o2absorption(:,:,online_index)*100,rm)
+plot((a_0-o2absorption(:,:,Spectrum.online_index))./o2absorption(:,:,Spectrum.online_index)*100,rm)
 hold on
-plot((a_0Pulse-o2absorption(:,:,online_index))./o2absorption(:,:,online_index)*100,rm,'.-')
-plot((a_0Spectrum-o2absorption(:,:,online_index))./o2absorption(:,:,online_index)*100,rm,'--')
-plot((a_0SpectrumPulse-o2absorption(:,:,online_index))./o2absorption(:,:,online_index)*100,rm,'--')
+plot((a_0Pulse-o2absorption(:,:,Spectrum.online_index))./o2absorption(:,:,Spectrum.online_index)*100,rm,'.-')
+plot((a_0Spectrum-o2absorption(:,:,Spectrum.online_index))./o2absorption(:,:,Spectrum.online_index)*100,rm,'--')
+plot((a_0SpectrumPulse-o2absorption(:,:,Spectrum.online_index))./o2absorption(:,:,Spectrum.online_index)*100,rm,'--')
 %plot(a_0Afterpulse-o2absorption(:,:,online_index),rm)
 %plot(a_0PulseAfterpulse-o2absorption(:,:,online_index),rm,'--')
 hold off
@@ -1327,30 +1329,31 @@ Range.rangeBin = rm(2)-rm(1);
 Time.ts = 1;
 Time.i_time = 1;
 Spectrum.i_scan_3D_short = length(Spectrum.nu_scan_3D_short);
-Spectrum.online_index = online_index;
-Spectrum.offline_index = offline_index;
+% Spectrum.online_index = online_index;
+% Spectrum.offline_index = offline_index;
 
-[alpha_final,alpha_1_rawSpectrum,alpha_2_rawSpectrum,Spectrum] = pertAbsorption(a_0Spectrum, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, 0,0, Options, 0,false);
+[alpha_final,alpha_1_rawSpectrum,alpha_2_rawSpectrum,Spectrum] = pertAbsorption(a_0Spectrum, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true);
 Alpha_totalSpectrum = a_0Spectrum+alpha_1_rawSpectrum+alpha_2_rawSpectrum;
+%Alpha_totalSpectrum = a_0Spectrum+alpha_1_rawSpectrum;
 
-[alpha_final,alpha_1_rawSpectrumAfterpulse,alpha_2_rawSpectrumAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, 0,0, Options, 0,false);
+[alpha_final,alpha_1_rawSpectrumAfterpulse,alpha_2_rawSpectrumAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true);
 Alpha_totalSpectrumAfterpulse = a_0SpectrumAfterpulse+alpha_1_rawSpectrumAfterpulse+alpha_2_rawSpectrumAfterpulse;
 
-[alpha_final,alpha_1_rawSpectrumPulseAfterpulse,alpha_2_rawSpectrumPulseAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumPulseAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, 0,0, Options, 0,false);
+[alpha_final,alpha_1_rawSpectrumPulseAfterpulse,alpha_2_rawSpectrumPulseAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumPulseAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true);
 Alpha_totalSpectrumPulseAfterpulse = a_0SpectrumPulseAfterpulse+alpha_1_rawSpectrumPulseAfterpulse+alpha_2_rawSpectrumPulseAfterpulse;
 
 
-[alpha_final,alpha_1_rawSpectrumASE,alpha_2_rawSpectrumASE,Spectrum] = pertAbsorption(a_0SpectrumASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, 0,0, Options, 0,false);
+[alpha_final,alpha_1_rawSpectrumASE,alpha_2_rawSpectrumASE,Spectrum] = pertAbsorption(a_0SpectrumASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true);
 Alpha_totalSpectrumASE = a_0SpectrumASE+alpha_1_rawSpectrumASE+alpha_2_rawSpectrumASE;
 
-[alpha_final,alpha_1_rawSpectrumPulseASE,alpha_2_rawSpectrumPulseASE,Spectrum] = pertAbsorption(a_0SpectrumPulseASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, 0,0, Options, 0,false);
+[alpha_final,alpha_1_rawSpectrumPulseASE,alpha_2_rawSpectrumPulseASE,Spectrum] = pertAbsorption(a_0SpectrumPulseASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true);
 Alpha_totalSpectrumPulseASE = a_0SpectrumPulseASE+alpha_1_rawSpectrumPulseASE+alpha_2_rawSpectrumPulseASE;
 
 
-[alpha_final,alpha_1_rawSpectrumPulse,alpha_2_rawSpectrumPulse,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, 0,0, Options, 0,false);
+[alpha_final,alpha_1_rawSpectrumPulse,alpha_2_rawSpectrumPulse,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true);
 Alpha_totalSpectrumPulse = a_0SpectrumPulse+alpha_1_rawSpectrumPulse+alpha_2_rawSpectrumPulse;
 
-[alpha_final,alpha_1_rawSpectrumPulseBSR,alpha_2_rawSpectrumPulseBSR,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, 0,0, Options, 0,false);
+[alpha_final,alpha_1_rawSpectrumPulseBSR,alpha_2_rawSpectrumPulseBSR,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true);
 Alpha_totalSpectrumPulseBSRShift = a_0SpectrumPulse+alpha_1_rawSpectrumPulseBSR+alpha_2_rawSpectrumPulseBSR;
 
 figure(3)
@@ -1360,16 +1363,16 @@ plot(a_0Pulse,rm)
 plot(Alpha_totalSpectrum,rm)
 plot(Alpha_totalSpectrumPulse,rm,'--')
 plot(Alpha_totalSpectrumPulseBSRShift,rm,'.-')
-plot(o2absorption(:,:,online_index),rm,'--')
+plot(o2absorption(:,:,Spectrum.online_index),rm,'--')
 hold off
 legend('a_t','a_tPulse','a_tSpectrum','a_tSpectrumPulse','bsrShiftSpectrumpulse','absorption')
 
 figure(4)
-% plot(a_0-absorption,rm)
-% hold on
-% plot(a_0Pulse-absorption,rm)
+ plot((a_0-absorption)./absorption*100,rm)
+ hold on
+ plot((a_0Pulse-absorption)./absorption*100,rm,'.-','LineWidth',4)
 plot((Alpha_totalSpectrum-absorption)./absorption*100,rm/1000,'linewidth',2)
-hold on
+%hold on
 %plot(Alpha_totalSpectrumPulse-absorption,rm/1000,'.-','linewidth',2)
 plot((Alpha_totalSpectrumPulseBSRShift-absorption)./absorption*100,rm/1000,'--','linewidth',2)
 %plot(o2absorption(:,:,online_index)-absorption,rm/1000,'--')
@@ -1395,6 +1398,15 @@ plot(alpha_1_rawSpectrumPulse,rm)
 hold off
 legend('a_tSpectrum','a_tSpectrumPulse')
 
+
+figure(22)
+plot(absorption,rm)
+hold on
+plot(a_0Spectrum,rm)
+plot(a_0Spectrum+alpha_1_rawSpectrum,rm,'--')
+plot(Alpha_totalSpectrum,rm)
+plot(a_0Pulse,rm)
+hold off
 %%
 
 [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,Titer] =                        temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,a_0,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
@@ -1495,6 +1507,9 @@ legend('P','P_pulse','P spectrum','P Spectrum pulse')
 
 
 figure(444)
+plot(T_final-T,rm/1000)
+hold on
+plot(T_finalPulse-T,rm/1000)
 plot(T_finalSpectrum-T,rm/1000,'linewidth',2)
 hold on
 plot(T_finalSpectrumPulseBSRShift-T,rm/1000,'--','linewidth',2)

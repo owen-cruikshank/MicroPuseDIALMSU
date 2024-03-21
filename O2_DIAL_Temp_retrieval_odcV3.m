@@ -1102,7 +1102,7 @@ plot_time = datetime(2023,8,1,12,00,0,'TimeZone','UTC');%yyyy,mm,dd,hh,mm
 p_point(1:length(Range.rm),1)=p_point;
 
 %= Plot time for profiles with sondes
-sonde_index = 31;
+sonde_index = 10;
 p_point = Sonde.sonde_ind(:,sonde_index);
 
 %mask = logical(Temperature.TempStds>2) | cloud_SDm_above;
@@ -1115,6 +1115,8 @@ Temperature.T_finalm(mask) = nan;
 Alpha.Alpha_totalm(mask)=nan;
 AbsHum0sm = AbsHum0s;
 AbsHum0sm(wvmask)=nan;
+
+[~,lowAltindex] = min(abs(Range.rm-lowAlt));
 AbsHum0sm(1:lowAltindex,:)=nan;
 AbsHumsm = AbsHums;
 AbsHumsm(wvmask)=nan;

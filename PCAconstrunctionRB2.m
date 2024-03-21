@@ -43,6 +43,11 @@ lambda_scan = permute(Spectrum.lambda_scan_3D_short,[3 2 1]);
 %Convert lambda to freqency vector
 FreqSpecOnline = 299792458.*(lambda_scan-lambda_online).*1e-9./(lambda_online.*1e-9)./(lambda_online.*1e-9);
 
+if FreqSpecOnline(Spectrum.online_index)==0
+FreqSpecOnline(Spectrum.online_index) = (FreqSpecOnline(Spectrum.online_index)-FreqSpecOnline(Spectrum.online_index-1))/10;
+FreqSpecOffline(Spectrum.offline_index) = (FreqSpecOffline(Spectrum.offline_index)-FreqSpecOffline(Spectrum.offline_index-1))/10;
+end
+
 
 yRBOff = zeros(length(TP(:,1)),length(FreqSpecOffline));
 yRBOn = zeros(length(TP(:,1)),length(FreqSpecOnline));

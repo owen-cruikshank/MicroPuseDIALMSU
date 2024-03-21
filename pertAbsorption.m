@@ -226,8 +226,8 @@ end
     zeta_off = g1off.*T_etalon_off;
     eta_off = dg1off.*T_etalon_off;
 
-    zeta_off = g1off.*T_etalon;
-    eta_off = dg1off.*T_etalon;
+    % zeta_off = g1off.*T_etalon;
+    % eta_off = dg1off.*T_etalon;
 % % % 
 % % %     zeta_err = g1_err.*T_etalon;
 % % %     eta_err = dg1_dr_err.*T_etalon;
@@ -303,6 +303,9 @@ end
 
    % alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./trapz(zeta.*Tm0,3) - trapz(eta,3)./trapz(zeta,3));      %[1/m]
     alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./trapz(zeta.*Tm0,3) - trapz(eta_off.*TmOff,3)./trapz(zeta_off.*TmOff,3));      %[1/m]
+
+    %alpha_1_raw = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./trapz(zeta.*Tm0,3) );      %[1/m]
+
 
 %     alpha_1_raw2 = 0.5.*(alpha.*W1 +  trapz(eta.*Tm0,3)./zeta_int - trapz(dg2_dr.*T_etalon.*TmOff,3)./trapz(g2.*T_etalon.*TmOff,3));      %[1/m]
 
