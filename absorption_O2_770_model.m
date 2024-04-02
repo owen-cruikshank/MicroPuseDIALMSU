@@ -122,10 +122,10 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
         %ST_O2 = S0_O2.*(T0./T).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower);                                 %[m/molecule](t x r) O2 line strength adjusted for temperature shift from T0
         ST_O2 = S0_O2.*(T0./T).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0))); 
 
-        % Q296 = TIPS2017(O2_parameters(i,1),O2_parameters(i,2),T0);
-        % Q = TIPS2017(O2_parameters(i,1),O2_parameters(i,2),T);
-        % ST_O2 = S0_O2.*(Q296./Q).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0)));
-        
+         % Q296 = TIPS2017(O2_parameters(i,1),O2_parameters(i,2),T0);
+         % Q = TIPS2017(O2_parameters(i,1),O2_parameters(i,2),T);
+         % ST_O2 = S0_O2.*(Q296./Q).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0)));
+
         gamma_L_T = gamma_L * (P/P0).*((T0./T).^n_air);     %[1/m](t x r) Lorentz linewidth adjusted for temperature and pressure shift
         gamma_D_T = (nuShifted/c).*sqrt(2*kB*T*log(2)/mo2); %[1/m](t x r) Dopper linewidth due to temperature
 
