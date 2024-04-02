@@ -9,7 +9,7 @@
 
     cB = -0.01*(Range.rkm+altitude) + 1.2;%Brullouin correction for 1.2 at 0km and 1.1 at 10km
 
-    c_doppler_O2 = Constant.m_air*Constant.c^2./(8*(Spectrum.nu_wvon*100).^2*Constant.kb);                   %[m^2 K] Doppler coefficient
+    c_doppler_O2 = Constant.m_air*Constant.c^2./(8*(Spectrum.nu_wvon*100).^2*Constant.kB);                   %[m^2 K] Doppler coefficient
     doppler_O2_ret = ((c_doppler_O2./Model.T/pi).^0.5).*exp(-c_doppler_O2.*(Spectrum.nu_wvon*100-Spectrum.nu_scanwv_3D_short*100).^2./Model.T./cB.^2); %[m] Doppler broadended lineshape         
 
     clear c_doppler_O2

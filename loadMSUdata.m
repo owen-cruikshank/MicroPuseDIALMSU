@@ -1,26 +1,41 @@
 function [Range,Time,Counts,Sonde,Model,Spectrum,HSRL,Data,Options] = loadMSUdata(span_days,Options,Constant)
+%File: loadMSUdata.m
+%Author: Owen Cruikshank
+%Inputs:
+%   -span_days:vector of datetime days for loading
+%   -Options:structure for options
+%   -Constant:structure for constants
+%
+%Outputs:
+%   -Range: structure for range
+%   -sTime: structure for time
+%   -Counts: structure for measured counts
+%   -Sonde: strucuture for radiosonde data
+%   -Model: strucure for model T, P, and WV
+%   -Spectrum: structure for spectrum used in calculation
+%   -Data: structure with data from MPD
+%   -Options: structure for options
+%
+%Description:
+%Load days of intrest from MSU instument and do initial data conditioning
+%for use with full retrieval.
+
+
+
+
 %====================
 %==== Reading Files =====
 %====================
 disp('Reading in files')
-% maindirectory =pwd;
-% cd ../
-% Options.path = fullfile(pwd,'Data','MSU data','RSync','NetCDFOutput'); %Path for instument data
-% Options.weatherPath = fullfile(pwd, 'Data'); %path for weather station data
-% Options.sondepath = fullfile(pwd ,'Data','MSU data','Radiosondes'); %path for radiosonde data
-% 
-% cd( maindirectory) %back to main directory
-
 
 Options.path = fullfile(Options.DataPath,'MSU data','RSync','NetCDFOutput'); %Path for instument data
 Options.weatherPath = fullfile(Options.DataPath); %path for weather station data
 Options.sondepath = fullfile(Options.DataPath,'MSU data','Radiosondes'); %path for radiosonde data
 
-%Options.MPDname = 'MSU';
-Options.BinTotal = 560;
-%Options.BinTotal = 400;
+%length of data bins in range
+%Options.BinTotal = 560;
 Options.BinTotal = 490;
-%Options.BinTotal = 950;
+
 %Load raw data from NetCDF files
 [Data, Options] = loadMSUNETcdf(span_days,Options);
 
@@ -44,22 +59,15 @@ Range.nsPerBin = 250; %[ns] bin length in nanosections
 Range.NBins = floor(Options.BinTotal); %number of range bins in vector
 Range.rangeBin = (Constant.c * Range.nsPerBin(1)*10^-9)/2; %(m)range bin length
 
-Range.rm_raw_o2 = -150:Range.rangeBin:Range.NBins(1)*Range.rangeBin-150-Range.rangeBin;    %[m] Create range vector
-Range.rm_raw_o2 = -150-30:Range.rangeBin:Range.NBins(1)*Range.rangeBin-150-30-Range.rangeBin;    %[m] Create range vector
-Range.rm_raw_o2 = -150-30/2+Range.rangeBin:Range.rangeBin:Range.NBins(1)*Range.rangeBin-150-30/2-Range.rangeBin+Range.rangeBin;    %[m] Create range vector
-%%%%%%%%%%%%%%%%%%%%%%%
-Range.rm_raw_o2 = -75-30/2:Range.rangeBin:Range.NBins(1)*Range.rangeBin+-75-30/2-Range.rangeBin;    %[m] Create range vector
+%Create raw range vector with offset for pulse length
 Range.rm_raw_o2 = -Range.rangeBin*2:Range.rangeBin:Range.NBins(1)*Range.rangeBin-Range.rangeBin*3;
-%%%%%%%%%%%%%%%%%%%%%%%%
-% Range.rm_raw_o2 = 0:Range.rangeBin:Range.NBins(1)*Range.rangeBin+-75-30/2-Range.rangeBin; 
+
 Range.rm_raw_o2 = Range.rm_raw_o2(:);                           %[m] Convert range vector to column vector
 Range.r_max = 6000;                                       %[m] Max range 
 Range.rm = Range.rm_raw_o2(Range.rm_raw_o2<Range.r_max & Range.rm_raw_o2>=0);     %[m] Shorten range vector to max range
-%Range.rm = Range.rm(1:length(Range.rm_raw_o2));
+
 
 %=== Integrate range vector ==
-% Range.rm = Range.rm(1:2:end);%integrate to new
-% Range.rangeBin = Range.rangeBin*2;
 Range.rm = Range.rm(1:Options.intRange:end);%integrate to new
 Range.rangeBin = Range.rangeBin*Options.intRange;
 
@@ -81,14 +89,13 @@ disp('Loading weather Station Data')
 
 
 disp('Calculating model')
-% === Calculating temperature and pressure model ===
+% === Calculating initial temperature and pressure model ===
 Model.Ts = weather_Temperature_interp + 273.15 ;          %surface temperature from weather station [K]
 Model.Ps = weather_absPressure_interp / 1013.25;         %absolute surface pressure from weather station [atm]
 
 Model.TsWeather = weather_Temperature_interp + 273.15 ;          %surface temperature from weather station [K]
 Model.PsWeather = weather_absPressure_interp / 1013.25;         %absolute surface pressure from weather station [atm]
-lapseRate = -6.5;                                   %[K/km] Guess adiabatic lapse rate  typically -6.5 up to 10km
-%lapseRate = -9.8;    
+lapseRate = -6.5;                                   %[K/km] Guess adiabatic lapse rate  typically -6.5 up to 10km  
 lapseRate = lapseRate / 1000;                       %[K/m] 
 
 Model.T = Model.Ts + lapseRate .* Range.rm;                           %[K] (1 x r) Temperature model as a function of r 
@@ -118,12 +125,9 @@ for i = 1:numel(sonde_datetime) % Loop over number of sondes in time period
     if isdatetime(sonde_datetime(i)) %== Check if sonde exists
         % ===Subtract first range value (site elevation) from whole vector
         %rm_sgp{i} = sondeStruc(i).Height - sondeStruc(i).Height(1);
-        rm_sgp{i} = sondeStruc(i).Height - 1524;
+        rm_sgp{i} = sondeStruc(i).Height - 1524; %height of cobleigh radiosonde station
         %===convert to same units====
         sondeStruc(i).P = sondeStruc(i).P./1013.25;%atm
-        % ==Collect radiosonde surface measurements==
-%         T_sgp_surf(i) = sondeStruc(i).T(1);
-%         P_sgp_surf(i) = sondeStruc(i).P(1);
         % ==Custom interpolation function==
         [T_sonde_int{i},P_sonde_int{i},WV_sonde_int{i},rm_sonde_int{i}] = interp_sonde2(sondeStruc(i).T,sondeStruc(i).P,sondeStruc(i).WV,rm_sgp{i},Range.rangeBin);  
         
@@ -212,12 +216,11 @@ end
 %%
 %dead time correction
  deadTime = 22e-9; %SPCM-AQRH-13 dead time
-%Counts.o2onCR = Counts.o2on_noise.*Counts.NBins.*250e-9.*14000;%Count rate, Counts*NuberTimeSummedbins*Length of bin(250ns)*profiles per histogram
 
-profPerHist=mean(Data.MCS.Channel0.ProfilesPerHistogram,'omitnan');
+profPerHist=mean(Data.MCS.Channel0.ProfilesPerHistogram,'omitnan');%number of lidar profiles summed into one time bin
 
 Counts.NBins = Data.MCS.Channel0.NBins;
-Counts.o2onCR = Data.MCS.Channel2.Data./Counts.NBins./250e-9./profPerHist/2;
+Counts.o2onCR = Data.MCS.Channel2.Data./Counts.NBins./250e-9./profPerHist/2; %Countrate
 Data.MCS.Channel2.Data =round( Data.MCS.Channel2.Data ./(1-(deadTime.*Counts.o2onCR)));
 
 
@@ -287,69 +290,6 @@ Counts.o2off_molCF = 1./(1-(deadTime.*Counts.o2off_molCR));
 %=========================
 %=== Calculate background
 %=========================
-% % Counts.bg_o2off = mean(Data.MCS.Channel10.Data(end-20:end,:));% Take mean of last data points
-% % Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off;       % Background subtracted
-% % Counts.o2off_bgsub(Counts.o2off_bgsub < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2on = mean(Data.MCS.Channel2.Data(end-20:end,:));% Take mean of last data points
-% % Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on;       % Background subtracted
-% % Counts.o2on_bgsub(Counts.o2on_bgsub < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2on_mol = mean(Data.MCS.Channel0.Data(end-20:end,:));% Take mean of last data points
-% % Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol;       % Background subtracted
-% % Counts.o2on_bgsub_mol(Counts.o2on_bgsub_mol < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2off_mol = mean(Data.MCS.Channel8.Data(end-20:end,:));% Take mean of last data points
-% % Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
-% % Counts.o2off_bgsub_mol(Counts.o2off_bgsub_mol < 0) = 0;         % Minimum of zero
-
-
-% Counts.bg_o2off = mean(Data.MCS.Channel10.Data(400-40:400,:));% Take mean of last data points
-% Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off;       % Background subtracted
-% Counts.o2off_bgsub(Counts.o2off_bgsub < 0) = 0;         % Minimum of zero
-% 
-% Counts.bg_o2on = mean(Data.MCS.Channel2.Data(400-40:400,:));% Take mean of last data points
-% Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on;       % Background subtracted
-% Counts.o2on_bgsub(Counts.o2on_bgsub < 0) = 0;         % Minimum of zero
-% 
-% Counts.bg_o2on_mol = mean(Data.MCS.Channel0.Data(400-40:400,:));% Take mean of last data points
-% Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol;       % Background subtracted
-% Counts.o2on_bgsub_mol(Counts.o2on_bgsub_mol < 0) = 0;         % Minimum of zero
-% 
-% Counts.bg_o2off_mol = mean(Data.MCS.Channel8.Data(400-40:400,:));% Take mean of last data points
-% Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
-% Counts.o2off_bgsub_mol(Counts.o2off_bgsub_mol < 0) = 0;         % Minimum of zero
-
-% % Counts.bg_o2off = mean(Data.MCS.Channel10.Data(490-40:490,:));% Take mean of last data points
-% % Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off;       % Background subtracted
-% % Counts.o2off_bgsub(Counts.o2off_bgsub < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2on = mean(Data.MCS.Channel2.Data(490-40:490,:));% Take mean of last data points
-% % Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on;       % Background subtracted
-% % Counts.o2on_bgsub(Counts.o2on_bgsub < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2on_mol = mean(Data.MCS.Channel0.Data(490-40:490,:));% Take mean of last data points
-% % Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol;       % Background subtracted
-% % Counts.o2on_bgsub_mol(Counts.o2on_bgsub_mol < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2off_mol = mean(Data.MCS.Channel8.Data(490-40:490,:));% Take mean of last data points
-% % Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
-% % Counts.o2off_bgsub_mol(Counts.o2off_bgsub_mol < 0) = 0;         % Minimum of zero
-
-bgon = 7*2;
-bgoff = -7*2;
-
-bgon = 100;
-bgoff = -100;
-
-bgon = 0.05;
-bgoff = 0.05;
-
-bgon = 0.06;
-bgoff = 0.06;
-
-bgon = 0.00;
-bgoff = 0.00;
 
 Counts.bg_o2off = round(mean(Data.MCS.Channel10.Data(490-10:490,:)));% Take mean of last data points
 Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off -bgoff.*Counts.bg_o2off;       % Background subtracted
@@ -367,108 +307,7 @@ Counts.bg_o2on_mol = round(mean(Data.MCS.Channel0.Data(490-10:490,:)));% Take me
 Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol -bgon.*Counts.bg_o2on_mol;       % Background subtracted
 %Counts.o2on_bgsub_mol(Counts.o2on_bgsub_mol < 0) = 0;         % Minimum of zero
 
-5
 
-% 
-% % Counts.bg_o2off = round(mean(Data.MCS.Channel10.Data(1:4,:)));% Take mean of last data points
-% % Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off;       % Background subtracted
-% % %Counts.o2off_bgsub(Counts.o2off_bgsub < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2on = round(mean(Data.MCS.Channel2.Data(1:4,:)));% Take mean of last data points
-% % Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on;       % Background subtracted
-% % %Counts.o2on_bgsub(Counts.o2on_bgsub < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2on_mol = round(mean(Data.MCS.Channel0.Data(1:4,:)));% Take mean of last data points
-% % Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol;       % Background subtracted
-% % %Counts.o2on_bgsub_mol(Counts.o2on_bgsub_mol < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2off_mol = round(mean(Data.MCS.Channel8.Data(1:4,:)));% Take mean of last data points
-% % Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
-% % %Counts.o2off_bgsub_mol(Counts.o2off_bgsub_mol < 0) = 0;         % Minimum of zero
-
-
-
-% % Counts.bg_o2off = round(mean(Data.MCS.Channel10.Data(490-20:490,:)));% Take mean of last data points
-% % Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off;       % Background subtracted
-% % %Counts.o2off_bgsub(Counts.o2off_bgsub < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2on = round(mean(Data.MCS.Channel0.Data(490-20:490,:)))-250;% Take mean of last data points
-% % Counts.o2on_bgsub = Data.MCS.Channel0.Data - Counts.bg_o2on;       % Background subtracted
-% % %Counts.o2on_bgsub(Counts.o2on_bgsub < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2on_mol = round(mean(Data.MCS.Channel2.Data(490-20:490,:)))-250;% Take mean of last data points
-% % Counts.o2on_bgsub_mol = Data.MCS.Channel2.Data - Counts.bg_o2on_mol;       % Background subtracted
-% % %Counts.o2on_bgsub_mol(Counts.o2on_bgsub_mol < 0) = 0;         % Minimum of zero
-% % 
-% % Counts.bg_o2off_mol = round(mean(Data.MCS.Channel8.Data(490-20:490,:)));% Take mean of last data points
-% % Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
-% % %Counts.o2off_bgsub_mol(Counts.o2off_bgsub_mol < 0) = 0;         % Minimum of zero
-
-%%
-%calculate bacground
-% datalength = size(Data.MCS.Channel8.Data,1);
-% pnts = [datalength-40 datalength-20 datalength];
-% k = Range.rm_raw_o2(pnts(1)).^2.*Range.rm_raw_o2(pnts(3)).^2./Range.rm_raw_o2(pnts(2)).^2;
-% a = 1;
-% on_mol = movmean(Data.MCS.Channel0.Data,50,1);
-% b = (2.*on_mol(pnts(2),:)-k.*(on_mol(pnts(1),:)+on_mol(pnts(3),:)))./(k-1);
-% c = (k.*on_mol(pnts(1),:).*on_mol(pnts(3),:)-on_mol(pnts(2),:).^2)./(k-1);
-% dpon_mol = (-b+sqrt(b.^2-4.*a.*c))./2./a;
-% dpon_mol2 = (-b-sqrt(b.^2-4.*a.*c))./2./a;
-% 
-% off_mol = movmean(Data.MCS.Channel8.Data,50,1);
-% b = (2.*off_mol(pnts(2),:)-k.*(off_mol(pnts(1),:)+off_mol(pnts(3),:)))./(k-1);
-% c = (k.*off_mol(pnts(1),:).*off_mol(pnts(3),:)-off_mol(pnts(2),:).^2)./(k-1);
-% dpoff_mol = (-b+sqrt(b.^2-4.*a.*c))./2./a;
-% dpoff_mol2 = (-b-sqrt(b.^2-4.*a.*c))./2./a;
-% 
-% off = movmean(Data.MCS.Channel10.Data,50,1);
-% b = (2.*off (pnts(2),:)-k.*(off (pnts(1),:)+off (pnts(3),:)))./(k-1);
-% c = (k.*off (pnts(1),:).*off (pnts(3),:)-off (pnts(2),:).^2)./(k-1);
-% dpoff = (-b+sqrt(b.^2-4.*a.*c))./2./a;
-% dpoff2 = (-b-sqrt(b.^2-4.*a.*c))./2./a;
-% 
-% on = movmean(Data.MCS.Channel2.Data,50,1);
-% b = (2.*on(pnts(2),:)-k.*(on(pnts(1),:)+on(pnts(3),:)))./(k-1);
-% c = (k.*on(pnts(1),:).*on(pnts(3),:)-on(pnts(2),:).^2)./(k-1);
-% dpon = (-b+sqrt(b.^2-4.*a.*c))./2./a;
-% dpon2 = (-b-sqrt(b.^2-4.*a.*c))./2./a;
-% 
-% 
-% Counts.bg_o2off = round(dpoff2);% Take mean of last data points
-% Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off;       % Background subtracted
-% 
-% Counts.bg_o2on = round(dpon2);% Take mean of last data points
-% Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on;       % Background subtracted
-% 
-% Counts.bg_o2on_mol = round(dpon_mol2);% Take mean of last data points
-% Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol;       % Background subtracted
-% 
-% Counts.bg_o2off_mol = round(dpoff_mol2);% Take mean of last data points
-% Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
-
-
-% Counts.bg_o2off = round(mean(Data.MCS.Channel10.Data(1:4,:),1));% Take mean of last data points
-% Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off_mol;       % Background subtracted
-% 
-% Counts.bg_o2on = round(mean(Data.MCS.Channel2.Data(1:4,:),1));% Take mean of last data points
-% Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on_mol;       % Background subtracted
-% 
-% Counts.bg_o2on_mol = round(mean(Data.MCS.Channel0.Data(1:4,:),1));% Take mean of last data points
-% Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol;       % Background subtracted
-% 
-% Counts.bg_o2off_mol = round(mean(Data.MCS.Channel8.Data(1:4,:),1));% Take mean of last data points
-% Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol;       % Background subtracted
-% 
-
-% % 
-%  [minonbg, minoffbg] = mindNewBG(Counts,Time,Range) ;
-% % 
-% % 
-%  Counts.o2off_bgsub = Counts.o2off_bgsub+minoffbg;
-%  Counts.o2on_bgsub = Counts.o2on_bgsub+minonbg;
-% Counts.o2off_bgsub_mol = Counts.o2off_bgsub_mol+minoffbg;
-% Counts.o2on_bgsub_mol = Counts.o2on_bgsub_mol+minonbg;
 %%
 
 % ========integrate to new range
@@ -478,21 +317,6 @@ o2on_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 o2off_intp2 = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 o2on_intp2_mol = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
 o2off_intp2_mol = zeros(length(ii),length(Counts.o2on_bgsub(1,:)));
-% for ii = 1:2:length(Range.rm_raw_o2)
-%     o2on_intp2(inc,:) = (Counts.o2on_bgsub(ii,:)+Counts.o2on_bgsub(ii+1,:))/2;
-%     o2off_intp2(inc,:) = (Counts.o2off_bgsub(ii,:)+Counts.o2off_bgsub(ii+1,:))/2;
-%     o2on_intp2_mol(inc,:) = (Counts.o2on_bgsub_mol(ii,:)+Counts.o2on_bgsub_mol(ii+1,:))/2;
-%     o2off_intp2_mol(inc,:) = (Counts.o2off_bgsub_mol(ii,:)+Counts.o2off_bgsub_mol(ii+1,:))/2;
-%     inc = inc+1;
-% end
-
-% for ii = 1:2:length(Range.rm_raw_o2)
-%     o2on_intp2(inc,:) = (Counts.o2on_bgsub(ii,:)+Counts.o2on_bgsub(ii+1,:));
-%     o2off_intp2(inc,:) = (Counts.o2off_bgsub(ii,:)+Counts.o2off_bgsub(ii+1,:));
-%     o2on_intp2_mol(inc,:) = (Counts.o2on_bgsub_mol(ii,:)+Counts.o2on_bgsub_mol(ii+1,:));
-%     o2off_intp2_mol(inc,:) = (Counts.o2off_bgsub_mol(ii,:)+Counts.o2off_bgsub_mol(ii+1,:));
-%     inc = inc+1;
-% end
 
 for ii = 1:Options.intRange:length(Range.rm_raw_o2)-Options.intRange+1
     o2on_intp2(inc,:) = sum(Counts.o2on_bgsub(ii:(ii+Options.intRange-1),:),1);
@@ -506,7 +330,6 @@ Counts.o2off_bgsub = o2off_intp2;
 Counts.o2on_bgsub_mol = o2on_intp2_mol;
 Counts.o2off_bgsub_mol = o2off_intp2_mol;
 
-%Range.rm_raw_o2 = Range.rm_raw_o2(1:2:end)+Range.rangeBin./2;
 Range.rm_raw_o2 = Range.rm_raw_o2(1:Options.intRange:end)+Range.rangeBin./Options.intRange;
 
 %%
@@ -523,25 +346,7 @@ Counts.o2off_noise = Counts.o2off_bgsub(1:length(Range.rm),:);
 Counts.o2off_noise_mol = Counts.o2off_bgsub_mol(1:length(Range.rm),:);
 
 %integrate Bins to new range
-%Counts.NBins = Data.MCS.Channel0.NBins*2;
 Counts.NBins = Data.MCS.Channel0.NBins*Options.intRange;
-%Counts.NBins = Data.MCS.Channel0.NBins;
-
-
-%%
-%===== Afterpulse Correction =====
-% load('AfterPulse.mat','pulseON','pulseOFF','pulseON_mol','pulseOFF_mol')
-% Counts.o2on_noise(5:end,:) = Counts.o2on_noise(5:end,:)-pulseON(5:end,:)*1;
-% Counts.o2off_noise(5:end,:) = Counts.o2off_noise(5:end,:)-pulseON(5:end,:)*1;
-% Counts.o2on_noise_mol(5:end,:) = Counts.o2on_noise_mol(5:end,:)-pulseON_mol(5:end,:)*1;
-% Counts.o2off_noise_mol(5:end,:) = Counts.o2off_noise_mol(5:end,:)-pulseOFF_mol(5:end,:)*1;
-% 
-% Counts.o2on_noise(Counts.o2on_noise<0)=0;
-% Counts.o2off_noise(Counts.o2off_noise<0)=0;
-% Counts.o2on_noise_mol(Counts.o2on_noise_mol<0)=0;
-% Counts.o2off_noise_mol(Counts.o2off_noise_mol<0)=0;
-
-
 
 
 %%
@@ -657,10 +462,7 @@ Spectrum.lambda_scan_3D_short_off = 10^7./Spectrum.nu_scan_3D_short_off;
 
 %%
 %===== Calculate Model absorption from Model T and P =======
-%%%%Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
-
 Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV);
-
 Model.absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
 Model.transmission = exp(-cumtrapz(Range.rm,Model.absorption));
 
@@ -696,11 +498,6 @@ Counts.o2on_mol = Counts.o2on_noise_mol;
 Counts.o2off = Counts.o2off_noise;
 Counts.o2off_mol = Counts.o2off_noise_mol;
 
-%%
-%Afterpulse
-% load('AfterPulse.mat')
-% Counts.o2on = Counts.o2on + pulseON(1:2:160);
-% Counts.o2off = Counts.o2off + pulseON(1:2:160);
 
 %%
 Counts.wvon = nan(size(Counts.o2on));
@@ -845,17 +642,12 @@ HSRL.BSRf = nan(size(HSRL.BSR));
 
     Options.t_step = 1;
     [HSRLold] = HSRL_retrieval_20220909(Counts,Atmosphere,Options,Spectrum);
-    [HSRL] = backscatterRetrievalMPD03(Counts, Model, Spectrum, Options);
-
-   % load('C:\Users\Owen\OneDrive - Montana State University\Research\Reports\11_13_23\processRobertDataMSUv3.mat','HSRL')
+    [HSRL] = backscatterRetrievalMPD(Counts, Model, Spectrum, Options);
 
 
-   %HSRL.BSR = HSRL.BSR.*1.2;
-%HSRL.BSR = HSRL.BSR./mean(HSRL.BSR(end-5:end,:),1);
+    HSRL.BSRf = nan(size(HSRL.BSR));
 
-HSRL.BSRf = nan(size(HSRL.BSR));
-
-        HSRL.Bm828 = HSRL.Bm *(770/828)^4;
+    HSRL.Bm828 = HSRL.Bm *(770/828)^4;
     HSRL.Ba828 = HSRL.Ba*(770/828);
     HSRL.BSR828 = HSRL.Ba828./HSRL.Bm828+1;
 
@@ -1003,14 +795,6 @@ else
     [LidarData]=BackscatterRetrieval(LidarData,WeatherData);
     HSRL.BSR = LidarData.BackscatterRatio;
 end
-
-%%
-% % % 
-%  [minonbg, minoffbg] = mindNewBG(Counts,Time,Range) ;
-% % 
-% % 
-%  Counts.o2off = Counts.o2off+minoffbg;
-%  Counts.o2on = Counts.o2on+minonbg;
 
 
 %%

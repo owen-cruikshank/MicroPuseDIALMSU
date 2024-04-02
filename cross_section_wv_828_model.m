@@ -1,4 +1,4 @@
-function [N_wv,cross_section,lineshape,Line,g_wv] = cross_section_wv_828_model(T,P,nu_Range,absorption)
+function [N_wv,cross_section,lineshape,Line,g_wv] = cross_section_wv_828_model(T,P,nu_Range,absorption,Constant)
 %File: cross_section_wv_828_model.m
 %Date: 02/14/2021
 %Author: Owen Cruikshank
@@ -8,20 +8,17 @@ function [N_wv,cross_section,lineshape,Line,g_wv] = cross_section_wv_828_model(T
 %   -P:[atm] scalar or (range x time) vector of atmopheric pressure as a function
 %   of range
 %   -nu_Range:[1/cm] scaler wavenumber of online laser. Dimentions: (1 x 1 x wavenumber)
+%   -Constant: structure with constants
 %
 %Outputs:
 %   -sigma: [m^2] The voight absorption cross section of O2 at the input
 %   wavenumber arround the 780nm line, dimensions (range x time)
 %   -f: [m] Absorption lineshape function, dimensions (range x time)
 
-c = 2.99792458E8;                       %[m/s] speed of light 
-kB = 1.38065E-23;                       %[J/K] Boltzman's constant 
-h = 6.62607004E-34;                     %[Js] Planck's constant
-
-mwv = 2.991577548987048e-26; % Mass wv molecule [kg]
-
-A = 6.02214e23;
-mwv=18.01528/A/1000;
+c=Constant.c;
+kB = Constant.kB;
+h = Constant.h;
+mwv = Constant.mWV;
 
 
 %reference T and P
@@ -73,7 +70,6 @@ for i = 1:length(WV_parameters)                     %loop over all line paramete
         %nuShifted = nu_O2 ;%+ delta_air .* P;         %[1/m] (r x t) Shift line center based on atmopheric pressure
         
         %temperature shifted line strength
-        a_o2 = S0_O2.*(T0./T);
         a_o2 = S0_O2.*(T0./T).^1.5;%for WV
         c_o2 = exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower);
         ST_O2 = a_o2.*c_o2;                                 %[m/molecule](t x r) O2 line strength adjusted for temperature shift from T0

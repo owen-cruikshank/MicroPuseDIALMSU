@@ -1,4 +1,4 @@
-function plot_O2(p_point,sonde_index,~,Sonde,Model,Counts,Range,Time,~,Temperature,Format,Alpha,~,HSRL,Data,~,cloud_SDm_above,~,~,N_wvm,N_wv0m,~,~)
+function plot_O2(p_point,sonde_index,~,Sonde,Model,Counts,Range,Time,~,Temperature,Format,Alpha,~,HSRL,Data,~,cloud_SDm_above,~,~,N_wvm,N_wv0m,~,~,Constant)
 
 %function plot_O2(p_point,sonde_index,span_days,Sonde,Model,Counts,Range,Time,~,Temperature,Format,Alpha,cloud_SDm,HSRL,Data,SNRm,cloud_SDm_above,N_wv,N_wv0,N_wvm,N_wv0m,AbsHumm,AbsHum0m)
 
@@ -117,30 +117,30 @@ ylabel('Range (km)')
 %=Temperature profile
 figure(884)
 %plot(Ts_fit(1,p_point,end),0,'+')
-%temp = diag(Temperature.T_final_test(:,p_point))-273.13;
+%temp = diag(Temperature.T_final_test(:,p_point))-Constant.CtoK;
 % plot(temp,Range.rkm)
-%plot(diag(Temperature.T_final_tests0(:,p_point))-273.13,Range.rkm,'linewidth',2)
+%plot(diag(Temperature.T_final_tests0(:,p_point))-Constant.CtoK,Range.rkm,'linewidth',2)
 %hold on
-plot(diag(Temperature.T_finalm(:,p_point))-273.13,Range.rkm,'linewidth',2)
+plot(diag(Temperature.T_finalm(:,p_point))-Constant.CtoK,Range.rkm,'linewidth',2)
 hold on
 %plot(temp,Range.rkm)
 %Temperature.exclusion(Temperature.exclusion==0)=NaN;
 
-plot(Sonde.T_sonde(:,sonde_index)-273.13,Range.rm/1000,'.-')
+plot(Sonde.T_sonde(:,sonde_index)-Constant.CtoK,Range.rm/1000,'.-')
 
-% plot(diag(Temperature.T_finalm(:,p_point))-273.13+diag(Temperature.TempStd(:,p_point)),Range.rkm,'--')
-% plot(diag(Temperature.T_finalm(:,p_point))-273.13-diag(Temperature.TempStd(:,p_point)),Range.rkm,'--')
+% plot(diag(Temperature.T_finalm(:,p_point))-Constant.CtoK+diag(Temperature.TempStd(:,p_point)),Range.rkm,'--')
+% plot(diag(Temperature.T_finalm(:,p_point))-Constant.CtoK-diag(Temperature.TempStd(:,p_point)),Range.rkm,'--')
 
-%%plot(diag(Temperature.T_finalm(:,p_point))-273.13+diag(Temperature.TempStds(:,p_point)),Range.rkm,'*-')
-%%plot(diag(Temperature.T_finalm(:,p_point))-273.13-diag(Temperature.TempStds(:,p_point)),Range.rkm,'*-')
- plot(diag(Model.T(:,p_point))-273.13,Range.rkm,'-','LineWidth',2)
+%%plot(diag(Temperature.T_finalm(:,p_point))-Constant.CtoK+diag(Temperature.TempStds(:,p_point)),Range.rkm,'*-')
+%%plot(diag(Temperature.T_finalm(:,p_point))-Constant.CtoK-diag(Temperature.TempStds(:,p_point)),Range.rkm,'*-')
+ plot(diag(Model.T(:,p_point))-Constant.CtoK,Range.rkm,'-','LineWidth',2)
 %%plot(Sonde.T_sonde(:,sonde_index)+2,Range.rm/1000,'--k')
 %%plot(Sonde.T_sonde(:,sonde_index)-2,Range.rm/1000,'--k')
-plot(diag(Temperature.L_fit_sm_test(:,p_point,end) .* Range.rm + Temperature.Ts_fit(1,p_point,end))-273.13,Range.rkm,'--','linewidth',2)
+plot(diag(Temperature.L_fit_sm_test(:,p_point,end) .* Range.rm + Temperature.Ts_fit(1,p_point,end))-Constant.CtoK,Range.rkm,'--','linewidth',2)
 
-plot(Sonde.T_sonde(:,sonde_index)-273.13+2,Range.rm/1000,'.-')
-plot(Sonde.T_sonde(:,sonde_index)-273.13-2,Range.rm/1000,'.-')
-plot(diag(Temperature.T_final_test(:,p_point))-273.13,Range.rkm,'--')
+plot(Sonde.T_sonde(:,sonde_index)-Constant.CtoK+2,Range.rm/1000,'.-')
+plot(Sonde.T_sonde(:,sonde_index)-Constant.CtoK-2,Range.rm/1000,'.-')
+plot(diag(Temperature.T_final_test(:,p_point))-Constant.CtoK,Range.rkm,'--')
 hold off
 grid on
 xlabel('Temperature (^oC)')
@@ -202,7 +202,7 @@ title(sprintf(['Temperature difference\n' datestr(Time.date_ts(p_point(1)))]))
 % % imAlpha(isnan(Temperature.T_finalm(1:ind_km_max,:)))=0; % Set AlphaData to not plot NaNs
 % % imAlpha(cloud_SDm_above(1:ind_km_max,:) ~= 1)=1; %Set transperency so that cloud mask can be seen
 % % colorLimits=[-25 20];
-% % imagesc(datenum(Time.date_ts),Range.rkm(1:ind_km_max),Temperature.T_finalm(1:ind_km_max,:)-273.13,'AlphaData',imAlpha,colorLimits) %Plot
+% % imagesc(datenum(Time.date_ts),Range.rkm(1:ind_km_max),Temperature.T_finalm(1:ind_km_max,:)-Constant.CtoK,'AlphaData',imAlpha,colorLimits) %Plot
 % % hold on
 % % for ii = 1:size(Sonde.sonde_ind,2)
 % %      plot(datenum(Time.date_ts([Sonde.sonde_ind(1,ii) Sonde.sonde_ind(end,ii)])),[Range.rkm(1) Range.rkm(end)],'--k')
@@ -224,7 +224,7 @@ title(sprintf(['Temperature difference\n' datestr(Time.date_ts(p_point(1)))]))
 % % % figure(8866666)
 % % % r_max_plot = 5; % Max range to plot [km]
 % % % [~,ind_km_max] = min(abs(Range.rkm-r_max_plot)); % Max range Index
-% % % surf(Time.date_ts,Range.rkm(1:ind_km_max),Temperature.T_finalm(1:ind_km_max,:)-273,'linestyle','none')
+% % % surf(Time.date_ts,Range.rkm(1:ind_km_max),Temperature.T_finalm(1:ind_km_max,:)-Constant.CtoK,'linestyle','none')
 % % % colorbar % Add colorbar
 % % % view(2)
 % % % title(sprintf('Temperature retrieval')) %Add title
@@ -235,7 +235,7 @@ title(sprintf(['Temperature difference\n' datestr(Time.date_ts(p_point(1)))]))
 
 %===2D temp with error mask
 figure(888666)
-h = pcolor(Time.date_ts,Range.rkm,Temperature.T_finalm-273);
+h = pcolor(Time.date_ts,Range.rkm,Temperature.T_finalm-Constant.CtoK);
 set(h, 'EdgeColor', 'none');
 hold on
 for ii = 1:size(Sonde.sonde_ind,2)
@@ -278,7 +278,7 @@ hold off
 % % % imAlpha(cloud_SDm(1:ind_km_max,:) ~= 1)=0; %Set transperency so that cloud mask can be seen
 % % %imAlpha(cloud_SDm_above(1:ind_km_max,:) ~= 1)=1; %Set transperency so that cloud mask can be seen
 % % colorLimits =[0 3e23];
-% % imagesc(datenum(Time.date_ts),Range.rkm(1:ind_km_max),N_wvm(1:ind_km_max,:)-273.13,colorLimits) %Plot
+% % imagesc(datenum(Time.date_ts),Range.rkm(1:ind_km_max),N_wvm(1:ind_km_max,:)-Constant.CtoK,colorLimits) %Plot
 % % colormap('jet')
 % % colors = colormap; % Set colors to colormap
 % % colors(1,:) = [0 0 0]; % Set lowest color black to make clouds appear black
@@ -546,11 +546,11 @@ legend('Online','Offline')
 %=Weather Station
 figure(83)
 subplot(2,1,1)
-plot(Time.date_ts,Model.Ts-273.13)
+plot(Time.date_ts,Model.Ts-Constant.CtoK)
 hold on
-plot(Time.date_ts,Temperature.Ts_fit(1,:,end)-273.13)
+plot(Time.date_ts,Temperature.Ts_fit(1,:,end)-Constant.CtoK)
 for i=1:size(Sonde.sonde_ind,2)
-plot(Time.date_ts(Sonde.sonde_ind(1,i)),Sonde.Tsurf(1,i)-273.13,'*')
+plot(Time.date_ts(Sonde.sonde_ind(1,i)),Sonde.Tsurf(1,i)-Constant.CtoK,'*')
 end
 hold off
 legend('Weather station','Fit')
@@ -1055,8 +1055,8 @@ title('BSR')
 %=T Sonde and DIAL scatter plot
 figure(67755)
 [~,sondeCut]=min(abs(Range.rm-150));
-BL = -20+273;
-UR = 25+273;
+BL = -20+Constant.CtoK;
+UR = 25+Constant.CtoK;
 tempProb = zeros(UR-BL+1);
 for ii = 1:size(Sonde.sonde_ind,2)
     if ii==12
@@ -1071,16 +1071,16 @@ end
 tempProb(tempProb==0)=nan;
 imAlpha=ones(size(tempProb));
 imAlpha(isnan(tempProb))=0;%Set AlphaData to not plot NaNs
-imagesc((BL:UR)-273,(BL:UR)-273,tempProb','AlphaData',imAlpha')
+imagesc((BL:UR)-Constant.CtoK,(BL:UR)-Constant.CtoK,tempProb','AlphaData',imAlpha')
 colormap(flipud(hot))%colormap hot
 %set(gca,'ColorScale','log')
 set(gca,'Color','#D3D3D3')
 a = colorbar;
 a.Label.String = 'Occurrences';
 hold on
-plot((BL:UR)-273,(BL:UR)-273,'k--')
-plot((BL:UR)-273-2,(BL:UR)-273,'k')
-plot((BL:UR)-273+2,(BL:UR)-273,'k')
+plot((BL:UR)-Constant.CtoK,(BL:UR)-Constant.CtoK,'k--')
+plot((BL:UR)-Constant.CtoK-2,(BL:UR)-Constant.CtoK,'k')
+plot((BL:UR)-Constant.CtoK+2,(BL:UR)-Constant.CtoK,'k')
 grid on
 hold off
 set(gca, 'YDir','normal')
@@ -1187,16 +1187,16 @@ end
 tempProb(tempProb==0)=nan;
 imAlpha=ones(size(tempProb));
 imAlpha(isnan(tempProb))=0;%Set AlphaData to not plot NaNs
-imagesc((278:303)-273,(278:303)-273,tempProb,'AlphaData',imAlpha)
+imagesc((278:303)-Constant.CtoK,(278:303)-Constant.CtoK,tempProb,'AlphaData',imAlpha)
 colormap(flipud(hot))%colormap hot
 set(gca,'ColorScale','log')
 set(gca,'Color','#D3D3D3')
 a = colorbar;
 a.Label.String = 'Occurrences';
 hold on
-plot((278:303)-273,(278:303)-273,'k--')
-plot((278:303)-273-2,(278:303)-273,'k')
-plot((278:303)-273+2,(278:303)-273,'k')
+plot((278:303)-Constant.CtoK,(278:303)-Constant.CtoK,'k--')
+plot((278:303)-Constant.CtoK-2,(278:303)-Constant.CtoK,'k')
+plot((278:303)-Constant.CtoK+2,(278:303)-Constant.CtoK,'k')
 grid on
 hold off
 set(gca, 'YDir','normal')
@@ -2598,10 +2598,10 @@ legend('Mean')
 
 
 figure
-errorbar(diag(Temperature.T_finalm(:,p_point))-273,Range.rkm,diag(Temperature.TempStds(:,p_point)))
-errorbar(Range.rkm,diag(Temperature.T_finalm(:,p_point))-273,diag(Temperature.TempStds(:,p_point)))
+errorbar(diag(Temperature.T_finalm(:,p_point))-Constant.CtoK,Range.rkm,diag(Temperature.TempStds(:,p_point)))
+errorbar(Range.rkm,diag(Temperature.T_finalm(:,p_point))-Constant.CtoK,diag(Temperature.TempStds(:,p_point)))
 hold on
-plot(Range.rkm,Sonde.T_sonde(:,sonde_index)-273)
+plot(Range.rkm,Sonde.T_sonde(:,sonde_index)-Constant.CtoK)
 xlabel('Range (km)')
 ylabel('Temperature (^oC)')
 legend('T_{MPD}','T_{radiosonde}')
@@ -2613,9 +2613,9 @@ grid on
 % for ii=1:size(Sonde.T_sonde,2)
 %     p_point2 = Sonde.sonde_ind(:,ii);
 %     figure
-%     errorbar(Range.rkm,diag(Temperature.T_finalm(:,p_point2))-273,diag(Temperature.TempStds(:,p_point2)))
+%     errorbar(Range.rkm,diag(Temperature.T_finalm(:,p_point2))-Constant.CtoK,diag(Temperature.TempStds(:,p_point2)))
 %     hold on
-%     plot(Range.rkm,Sonde.T_sonde(:,ii)-273)
+%     plot(Range.rkm,Sonde.T_sonde(:,ii)-Constant.CtoK)
 %     xlabel('Range (km)')
 %     ylabel('Temperature (^oC)')
 %     legend('T_{MPD}','T_{radiosonde}')
@@ -2658,9 +2658,9 @@ set(h, 'EdgeColor', 'none');
 
 
 % figure(1234)
-% plot(Time.date_ts(1:12082),Model.Ts(1:12082)-273,'k','linewidth',2)
+% plot(Time.date_ts(1:12082),Model.Ts(1:12082)-Constant.CtoK,'k','linewidth',2)
 % hold on
-% plot(Time.date_ts(12083:end),Model.Ts(12083:end)-273,'k','linewidth',2)
+% plot(Time.date_ts(12083:end),Model.Ts(12083:end)-Constant.CtoK,'k','linewidth',2)
 % grid on
 % ylabel('Suface Temperature (^oC)')
 

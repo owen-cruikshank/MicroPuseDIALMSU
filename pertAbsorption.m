@@ -2,7 +2,7 @@
 % author: Owen Cruikshank
 % date: 11/30/2020
 
-function [alpha_final,alpha_1_raw,alpha_2_raw,Spectrum] = pertAbsorption(alpha, T_etalon, T_etalon_off, Model, Range, Time, Spectrum, BSR, Options, UseRBspectrum,usePCAabsorption)
+function [alpha_final,alpha_1_raw,alpha_2_raw,Spectrum] = pertAbsorption(alpha, T_etalon, T_etalon_off, Model, Range, Time, Spectrum, BSR, Options, UseRBspectrum,usePCAabsorption,Constant)
     % --- Spectral distribution using the initial temperature profile guess ---
 
      cB = 1.2;%Brullouion correction to doppler gaussian half width
@@ -161,8 +161,8 @@ end
    %  end
 
    %absorption_f = absorption_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short ,Model.WV);
-    absorption_f = absorption_O2_770_PCA2(Model.T,Model.P,Spectrum,Model.WV);
-    absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV);
+    absorption_f = absorption_O2_770_PCA2(Model.T,Model.P,Spectrum,Model.WV,Constant);
+    absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV,Constant);
 
     %o2absorption_off = absorption_O2_770_model_wavenumber(Model.T,Model.P,Spectrum.nu_scan_3D_short_off ,Model.WV);
 

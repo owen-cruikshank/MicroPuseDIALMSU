@@ -1,5 +1,5 @@
 %principal component analysis construction
-function [Spectrum] = PCAconstrunctionRB2(Spectrum)
+function [Spectrum] = PCAconstrunctionRB2(Spectrum,Constant)
 
 % Input varibles
 %Spectrum.lambda_offline(1); -> Offline wavelength [nm]
@@ -60,7 +60,7 @@ end
 
 yAOn=zeros(length(TP(:,1)),1,length(FreqSpecOnline));
 for i = 1:length(Spectrum.nu_scan_3D_short)
-    [~,yAOn(:,:,i)] = absorption_O2_770_model(TP(:,1),TP(:,2),Spectrum.nu_scan_3D_short(i),0);
+    [~,yAOn(:,:,i)] = absorption_O2_770_model(TP(:,1),TP(:,2),Spectrum.nu_scan_3D_short(i),0,Constant);
 end
 yAOn=permute(yAOn,[1 3 2]);
 

@@ -1,4 +1,4 @@
-function [absorption,cross_section,lineshape,Line] = absorption_O2_770_model(T,P,nu_Range,WV)
+function [absorption,cross_section,lineshape,Line] = absorption_O2_770_model(T,P,nu_Range,WV,Constant)
 %File: absorption_O2_770_model.m
 %Date: 02/28/2020
 %Author: Owen Cruikshank
@@ -17,13 +17,11 @@ function [absorption,cross_section,lineshape,Line] = absorption_O2_770_model(T,P
 %   wavenumber arround the 780nm line, dimensions (range x time)
 %   -f: [m] Absorption lineshape function, dimensions (range x time)
 
-c = 2.99792458E8;                       %[m/s] speed of light 
-kB = 1.38065E-23;                       %[J/K] Boltzman's constant 
-h = 6.62607004E-34;                     %[Js] Planck's constant
-
-q_O2 = .2095;                           %[unitless] O2 atmospheric mixing ratio 
-
-mo2 = 5.313525282632483E-26;            % Mass O2 molecule [kg]
+c = Constant.c;
+kB = Constant.kB;
+h = Constant.h;
+q_O2 = Constant.q_O2;
+mo2 = Constant.mo2;
 
 %reference T and P
 T0 = 296;                               %[K]
@@ -55,7 +53,7 @@ O2_parameters=[
 7 1 12984.267824 2.674e-27 0.01352 0.0507 0.052 1600.1329 0.73 -0.0061;
 7 1 12986.261834 3.404e-27 0.01705 0.0507 0.052 1598.1388 0.73 -0.0071];
 
-f = fopen('5d41b591.par','r');
+f = fopen(fullfile('CalibrationData','5d41b591.par'),'r');
 formatSpec = '%1d%1d%f %e %e%6f%4f %f%4f%8f       b      %1f       X      %1f                %1c %2d%1c %2d     %1c%14c %d %d %f %f';
 O2_parameters = fscanf(f,formatSpec,[35 Inf]);
 O2_parameters = O2_parameters';
@@ -159,12 +157,12 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
         Line{increment}.v = O2_parameters(i,12);
         Line{increment}.quanta = [char(O2_parameters(i,13)) num2str(O2_parameters(i,14)) char(O2_parameters(i,15)) num2str(O2_parameters(i,14))];
 
-        Line{increment}.a =  Voight .* K.* ((P*101325)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
+        Line{increment}.a =  Voight .* K.* ((P*Constant.ATMtoPA)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
 
         increment = increment+1; %increment line number
     end
 end
 
-absorption = cross_section .* ((P*101325)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
+absorption = cross_section .* ((P*Constant.ATMtoPA)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
 
 end

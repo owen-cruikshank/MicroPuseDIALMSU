@@ -1,4 +1,4 @@
-function [absorption,cross_section] = absorption_O2_770_PCA_off(T,P,nu_Range,WV)
+function [absorption,cross_section] = absorption_O2_770_PCA_off(T,P,nu_Range,WV,Constant)
 %File: absorption_O2_770_model_wavenumber.m
 %Date: 02/28/2020
 %Author: Owen Cruikshank
@@ -60,9 +60,7 @@ cross_sectionI = muY + cross_sectionI;
 
 cross_section = permute(cross_sectionI(:,:,:),[3 2 1]);
 
-kB = 1.38065E-23;                       %[J/K] Boltzman's constant 
-q_O2 = .2095;                           %[unitless] O2 atmospheric mixing ratio 
-N_o2 = ((P*101325)./(kB*T)-WV) * q_O2;     %[molecule/m^3](t x r)O2 number density from atmopsheric number density and O2 mixing ratio
+N_o2 = ((P*Constant.ATMtoPA)./(Constant.kB*T)-WV) * Constant.q_O2;
 
 absorption = cross_section .* N_o2;     %[1/m](t x r x nu)absorption coefficeint of oxygen in the atmosphere
 end

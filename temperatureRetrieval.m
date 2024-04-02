@@ -1,5 +1,4 @@
-function [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,deltaT] =  temperatureRetrieval(T,ts,rm,~,WV,nu_scan,alpha_O2,~,cloud_SDm_above,Ts,Ps,startLapse)
-%function [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,Titer] =  temperatureRetrieval(T,ts,rm,P,WV,nu_scan,alpha_O2,SNRm,cloud_SDm_above,Ts,Ps,startLapse)
+function [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,deltaT] =  temperatureRetrieval(T,ts,rm,~,WV,nu_scan,alpha_O2,~,cloud_SDm_above,Ts,Ps,startLapse,Constant)
 %File: temperatureRetrieval.m
 %Date: 03/16/2020
 %Author: Owen Cruikshank
@@ -28,22 +27,22 @@ function [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,deltaT] =  temp
 
 
 %==Constants
-g0 = 9.80665;               %[m/s/s]Gravitational acceleration
-M_air = 0.0289644;          %[kg/mol] Molar mass of air
-q_O2 = .2095;               %[unitless] O2 atmospheric mixing ratio 
-kB = 1.38065E-23;           %[J/K] Boltzman's constant 
-%No = 2.47937E25;            % Loschmidt's number [1/m^3] (referenced to 296 K and 1 atm)
-N_A = 6.02214076e23;        %[1/mol] Avagadro's number
-R = kB * N_A;               %[J/K/mol] universal gas constant
-%h = 6.626E-34;              %[J s] Planck's constant
-c = 2.99792458E8;           %[m/s] speed of light 
-h = 6.62607004E-34;                     %[Js] Planck's constant
+g0 = Constant.g0;
+M_air = Constant.M_air;
+q_O2 = Constant.q_O2;
+kB = Constant.kB;
+R = Constant.R;
+c = Constant.c;
+h = Constant.h;
+
+%g0=6.673e-11*5.98e24./(6.38e6+rm+1500).^2;
+
 
 T0 = 296;                   %[K] reference temperature
 
-loop = 25;%number of times to do iterative temperature retrieval loop
-loop = 20;%number of times to do iterative temperature retrieval loop
 loop = 30;%number of times to do iterative temperature retrieval loop
+
+
 
 gamma = g0 * M_air / R;     %[K/m]gravity molar mass of air and gas constant
 
@@ -149,7 +148,6 @@ for i = 1:loop
     %Pg = Ps.*(Ts./Tg).^(gamma./starting_lapse_rate);
     %Pg = Ps.*(Ts./(Ts+starting_lapse_rate.*rm)).^(gamma./starting_lapse_rate);
 
-    % Pg = Pg+Pg*.01;
     Pg = Ps.*exp(-cumtrapz(rm,gamma./Tg,1));
 
 
@@ -160,7 +158,7 @@ for i = 1:loop
     q = q_O2 .* (1 - q_WV);
 
     %update lineshape function
-    [~,~,~,Line] = absorption_O2_770_model(Tg,Pg,nu_scan,WV);%[m] lineshape function
+    [~,~,~,Line] = absorption_O2_770_model(Tg,Pg,nu_scan,WV,Constant);%[m] lineshape function
 
     Line1 = Line{4};
     Line2 = Line{5};
@@ -179,13 +177,6 @@ for i = 1:loop
     %Calculate change in temperature from last
     deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line1.lineshape.*q - C1b.*C2b.*Line2.lineshape.*q) ... 
    ./(C1a.*C2a.*C3a.*Line1.lineshape.*q+C1b.*C2b.*C3b.*Line2.lineshape.*q); %[K] calculate a change in temperatre
-  
-   %   deltaT(:,:,i) = (alpha_O2 - C1a.*C2a.*Line{1}.lineshape.*q ) ... 
-   % ./(C1a.*C2a.*C3a.*Line{1}.lineshape.*q); %[K] calculate a change in temperatre
-   % 
-   %      deltaT(:,:,i) = (alpha_O2 - C1b.*C2b.*Line{2}.lineshape.*q) ... 
-   % ./(C1b.*C2b.*C3b.*Line{2}.lineshape.*q); %[K] calculate a change in temperatre
-   % 
 
 
     % Limit deltaT to plus or minus 2 K
