@@ -28,6 +28,12 @@ date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
 date_start = datetime(2021,7,1,'TimeZone','UTC');%yyyy,mm,dd
 date_end = datetime(2021,7,1,'TimeZone','UTC');%yyyy,mm,dd
 
+date_start = datetime(2023,8,28,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2023,8,30,'TimeZone','UTC');%yyyy,mm,dd
+
+date_start = datetime(2023,8,1,'TimeZone','UTC');%yyyy,mm,dd
+date_end = datetime(2023,8,31,'TimeZone','UTC');%yyyy,mm,dd
+
 % date_start = datetime(2021,6,20,'TimeZone','UTC');%yyyy,mm,dd
 % date_end = datetime(2021,8,15,'TimeZone','UTC');%yyyy,mm,dd
 
@@ -66,7 +72,7 @@ Constants.ATMtoPA = 101325;          %Converstion from atm to pa [kg m^-1 s^-2/a
 
 Options.MPDname = '00';
 Options.MPDname = '03';
-Options.MPDname = '05';
+%Options.MPDname = '05';
 
 Options.DataPath = 'C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\Data';
 if strcmp(Options.MPDname,'00')

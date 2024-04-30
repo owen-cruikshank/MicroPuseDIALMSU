@@ -13,6 +13,7 @@ disp('Reading in files')
 Options.path = fullfile(Options.DataPath,'NCAR Boulder Data',['mpd_' Options.MPDname '_data']);
 %pathPython = fullfile(pwd,'Data','NCAR Boulder Data','Python');
 pathSonde = fullfile(Options.DataPath,'NCAR Boulder Data','Soundings','Soundings-20211220T155456Z-001','Soundings');
+pathSonde = fullfile(Options.DataPath,'NCAR Boulder Data','Soundings','data1OmMj0');
 %pathSonde = fullfile(Options.DataPath,'NCAR Boulder Data');
 
 
@@ -214,7 +215,8 @@ Model.WV = Absolute_Humidity;
 %===========================
 
 disp('Loading Sonde data')
-[sonde_datetime,sondeStruc] =  ChristmanFieldradiosonde(pathSonde,span_days);
+%[sonde_datetime,sondeStruc] =  ChristmanFieldradiosonde(pathSonde,span_days);
+[sonde_datetime,sondeStruc] =  m2hatsradiosonde(pathSonde,span_days);
 rm_sgp = cell(1,numel(sonde_datetime));
 T_sonde_int = rm_sgp;
 P_sonde_int = rm_sgp;
@@ -224,9 +226,10 @@ for i = 1:numel(sonde_datetime) % Loop over number of sondes in time period
     if isdatetime(sonde_datetime(i)) %== Check if sonde exists
         % ===Subtract first range value (site elevation) from whole vector
         %rm_sgp{i} = sondeStruc(i).Height - sondeStruc(i).Height(1);
-        rm_sgp{i} = sondeStruc(i).Height - 1571.9;
+        %rm_sgp{i} = sondeStruc(i).Height - 1571.9;
 
-        rm_sgp{i} = sondeStruc(i).Height - 1571.9;
+        %rm_sgp{i} = sondeStruc(i).Height - 1571.9;
+        rm_sgp{i} = sondeStruc(i).Height ;
         %===convert to same units====
         sondeStruc(i).P = sondeStruc(i).P./1013.25;%atm
 
@@ -475,8 +478,8 @@ Counts.NBins = Data.MCS.Channel0.NBins*Options.intRange;
 %lambda_offline = interp1(Options.TimeGrid,Data.Laser.O2Offline.WavelengthActual,Time.ts/60/60);
 
 Spectrum.WavemeterOffset = -0.00024;%[nm]
-%Spectrum.WavemeterOffset = 0.00024;%[nm]
-Spectrum.WavemeterOffset = 0;%[nm]
+Spectrum.WavemeterOffset = 0.00024;%[nm]
+%Spectrum.WavemeterOffset = 0;%[nm]
 
 
 % Spectrum.lambda_online = 769.7958 *ones(size(Time.ts));
@@ -508,6 +511,8 @@ Spectrum.lambda_online = o2lambdaCentralon*ones(size(Time.ts));
 % Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
  Spectrum.lambda_wvon = 828.187 *ones(size(Time.ts));
  Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
+  Spectrum.lambda_wvon = 828.19425 *ones(size(Time.ts));
+ Spectrum.lambda_wvoff = 828.29342 *ones(size(Time.ts));
 % Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
 % Spectrum.lambda_wvoff = fillmissing(filloutliers(Data.Laser.WVOffline.WavelengthActual,'linear','movmedian',5),'linear');
 
@@ -558,6 +563,9 @@ Spectrum.lambda_scanwv_3D_short = 10^7./Spectrum.nu_scan_3D_short;
 Spectrum.lambda_online = 769.7958 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
 Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
 
+Spectrum.lambda_online = 769.79647 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
+Spectrum.lambda_offline = 770.10877 *ones(size(Time.ts))+Spectrum.WavemeterOffset;
+
 % % Spectrum.lambda_online = Spectrum.lambda_online+Spectrum.WavemeterOffset;
 % % Spectrum.lambda_offline = Spectrum.lambda_offline+Spectrum.WavemeterOffset;
 % Spectrum.lambda_wvon = fillmissing(filloutliers(Data.Laser.WVOnline.WavelengthActual,'linear','movmedian',5),'linear');
@@ -567,6 +575,9 @@ Spectrum.lambda_offline = 770.1085 *ones(size(Time.ts))+Spectrum.WavemeterOffset
 
   Spectrum.lambda_wvon = 828.1960 *ones(size(Time.ts));
  Spectrum.lambda_wvoff = 828.29515 *ones(size(Time.ts));
+
+   Spectrum.lambda_wvon = 828.187 *ones(size(Time.ts));
+ Spectrum.lambda_wvoff = 828.2951 *ones(size(Time.ts));
 
 Spectrum.lambda_wvon = double(Spectrum.lambda_wvon)+Spectrum.WavemeterOffset; %single values mess up conversion to wavenumber
 Spectrum.lambda_wvoff = double(Spectrum.lambda_wvoff)+Spectrum.WavemeterOffset;
