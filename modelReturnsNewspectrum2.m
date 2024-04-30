@@ -1054,7 +1054,8 @@ rm_over = rm_raw_o2(rm_raw_o2<=r_max & rm_raw_o2>0);     %[m] Shorten range vect
  eta_O = fillmissing(interp1(R,OVF(2,:),rm),'nearest');
  eta_O_near = fillmissing(interp1(R,OVF_near(2,:),rm),'nearest');
  spectralpurityO = .98;
-  spectralpurityO = .5;
+  spectralpurityO = .98;
+  %spectralpurityO = .5;
     %spectralpurityO = .98;
 
 gaerosolASE = ones(size(gaerosol_off)).*gaerosol(Spectrum.online_index).*(1-spectralpurityO)./(length(gaerosol)-1);
@@ -1191,8 +1192,9 @@ N_offSpectrumAfterpulse = N_offSpectrum+Correction_NC_off;
 BSR = (Ba+Bm)./Bm;
 smoothingLength = 300;%pulse length
 smoothingLength = 150;%pulse length
+smoothingLength = 150*.75;%pulse length
 smoothPoints = round(smoothingLength/dr);
-%smoothPoints=1;
+smoothPoints=1;
 smoothVector = ones(smoothPoints,1)/smoothPoints;
 
 
@@ -1251,8 +1253,8 @@ N_offSpectrumPulse = conv(N_offSpectrum,smoothVector,'same');
 % N_onSpectrumPulse(1:end-smoothPoints./2) = N_onSpectrumPulse(smoothPoints./2+1:end);
 % N_offSpectrumPulse(1:end-smoothPoints./2) = N_offSpectrumPulse(smoothPoints./2+1:end);
 
- N_onSpectrumPulse(2:end)=N_onSpectrumPulse(1:end-1) ;
- N_offSpectrumPulse(2:end) = N_offSpectrumPulse(1:end-1) ;
+ %N_onSpectrumPulse(2:end)=N_onSpectrumPulse(1:end-1) ;
+ %N_offSpectrumPulse(2:end) = N_offSpectrumPulse(1:end-1) ;
 
  N_onSpectrumPulseASEO = conv(N_onSpectrum+N_onSpectrumASEO,smoothVector,'same');
 N_offSpectrumPulseASEO = conv(N_offSpectrum+N_offSpectrumASEO,smoothVector,'same');
@@ -1388,16 +1390,17 @@ hold off
 legend('a_t','a_tPulse','a_tSpectrum','a_tSpectrumPulse','bsrShiftSpectrumpulse','absorption')
 
 figure(4)
- plot((a_0-absorption)./absorption*100,rm)
- hold on
- plot((a_0Pulse-absorption)./absorption*100,rm,'.-','LineWidth',4)
-plot((Alpha_totalSpectrum-absorption)./absorption*100,rm/1000,'linewidth',2)
+% plot((a_0-absorption)./absorption*100,rm)
+% hold on
+% plot((a_0Pulse-absorption)./absorption*100,rm,'.-','LineWidth',4)
+%plot((Alpha_totalSpectrum-absorption)./absorption*100,rm/1000,'linewidth',2)
 %hold on
 %plot(Alpha_totalSpectrumPulse-absorption,rm/1000,'.-','linewidth',2)
-plot((Alpha_totalSpectrumPulseBSRShift-absorption)./absorption*100,rm/1000,'--','linewidth',2)
+plot((Alpha_totalSpectrumPulseBSRShift-absorption)./absorption*100,rm/1000,'-','linewidth',2)
+hold on
 %plot(o2absorption(:,:,online_index)-absorption,rm/1000,'--')
-plot((Alpha_totalSpectrumASE-absorption)./absorption*100,rm/1000,'-')
-plot((Alpha_totalSpectrumPulseASE-absorption)./absorption*100,rm/1000,'--')
+%plot((Alpha_totalSpectrumASE-absorption)./absorption*100,rm/1000,'-')
+plot((Alpha_totalSpectrumPulseASE-absorption)./absorption*100,rm/1000,'-.','linewidth',2)
 %plot((Alpha_totalSpectrumAfterpulse-absorption)./absorption*100,rm/1000,'LineWidth',2)
 %plot((Alpha_totalSpectrumPulseAfterpulse-absorption)./absorption*100,rm/1000,'--','LineWidth',2)
 hold off
@@ -1527,22 +1530,27 @@ legend('P','P_pulse','P spectrum','P Spectrum pulse')
 
 
 figure(444)
-plot(T_final-T,rm/1000)
+%plot(T_final-T,rm/1000)
+%hold on
+%plot(T_finalPulse-T,rm/1000)
+%plot(T_finalSpectrum-T,rm/1000,'linewidth',2)
+%hold on
+plot(T_finalSpectrumPulseBSRShift-T,rm/1000,'-','linewidth',2)
 hold on
-plot(T_finalPulse-T,rm/1000)
-plot(T_finalSpectrum-T,rm/1000,'linewidth',2)
-hold on
-plot(T_finalSpectrumPulseBSRShift-T,rm/1000,'--','linewidth',2)
 % plot(T_finalSpectrumAfterpulse-T,rm/1000,'linewidth',2)
 % plot(T_finalSpectrumPulseAfterpulse-T,rm/1000,'--','linewidth',2)
-plot(T_finalSpectrumASE-T,rm/1000,'-')
-plot(T_finalSpectrumPulseASE-T,rm/1000,'-')
+%plot(T_finalSpectrumASE-T,rm/1000,'-','linewidth',2)
+%plot(T_finalSpectrumPulseASE-T,rm/1000,'-.','linewidth',2)
 hold off
 legend('a_t','a_tPulse','a_tSpectrum','a_tSpectrumPulse','bsrShiftSpectrumpulse','absorption')
 legend('Temperature','Temperature Pulse','Afterpulse','Afterpulse Pulse')
+legend('Temperature','Temperature Pulse','T spectrum','T spectrum pulse shift','ASE','Pulse ASE')
+legend('Temperature','T spectrum pulse shift','ASE','Pulse ASE')
+legend('Temperature','Temperature ASE')
 grid on
 ylim([0 6])
 xlim([-3 3])
+xlim([-2 2])
 xlabel('Temperature Difference (T_{retrieved}-T)')
 ylabel('Range (km)')
 
