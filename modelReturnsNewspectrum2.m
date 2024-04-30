@@ -1,6 +1,25 @@
 %model of returns
 
 clear all
+
+%Constants
+Constant.g0 = 9.80665;       %[m/s^2] Gravitational acceleration 
+Constant.M_air = 0.0289644;  %[kg/mol] Molar mass of Earth's air 
+Constant.R = 8.3144598;      %[J/(mol*K)] Universal gas constant 
+
+Constant.c = 2.99792458E8;           %[m/s] Speed of light 
+Constant.kB = 1.38065E-23;           %[J/K][m^2 kg s-2 K-1] Boltzman's constant 
+Constant.h = 6.62607004E-34;              %[Js] Planck's constant 
+Constant.mo2 = 5.314E-26;            %[kg] Mass O2 molecule 
+Constant.mWV = 2.991577548987048e-26;           %[kg] Mass H2O molecule
+Constant.m_air = 4.792E-26;          %[kg] Mass of air
+Constant.q_O2 = .2095;               %[unitless] O2 atmospheric mixing ratio
+Constant.No = 2.47937E25;            %[1/m^3] Loschmidt's number  (referenced to 296 K and 1 atm)
+Constant.CtoK = 273.15;             %Converstion from Celcius to Kelvin
+Constant.mbtoAtm = 1/1013.25;         %converstion from milibars to atmopheres 
+Constant.ATMtoPA = 101325;          %Converstion from atm to pa [kg m^-1 s^-2/atm]
+
+
 %Pulse length model
 h = 6.62607004e-34;
 c = 2.9989e8;   % Speed of light m/s
@@ -11,6 +30,7 @@ nt = 40;        %number of points to calculate in each dt. THIS MUST BE AN EVEN 
 nt = 2;
 nt = 20;
 nt = 85;
+nt=20;
 
 Ts = 273;       %Surface Temperature in K      
 Ps = .825;         %Surface Pressure in atm
@@ -889,13 +909,13 @@ Spectrum.lambda_offline = lambda_offline;
 %o2absorption = absorption_O2_770_PCA(T,P,Spectrum.nu_scan_3D_short,WV);
 
 for i=1:size(Spectrum.nu_scan_3D_short,3)
-    o2absorption(:,:,i) = absorption_O2_770_model(T,P,Spectrum.nu_scan_3D_short(:,:,i),WV);
+    o2absorption(:,:,i) = absorption_O2_770_model(T,P,Spectrum.nu_scan_3D_short(:,:,i),WV,Constant);
 end
 
 %o2absorption_off = absorption_O2_770_model_wavenumber(T,P,Spectrum.nu_scan_3D_short_off ,WV);
 %o2absorption_off = absorption_O2_770_PCA_off(T,P,Spectrum.nu_scan_3D_short_off,WV);
-o2absorption_off = absorption_O2_770_model(T,P,Spectrum.nu_offline,WV);
-absorption = absorption_O2_770_model(T,P,Spectrum.nu_online,WV);
+o2absorption_off = absorption_O2_770_model(T,P,Spectrum.nu_offline,WV,Constant);
+absorption = absorption_O2_770_model(T,P,Spectrum.nu_online,WV,Constant);
 TO2 = exp(-dr*cumtrapz(absorption));
 TO2_off = exp(-dr*cumtrapz(o2absorption_off));
 
@@ -939,7 +959,7 @@ gaerosol(Spectrum.online_index) = 1./(Spectrum.nuBin*100);
 gaerosol_off = zeros(size(Spectrum.nu_scan_3D_short_off));
 gaerosol_off(Spectrum.offline_index) = 1./(Spectrum.nuBin*100);
 
-[Spectrum] = PCAconstrunctionRB2(Spectrum);
+[Spectrum] = PCAconstrunctionRB2(Spectrum,Constant);
 [sponts6] = RB_O2_770_PCA_online(T,P,Spectrum.nu_scan_3D_short,Spectrum);
 [sponts6_off] = RB_O2_770_PCA(T,P,Spectrum.nu_scan_3D_short_off,Spectrum);
 %[sponts6_off] = RB_O2_770_PCA_offline(T,P,Spectrum.nu_scan_3D_short_off,Spectrum);
@@ -1011,21 +1031,21 @@ rm_over = rm_raw_o2(rm_raw_o2<=r_max & rm_raw_o2>0);     %[m] Shorten range vect
 %eta_O = interp1(rm_over,overlap,rm);
 %eta_O = fillmissing(eta_O,'nearest');
 
-  load('OverlapSim_5_31_23.mat','R','OVF','OVF_near')
-  eta_O = interp1(R,OVF,rm);
-  eta_O = fillmissing(eta_O,'nearest');
+%  load('OverlapSim_5_31_23.mat','R','OVF','OVF_near')
+%  eta_O = interp1(R,OVF,rm);
+%  eta_O = fillmissing(eta_O,'nearest');
 
-eta_O_near = interp1(R,OVF_near,rm);
- eta_O_near = fillmissing(eta_O_near,'nearest');
+%eta_O_near = interp1(R,OVF_near,rm);
+% eta_O_near = fillmissing(eta_O_near,'nearest');
 
 
-   load('OverlapSimASE_7_12_23.mat','R','OVF','OVF_near')
+  % load('OverlapSimASE_7_12_23.mat','R','OVF','OVF_near')
    %load('OverlapSimASE_7_35_23.mat','R','OVF','OVF_near')
-  eta_OASE = interp1(R,OVF,rm);
-  eta_OASE = fillmissing(eta_OASE,'nearest');
+  %eta_OASE = interp1(R,OVF,rm);
+ % eta_OASE = fillmissing(eta_OASE,'nearest');
 
-eta_O_nearASE = interp1(R,OVF_near,rm);
- eta_O_nearASE = fillmissing(eta_O_nearASE,'nearest');
+%eta_O_nearASE = interp1(R,OVF_near,rm);
+% eta_O_nearASE = fillmissing(eta_O_nearASE,'nearest');
 
 
  %%
@@ -1142,7 +1162,7 @@ Correction_NC_on  = Correction_NC_on'*avg_time * 2*2/1000;
 N_on  = transmitPhotons_on  .* eta_R .* eta_D .* A .* dr .* Fon *2.5*2;
 N_off = transmitPhotons_on .* eta_R .* eta_D .* A .* dr .* Foff *2.5*2;
 
-load('Afterpulsing_correction_09092022.mat','Correction_Nc_on','Correction_Nc_off')
+load('C:\Users\Owen\OneDrive - Montana State University\Research\O2 DIAL\analysis\Afterpulsing_correction_09092022.mat','Correction_Nc_on','Correction_Nc_off')
 correctionRange = 0:(250e-9*3e8/2):(length(Correction_Nc_on)-1)*(250e-9*3e8/2);
 Correction_Nc_on = interp1(correctionRange,Correction_Nc_on,rm)';
 Correction_Nc_off = interp1(correctionRange,Correction_Nc_off,rm)';
@@ -1156,8 +1176,8 @@ N_onSpectrum = eta_O'.*.98.*FonSpectrumUp.*FonSpectrumDown.*eta_R.*eta_D.*A.*dr.
 N_offSpectrum = eta_O'.*.98.*FoffSpectrumUp.*FoffSpectrumDown.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off./rm'.^2 + eta_O_near'.*.02.*FoffSpectrumUp.*FoffSpectrumDown.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off./rm'.^2;
 
 
-N_onSpectrumASE = eta_OASE'.*.98.*FonSpectrumUpASE.*FonSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2 + eta_O_nearASE'.*.02.*FonSpectrumUpASE.*FonSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2;
-N_offSpectrumASE = eta_OASE'.*.98.*FoffSpectrumUpASE.*FoffSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off*.01./rm'.^2 + eta_O_nearASE'.*.02.*FoffSpectrumUpASE.*FoffSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off*.01./rm'.^2;
+% N_onSpectrumASE = eta_OASE'.*.98.*FonSpectrumUpASE.*FonSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2 + eta_O_nearASE'.*.02.*FonSpectrumUpASE.*FonSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2;
+% N_offSpectrumASE = eta_OASE'.*.98.*FoffSpectrumUpASE.*FoffSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off*.01./rm'.^2 + eta_O_nearASE'.*.02.*FoffSpectrumUpASE.*FoffSpectrumDownASE.*eta_R.*eta_D.*A.*dr.*transmitPhotons_off*.01./rm'.^2;
 
 
 N_onSpectrumASEO = eta_O2'.*.98.*FonSpectrumUpASEO.*FonSpectrumDownASEO.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2 + eta_O2_near'.*.02.*FonSpectrumUpASEO.*FonSpectrumDownASEO.*eta_R.*eta_D.*A.*dr.*transmitPhotons_on*.01./rm'.^2;
@@ -1332,28 +1352,28 @@ Spectrum.i_scan_3D_short = length(Spectrum.nu_scan_3D_short);
 % Spectrum.online_index = online_index;
 % Spectrum.offline_index = offline_index;
 
-[alpha_final,alpha_1_rawSpectrum,alpha_2_rawSpectrum,Spectrum] = pertAbsorption(a_0Spectrum, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true);
+[alpha_final,alpha_1_rawSpectrum,alpha_2_rawSpectrum,Spectrum] = pertAbsorption(a_0Spectrum, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true,Constant);
 Alpha_totalSpectrum = a_0Spectrum+alpha_1_rawSpectrum+alpha_2_rawSpectrum;
 %Alpha_totalSpectrum = a_0Spectrum+alpha_1_rawSpectrum;
 
-[alpha_final,alpha_1_rawSpectrumAfterpulse,alpha_2_rawSpectrumAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true);
+[alpha_final,alpha_1_rawSpectrumAfterpulse,alpha_2_rawSpectrumAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true,Constant);
 Alpha_totalSpectrumAfterpulse = a_0SpectrumAfterpulse+alpha_1_rawSpectrumAfterpulse+alpha_2_rawSpectrumAfterpulse;
 
-[alpha_final,alpha_1_rawSpectrumPulseAfterpulse,alpha_2_rawSpectrumPulseAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumPulseAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true);
+[alpha_final,alpha_1_rawSpectrumPulseAfterpulse,alpha_2_rawSpectrumPulseAfterpulse,Spectrum] = pertAbsorption(a_0SpectrumPulseAfterpulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true,Constant);
 Alpha_totalSpectrumPulseAfterpulse = a_0SpectrumPulseAfterpulse+alpha_1_rawSpectrumPulseAfterpulse+alpha_2_rawSpectrumPulseAfterpulse;
 
 
-[alpha_final,alpha_1_rawSpectrumASE,alpha_2_rawSpectrumASE,Spectrum] = pertAbsorption(a_0SpectrumASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true);
+[alpha_final,alpha_1_rawSpectrumASE,alpha_2_rawSpectrumASE,Spectrum] = pertAbsorption(a_0SpectrumASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true,Constant);
 Alpha_totalSpectrumASE = a_0SpectrumASE+alpha_1_rawSpectrumASE+alpha_2_rawSpectrumASE;
 
-[alpha_final,alpha_1_rawSpectrumPulseASE,alpha_2_rawSpectrumPulseASE,Spectrum] = pertAbsorption(a_0SpectrumPulseASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true);
+[alpha_final,alpha_1_rawSpectrumPulseASE,alpha_2_rawSpectrumPulseASE,Spectrum] = pertAbsorption(a_0SpectrumPulseASE, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true,Constant);
 Alpha_totalSpectrumPulseASE = a_0SpectrumPulseASE+alpha_1_rawSpectrumPulseASE+alpha_2_rawSpectrumPulseASE;
 
 
-[alpha_final,alpha_1_rawSpectrumPulse,alpha_2_rawSpectrumPulse,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true);
+[alpha_final,alpha_1_rawSpectrumPulse,alpha_2_rawSpectrumPulse,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSR, Options, true,true,Constant);
 Alpha_totalSpectrumPulse = a_0SpectrumPulse+alpha_1_rawSpectrumPulse+alpha_2_rawSpectrumPulse;
 
-[alpha_final,alpha_1_rawSpectrumPulseBSR,alpha_2_rawSpectrumPulseBSR,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true);
+[alpha_final,alpha_1_rawSpectrumPulseBSR,alpha_2_rawSpectrumPulseBSR,Spectrum] = pertAbsorption(a_0SpectrumPulse, eta_T_on,eta_T_off, Model, Range, Time, Spectrum, BSRPulse, Options, true,true,Constant);
 Alpha_totalSpectrumPulseBSRShift = a_0SpectrumPulse+alpha_1_rawSpectrumPulseBSR+alpha_2_rawSpectrumPulseBSR;
 
 figure(3)
@@ -1409,18 +1429,18 @@ plot(a_0Pulse,rm)
 hold off
 %%
 
-[T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,Titer] =                        temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,a_0,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
-[T_finalPulse,Lapse,Ts_fit,P_finalPulse,mean_lapse_rate,exclusion,Titer] =                   temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,a_0Pulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
-[T_finalSpectrum,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrum,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
-[T_finalSpectrumAfterpulse,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumAfterpulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
-[T_finalSpectrumPulseAfterpulse,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseAfterpulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+[T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,Titer] =                        temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,a_0,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
+[T_finalPulse,Lapse,Ts_fit,P_finalPulse,mean_lapse_rate,exclusion,Titer] =                   temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,a_0Pulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
+[T_finalSpectrum,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrum,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
+[T_finalSpectrumAfterpulse,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumAfterpulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
+[T_finalSpectrumPulseAfterpulse,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseAfterpulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
 
 
-[T_finalSpectrumPulse,Lapse,Ts_fit,P_finalSpectrumPulse,mean_lapse_rate,exclusion,Titer] =           temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
-[T_finalSpectrumPulseBSRShift,Lapse,Ts_fit,P_finalPulseBSRShift,mean_lapse_rate,exclusion,Titer] =   temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseBSRShift,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+[T_finalSpectrumPulse,Lapse,Ts_fit,P_finalSpectrumPulse,mean_lapse_rate,exclusion,Titer] =           temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulse,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
+[T_finalSpectrumPulseBSRShift,Lapse,Ts_fit,P_finalPulseBSRShift,mean_lapse_rate,exclusion,Titer] =   temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseBSRShift,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
 
-[T_finalSpectrumASE,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumASE,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
-[T_finalSpectrumPulseASE,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseASE,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000);
+[T_finalSpectrumASE,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumASE,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
+[T_finalSpectrumPulseASE,Lapse,Ts_fit,P_finalSpectrum,mean_lapse_rate,exclusion,Titer] =                temperatureRetrieval(T,1,rm',0,WV,Spectrum.nu_online,Alpha_totalSpectrumPulseASE,0,logical(zeros(size(rm'))),T(1),P(1),-6.5/1000,Constant);
 
 
 figure(5)

@@ -1,4 +1,4 @@
-function [absorption,cross_section,lineshape,Line] = absorption_O2_770_model(T,P,nu_Range,WV,Constant)
+function [absorption,cross_section,lineshape,Line] = absorption_O2_770_model(T,P,nu_Range,WV,Constants)
 %File: absorption_O2_770_model.m
 %Date: 02/28/2020
 %Author: Owen Cruikshank
@@ -17,11 +17,11 @@ function [absorption,cross_section,lineshape,Line] = absorption_O2_770_model(T,P
 %   wavenumber arround the 780nm line, dimensions (range x time)
 %   -f: [m] Absorption lineshape function, dimensions (range x time)
 
-c = Constant.c;
-kB = Constant.kB;
-h = Constant.h;
-q_O2 = Constant.q_O2;
-mo2 = Constant.mo2;
+c = Constants.c;
+kB = Constants.kB;
+h = Constants.h;
+q_O2 = Constants.q_O2;
+mo2 = Constants.mo2;
 
 %reference T and P
 T0 = 296;                               %[K]
@@ -157,12 +157,12 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
         Line{increment}.v = O2_parameters(i,12);
         Line{increment}.quanta = [char(O2_parameters(i,13)) num2str(O2_parameters(i,14)) char(O2_parameters(i,15)) num2str(O2_parameters(i,14))];
 
-        Line{increment}.a =  Voight .* K.* ((P*Constant.ATMtoPA)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
+        Line{increment}.a =  Voight .* K.* ((P*Constants.ATMtoPA)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
 
         increment = increment+1; %increment line number
     end
 end
 
-absorption = cross_section .* ((P*Constant.ATMtoPA)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
+absorption = cross_section .* ((P*Constants.ATMtoPA)./(kB*T)-WV) * q_O2; %[1/m](t x r)absorption coefficeint of oxygen in the atmosphere at specificed wavenumber
 
 end
