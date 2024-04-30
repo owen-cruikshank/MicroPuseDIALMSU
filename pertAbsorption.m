@@ -2,7 +2,7 @@
 % author: Owen Cruikshank
 % date: 11/30/2020
 
-function [alpha_final,alpha_1_raw,alpha_2_raw,Spectrum] = pertAbsorption(alpha, T_etalon, T_etalon_off, Model, Range, Time, Spectrum, BSR, Options, UseRBspectrum,usePCAabsorption,Constant)
+function [alpha_final,alpha_1_raw,alpha_2_raw,Spectrum] = pertAbsorption(alpha, T_etalon, T_etalon_off, Model, Range, Time, Spectrum, BSR, Options, UseRBspectrum,usePCAabsorption,Constants)
     % --- Spectral distribution using the initial temperature profile guess ---
 
      cB = 1.2;%Brullouion correction to doppler gaussian half width
@@ -161,8 +161,8 @@ end
    %  end
 
    %absorption_f = absorption_O2_770_PCA(Model.T,Model.P,Spectrum.nu_scan_3D_short ,Model.WV);
-    absorption_f = absorption_O2_770_PCA2(Model.T,Model.P,Spectrum,Model.WV,Constant);
-    absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV,Constant);
+    absorption_f = absorption_O2_770_PCA2(Model.T,Model.P,Spectrum,Model.WV,Constants);
+    absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV,Constants);
 
     %o2absorption_off = absorption_O2_770_model_wavenumber(Model.T,Model.P,Spectrum.nu_scan_3D_short_off ,Model.WV);
 
@@ -174,7 +174,7 @@ end
     %      absorption_ff_off(:,:,i)=absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_scan_3D_short_off(i),Model.WV);
     %  end
     % o2absorption_off = zeros(size(absorption_f));
-    o2absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV);
+    o2absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV,Constants);
     %o2absorption_off = absorption_ff_off;
     %%
     %Create lineshape function

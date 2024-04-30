@@ -1,4 +1,4 @@
-function [absorption,cross_section] = absorption_O2_770_PCA2(T,P,Spectrum,WV,Constant)
+function [absorption,cross_section] = absorption_O2_770_PCA2(T,P,Spectrum,WV,Constants)
 %File: absorption_O2_770_model_wavenumber.m
 %Date: 02/28/2020
 %Author: Owen Cruikshank
@@ -67,6 +67,6 @@ cross_sectionI = muY + cross_sectionI;
 
 cross_section = permute(cross_sectionI(:,:,:),[3 2 1]);
 
-N_o2 = ((P*Constant.ATMtoPA)./(Constant.kB*T)-WV) * Constant.q_O2;
+N_o2 = ((P*Constants.ATMtoPA)./(Constants.kB*T)-WV) * Constants.q_O2;
 absorption = cross_section .* N_o2;     %[1/m](t x r x nu)absorption coefficeint of oxygen in the atmosphere
 end
