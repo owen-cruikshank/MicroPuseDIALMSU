@@ -59,7 +59,7 @@ O2_parameters = fscanf(f,formatSpec,[35 Inf]);
 O2_parameters = O2_parameters';
 fclose(f);
 
-O2_parameters = O2_parameters([3 4 8 11 12],:);
+%O2_parameters = O2_parameters([3 4 8 11 12],:);
 
 
 

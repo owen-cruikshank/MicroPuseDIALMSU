@@ -59,7 +59,9 @@ O2_parameters = fscanf(f,formatSpec,[35 Inf]);
 O2_parameters = O2_parameters';
 fclose(f);
 
-O2_parameters = O2_parameters([3 4 8 11 12],:);
+%O2_parameters = O2_parameters([3 4 8 11 12],:);
+
+O2_parameters = O2_parameters(11,:);
 
 
 
@@ -112,6 +114,14 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
     E_lower = E_lower * 100;                        %[1/m] ground state energy
     delta_air = O2_parameters(i,10);                %[1/cm/atm] pressure shift induce by air, at p=1atm
     delta_air = delta_air * 100;                    %[1/m/atm]
+
+    nu_O2 = 12990.45772*100;
+    S0_O2 = 4.889e-26/100;
+    gamma_L = 0.03223*100;
+    n_air = 0.630;
+    E_lower = 1420.7631*100;
+    delta_air = -0.01066*100;
+
     
     if S0_O2 * 100 > strength_threshold             %Do not compute cross section for line if it id below the threshold
 
@@ -127,6 +137,11 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
          % ST_O2 = S0_O2.*(Q296./Q).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0)));
 
         gamma_L_T = gamma_L * (P/P0).*((T0./T).^n_air);     %[1/m](t x r) Lorentz linewidth adjusted for temperature and pressure shift
+        Pwv = 0.01*P;
+        Pwv = 0;
+        gamma_Lwv = 0.0343;
+        n_wv = 0.61;
+        gamma_L_Twv = gamma_L * ((P-Pwv)/P0).*((T0./T).^n_air)+gamma_Lwv * ((Pwv)/P0).*((T0./T).^n_wv);
         gamma_D_T = (nuShifted/c).*sqrt(2*kB*T*log(2)/mo2); %[1/m](t x r) Dopper linewidth due to temperature
 
         %voight lineshape
@@ -145,10 +160,10 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
 
         %%
         %K = real(erf(x+1i*y));
-        K = real(w(x+1i*y));
+        %%%K = real(w(x+1i*y));
 %        K1 = real(exp(-(x+1i*y).^2).*erf(-1i.*(x+1i*y)));
-        gv=sqrt(log(2)/pi)./gamma_D_T.*K;
-        f=gv;
+        %%%gv=sqrt(log(2)/pi)./gamma_D_T.*K;
+        %%%f=gv;
         %%
         %SD voight
         S = 0.1;
@@ -170,6 +185,9 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
 
         Delta_2 = 0.0001; %quadratic speed dependence 
         gamma_2 = 0.0001; %quadratic relaxation
+
+        Delta_2 = 5e-5; %quadratic speed dependence 
+        gamma_2 = 0; %quadratic relaxation
         nu_VC = 0;%Nelkin–Ghatak hard collision model
         gamma_0 = gamma_L_T;%lorentzian half width
         Delta_0 = delta_air.*P;
@@ -190,6 +208,49 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
         B = nu_a0.^2./C_2t .* (-1 + sqrt(pi)./(2.*sqrt(Y)).*(1-zminus.^2).*w(1i.*zminus) - sqrt(pi)./(2.*sqrt(Y)).*(1-zplus.^2).*w(1i.*zplus));
         
         f_HTP = (1/pi).*real(A ./(1-(nu_VC-eta.*(C_0t-3.*C_2t/2).*A+(eta.*C_2t./nu_a0.^2).*B) ));
+
+
+
+        %%
+        %SD Rautian Drouin et al
+        v = linspace(-4,4,17);
+        %v = linspace(-40,40,100);
+        xf = 1;
+        xs = 0;
+        df = -0.01066*100;
+        dfp = 5e-5*100;
+        ds = -.00660*100;
+        dsp = 3e-5*100;
+        gammaf = 0.03223*100;
+        gammas = 0.03356*100;
+        nf = 0.630;
+        ns = 0.750;
+        H =0;
+        S = 0.1;
+        S=0;
+
+        vMostPobalby = sqrt(2*kB*T/mo2);
+
+        %v = v./vMostPobalby;
+
+        x = (nu-nu_0-P.*(xf.*(df+(T-T0).*dfp)+xs.*(ds+(T-T0).*dsp))).*sqrt(log(2))./gamma_D_T ;
+        y = (P.*(xf.*gammaf.*(T0./T).^nf+xs.*gammas.*(T0./T).^ns)).*sqrt(log(2))./gamma_D_T   ;
+
+        x = (nu-nu_0-P.*(xf.*(df+(T-T0).*dfp)+xs.*(ds+(T-T0).*dsp)))./gamma_D_T ;
+        y = (P.*(xf.*gammaf.*(T0./T).^nf+xs.*gammas.*(T0./T).^ns))./gamma_D_T   ;
+        F = (2./pi.^(3/2)).*trapz(v,v.*exp(-v.^2).*atan((x+v)./(y.*(1+S.*(v.^2-3/2))+H)));
+
+        c1=-2.658e4;
+        c2=3.36e6;
+        muso = 0.027430;
+        GEVoverQa = 1.1973e28;%cm^2
+
+        m = -31;
+
+        %Gev = 8*pi^3*muso^2./(3*Constant.h*Constant.c*Qevrs)
+        %I = Gev.*nu_0.*SHL.*(1+c1*m+c2*m^2).*exp(-E_lower/Constant.kB./T)
+        I = ST_O2;
+        k = q_O2 .* F .* I.*((P*Constant.ATMtoPA)./(kB*T)-WV);
 
 
         %%
