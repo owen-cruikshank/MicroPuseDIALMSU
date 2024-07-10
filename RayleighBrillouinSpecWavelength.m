@@ -84,9 +84,13 @@ j011=j_co*j_nu/j_de;
 %coharea=0;
 %sptarea=0;
 
-for i=1:n_xi
-    z=xi(i)+y*cpxunit;
-	w0=w0_func(z);
+
+    zarray=xi+y*cpxunit;
+	w0array=w0_func(zarray);
+
+ for i=1:n_xi
+     w0 = w0array(i);
+     z = zarray(i);
 	w1=-sqrt(pi)+z.*w0;
 	w2=z.*w1;
 	w3=-0.5*sqrt(pi)+z.*w2;

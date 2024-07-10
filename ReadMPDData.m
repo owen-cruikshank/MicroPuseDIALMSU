@@ -37,7 +37,7 @@ for m=1:1:size(ToLoad,1) % Looping over filetypes
         end
     else
         % Looping over varaibles
-        for p=1:1:size(ToLoad{m,FileVarCol})
+        for p=1:1:size(ToLoad{m,FileVarCol},1)
             fprintf(['Loading: ',ToLoad{m,FileCol},', ',ToLoad{m,FileVarCol}{p},' as ',ToLoad{m,CodeVarCol}{p},'\n'])
             % Pre-allocating data array space
             Data{m,1}{p,1} = []; 
