@@ -292,19 +292,19 @@ Counts.o2off_molCF = 1./(1-(deadTime.*Counts.o2off_molCR));
 %=========================
 
 Counts.bg_o2off = round(mean(Data.MCS.Channel10.Data(490-10:490,:)));% Take mean of last data points
-Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off -bgoff.*Counts.bg_o2off;       % Background subtracted
+Counts.o2off_bgsub = Data.MCS.Channel10.Data - Counts.bg_o2off ;       % Background subtracted
 %Counts.o2off_bgsub(Counts.o2off_bgsub < 0) = 0;         % Minimum of zero
 
 Counts.bg_o2on = round(mean(Data.MCS.Channel2.Data(490-10:490,:)));% Take mean of last data points
-Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on -bgon.*Counts.bg_o2on;       % Background subtracted
+Counts.o2on_bgsub = Data.MCS.Channel2.Data - Counts.bg_o2on ;       % Background subtracted
 %Counts.o2on_bgsub(Counts.o2on_bgsub < 0) = 0;         % Minimum of zero
 
 Counts.bg_o2off_mol = round(mean(Data.MCS.Channel8.Data(490-10:490,:)));% Take mean of last data points
-Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol -bgoff.*Counts.bg_o2off_mol;       % Background subtracted
+Counts.o2off_bgsub_mol = Data.MCS.Channel8.Data - Counts.bg_o2off_mol ;       % Background subtracted
 %Counts.o2off_bgsub_mol(Counts.o2off_bgsub_mol < 0) = 0;         % Minimum of zero
 
 Counts.bg_o2on_mol = round(mean(Data.MCS.Channel0.Data(490-10:490,:)));% Take mean of last data points
-Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol -bgon.*Counts.bg_o2on_mol;       % Background subtracted
+Counts.o2on_bgsub_mol = Data.MCS.Channel0.Data - Counts.bg_o2on_mol ;       % Background subtracted
 %Counts.o2on_bgsub_mol(Counts.o2on_bgsub_mol < 0) = 0;         % Minimum of zero
 
 
@@ -462,15 +462,15 @@ Spectrum.lambda_scan_3D_short_off = 10^7./Spectrum.nu_scan_3D_short_off;
 
 %%
 %===== Calculate Model absorption from Model T and P =======
-Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV);
-Model.absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV); %[m-1] Funcrtion to calculate theoretical absorption
+Model.absorption = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_online,Model.WV,Constant);
+Model.absorption_off = absorption_O2_770_model(Model.T,Model.P,Spectrum.nu_offline,Model.WV,Constant); %[m-1] Funcrtion to calculate theoretical absorption
 Model.transmission = exp(-cumtrapz(Range.rm,Model.absorption));
 
 %===== Calucation Model absorption for radiosondes =======
 for i=1:numel(sonde_datetime) 
         if isdatetime(sonde_datetime(i)) %Check if there are any sondes
-            Sonde.absorption_sonde{i} = diag(absorption_O2_770_model(Sonde.T_sonde(:,i),Sonde.P_sonde(:,i),Spectrum.nu_online(Sonde.sonde_ind(:,i)),Model.WV(:,Sonde.sonde_ind(:,i)))); %[m-1] Funcrtion to calculate theoretical absorption
-             Sonde.absorption_sonde{i} = diag(absorption_O2_770_model(Sonde.T_sonde(:,i),Sonde.P_sonde(:,i),Spectrum.nu_online(Sonde.sonde_ind(:,i)),Sonde.WV_sonde(:,i))); %[m-1] Funcrtion to calculate theoretical absorption
+            Sonde.absorption_sonde{i} = diag(absorption_O2_770_model(Sonde.T_sonde(:,i),Sonde.P_sonde(:,i),Spectrum.nu_online(Sonde.sonde_ind(:,i)),Model.WV(:,Sonde.sonde_ind(:,i)),Constant)); %[m-1] Funcrtion to calculate theoretical absorption
+             Sonde.absorption_sonde{i} = diag(absorption_O2_770_model(Sonde.T_sonde(:,i),Sonde.P_sonde(:,i),Spectrum.nu_online(Sonde.sonde_ind(:,i)),Sonde.WV_sonde(:,i),Constant)); %[m-1] Funcrtion to calculate theoretical absorption
             Sonde.trasmission_sonde{i} = exp(-cumtrapz(Range.rm,Sonde.absorption_sonde{i})); %O2 transmission
         else
             Sonde.absorption_sonde{i} = nan(Range.i_range,1);
@@ -483,7 +483,7 @@ end
 
 %%
 disp('calculating RB PCA')
-[Spectrum] = PCAconstrunctionRB2(Spectrum);
+[Spectrum] = PCAconstrunctionRB2(Spectrum,Constant);
 
 %%
 %====Count filtering====
