@@ -377,10 +377,15 @@ HSRL.fBSR(:,:,jjjj) = nanconv(HSRL.fBSR(:,:,jjjj),k,'edge','nanout');
     Alpha.alpha_0wvg(:,:,jjjj) = real(alpha_0(Counts.gwvon(:,:,jjjj),Counts.gwvoff(:,:,jjjj),Range.rangeBin));
     
     % Water vapor cross section calculateion
-    [~,cross_section,~,~,g_wv] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvon,Alpha.alpha_0wv,Constants);
+    [~,cross_section,~,~,g_wv] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvon,Alpha.alpha_0wv,0,Constants);
     
-    [~,cross_sectionOff,~,~] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvoff,Alpha.alpha_0wv,Constants);
+    [~,cross_sectionOff,~,~] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvoff,Alpha.alpha_0wv,0,Constants);
     
+    N_wv0 = Alpha.alpha_0wv./(cross_section-cross_sectionOff);
+
+   [~,cross_section,~,~,g_wv] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvon,Alpha.alpha_0wv,N_wv0,Constants);
+    
+    [~,cross_sectionOff,~,~] = cross_section_wv_828_model(Model.T,Model.P,Spectrum.nu_wvoff,Alpha.alpha_0wv,N_wv0,Constants);
     N_wv0 = Alpha.alpha_0wv./(cross_section-cross_sectionOff);
     
     Alpha.N_wv0=N_wv0;

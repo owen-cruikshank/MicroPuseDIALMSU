@@ -1,4 +1,4 @@
-function [N_wv,cross_section,lineshape,Line,g_wv] = cross_section_wv_828_model(T,P,nu_Range,absorption,Constant)
+function [N_wv,cross_section,lineshape,Line,g_wv] = cross_section_wv_828_model(T,P,nu_Range,absorption,N_wv,Constant)
 %File: cross_section_wv_828_model.m
 %Date: 02/14/2021
 %Author: Owen Cruikshank
@@ -59,8 +59,8 @@ for i = 1:length(WV_parameters)                     %loop over all line paramete
     n_air = WV_parameters(i,9);                     %[unitless] linewidth temperature dependence
     E_lower = WV_parameters(i,8);                   %[1/cm] ground state energy
     E_lower = E_lower * 100;                        %[1/m] ground state energy
-%     gamma_D = WV_parameters(i,7);                   %[1/cm]self (Doppler) broadened linewidth
-%     gamma_D = gamma_D * 100;                        %[1/m]
+    gamma_s = WV_parameters(i,7);                   %[1/cm]self (Doppler) broadened linewidth
+    gamma_s = gamma_s * 100;                        %[1/m]
     delta_air = WV_parameters(i,10);                %[1/cm/atm] pressure shift induce by air, at p=1atm
     delta_air = delta_air * 100;                    %[1/m/atm]
     
@@ -76,6 +76,9 @@ for i = 1:length(WV_parameters)                     %loop over all line paramete
         gamma_L_T = gamma_L * (P/P0).*((T0./T).^n_air);     %[1/m](t x r) Lorentz linewidth adjusted for temperature and pressure shift
         gamma_D_T = (nuShifted/c).*sqrt(2*kB*T*log(2)/mwv); %[1/m](t x r) Dopper linewidth due to temperature
 
+        N_air = P.*101325./kB./T;
+        P_wv = N_wv.*kB.*T./101325;
+        gamma_L_T = gamma_L .*((P-P_wv)./P0).*(T0./T).^n_air + gamma_s.*(P_wv./P0).*(T0./T).^n_air;
 
         %voight lineshape
         x = ((nu_Range-nuShifted)./gamma_D_T) * sqrt(log(2));   %[none](t x r)
