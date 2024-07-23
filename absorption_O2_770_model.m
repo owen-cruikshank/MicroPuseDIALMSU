@@ -27,17 +27,17 @@ mo2 = Constants.mo2;
 T0 = 296;                               %[K]
 P0 = 1.0;                               %[atm]
 
+
+%Open HITRAN files for reading
+
 % parameters = fopen(fullfile('CalibrationData','O2_line_parameters.out'),'r');   %open file containing HITRAN information
 % fmt = '%1d %1d %f %e %e %f %f %f %f %f';          %format of HITRAN file
 % O2_parameters =fscanf(parameters,fmt,[10 inf]);     %place HITRAN parameters in vector a
 % fclose(parameters);                                 %close file
 % O2_parameters = O2_parameters';                     %transpose matrix to correct format
 
- O2_parameters=[7	1	12990.4577700000	4.88900000000000e-26	0.0219200000000000	0.0312000000000000	0.0340000000000000	1420.76310000000	0.630000000000000	-0.00930000000000000;
- 7	1	12990.5018320000	3.74900000000000e-27	0.0171900000000000	0.0491000000000000	0.0490000000000000	1635.06590000000	0.740000000000000	-0.00730000000000000];
 
-
-%2016
+%HITRAN 2016 lines
 O2_parameters=[
 7 1	12990.45777	 4.889e-26 0.02192 0.0312 0.034	1420.7631 0.63 -0.0093;
 7 1	12990.501832 3.749e-27 0.01719 0.0491 0.049	1635.0659 0.74 -0.0073;
@@ -45,7 +45,12 @@ O2_parameters=[
 7 1 12984.267206 2.674e-27 0.01352 0.0507 0.052 1600.1301 0.73 -0.0061;
 7 1 12986.261218 3.404e-27 0.01705 0.0507 0.052 1598.1361 0.73 -0.0071];
 
- %2012
+%limited HITRAN 2016 lines
+O2_parameters=[7	1	12990.4577700000	4.88900000000000e-26	0.0219200000000000	0.0312000000000000	0.0340000000000000	1420.76310000000	0.630000000000000	-0.00930000000000000;
+7	1	12990.5018320000	3.74900000000000e-27	0.0171900000000000	0.0491000000000000	0.0490000000000000	1635.06590000000	0.740000000000000	-0.00730000000000000];
+
+
+ %HITRAN 2012 lines
 O2_parameters=[
 7 1 12990.457779 4.86e-26 0.02192 0.0312 0.034 1420.766 0.63 -0.0093;
 7 1 12990.502232 3.749e-27 0.0172 0.0491 0.049 1635.0686 0.74 -0.0073;
@@ -53,23 +58,15 @@ O2_parameters=[
 7 1 12984.267824 2.674e-27 0.01352 0.0507 0.052 1600.1329 0.73 -0.0061;
 7 1 12986.261834 3.404e-27 0.01705 0.0507 0.052 1598.1388 0.73 -0.0071];
 
+%Open HITRAN files for reading
 f = fopen(fullfile('CalibrationData','5d41b591.par'),'r');
 formatSpec = '%1d%1d%f %e %e%6f%4f %f%4f%8f       b      %1f       X      %1f                %1c %2d%1c %2d     %1c%14c %d %d %f %f';
 O2_parameters = fscanf(f,formatSpec,[35 Inf]);
 O2_parameters = O2_parameters';
 fclose(f);
 
-%O2_parameters = O2_parameters([3 4 8 11 12],:);
-
-
-
-% O2_parameters=[7	1	12990.4577700000	4.88900000000000e-26	0.0219200000000000	0.0312000000000000	0.0340000000000000	1420.76310000000	0.630000000000000	-0.00930000000000000]
-
-% parameters = fopen(fullfile('CalibrationData','O2_line_parameters.out'),'r');   %open file containing HITRAN information
-% fmt = '%1d %1d %f %e %e %f %f %f %f %f';          %format of HITRAN file
-% O2_parameters =fscanf(parameters,fmt,[10 inf]);     %place HITRAN parameters in vector a
-% fclose(parameters);                                 %close file
-% O2_parameters = O2_parameters';                     %transpose matrix to correct format
+%Specifiy only necessary lines for speed
+O2_parameters = O2_parameters([3 4 8 11 12],:);
 
 
 [rL, tL] = size(T);                                 %length of range vector x length of time vector
@@ -80,8 +77,6 @@ cross_section = zeros(rL,tL);
 nu_Range = nu_Range * 100;                          %change nu_Range from [1/cm] to [1/m]
 
 strength_threshold = 1*10^(-26);                    %[cm / molecule] line strength threshold
-strength_threshold = 1*10^(-25);
-strength_threshold = 3*10^(-26);
 strength_threshold = 0;
 
 t = -10:.2:10;                                      %Relative freqency to integrate over
@@ -89,13 +84,6 @@ t = permute(t,[3 1 2]);                             %[none] shift t to put it in
 t1 =permute(t,[3 2 1]);
 
 %Preallocate
-% linesThreshold=0;
-% for ii = 1:length(O2_parameters) 
-%     if  O2_parameters(ii,4)> strength_threshold
-%         linesThreshold=linesThreshold+1;
-%     end
-% end
-% Line = cell(1,linesThreshold);
 Line = cell(1,2);
 
 increment = 1;
@@ -115,13 +103,13 @@ for i = 1:size(O2_parameters,1)                     %loop over all line paramete
     
     if S0_O2 * 100 > strength_threshold             %Do not compute cross section for line if it id below the threshold
 
-        
         nuShifted = nu_O2 + delta_air .* P;         %[1/m] (r x t) Shift line center based on atmopheric pressure
       
-        %temperature shifted line strength
-        %ST_O2 = S0_O2.*(T0./T).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower);                                 %[m/molecule](t x r) O2 line strength adjusted for temperature shift from T0
-        ST_O2 = S0_O2.*(T0./T).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0))); 
+        %Temperature shifted line strength                               
+        ST_O2 = S0_O2.*(T0./T).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0))); %[m/molecule](t x r) O2 line strength adjusted for temperature shift from T0
 
+        %Use total internal partition frunction from HITRAN for accurate
+        %calculation
          % Q296 = TIPS2017(O2_parameters(i,1),O2_parameters(i,2),T0);
          % Q = TIPS2017(O2_parameters(i,1),O2_parameters(i,2),T);
          % ST_O2 = S0_O2.*(Q296./Q).*exp(h.*c./kB.*((1./T0)-(1./T)).*E_lower).*((1-exp(-h*c*nu_O2./kB./T))./(1-exp(-h*c*nu_O2./kB./T0)));

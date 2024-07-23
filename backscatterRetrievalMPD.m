@@ -42,6 +42,7 @@ elseif strcmp(Options.MPDname,'00')
     offlineMolecularTransmission = interp1((Data_Wavelength.lambda_off.*10^9)+Spectrum.WavemeterOffset,Data_Wavelength.Nm_off,Spectrum.lambda_scan_3D_short_off);
     
     WVOnlineTransmission = ones(size(offlineMolecularTransmission));
+    WVOnlineTransmission = ones(size(Spectrum.nu_scanwv_3D_short));
 
 elseif strcmp(Options.MPDname,'05')
     load('CalibrationData\CalibrationTablesBoulderSponS6062021.mat','BoulderHSRLcoefficentsSponS6_062021')

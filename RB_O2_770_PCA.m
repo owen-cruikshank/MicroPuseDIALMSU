@@ -10,8 +10,6 @@ function [sponts6] = RB_O2_770_PCA(T,P,nu_Range,Spectrum)
 %   -nu_Range:[1/cm] wavenumber scan. Dimentions: (1 x 1 x wavenumber)
 %
 %Outputs:
-
-
 muY = Spectrum.RBoffline.muY;
 M = Spectrum.RBoffline.M;
 muT = Spectrum.RBoffline.muT;

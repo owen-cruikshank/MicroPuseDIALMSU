@@ -16,7 +16,7 @@ function Q= TIPS2017(molinput,isoinput,Tinput)
 %
 %
 %
-%%%%%%%TO AVOID PICKLING ERROR%%%%%%%%%: files must be re-saved as CR(Unix) from
+%%%%%%%===TO AVOID PICKLING ERROR===%%%%%%%%%: files must be re-saved as CR(Unix) from
 %CRLF(Windows) if using a windows system.
 
 Tinput = fillmissing(Tinput,'nearest',1);

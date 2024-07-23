@@ -18,8 +18,7 @@ function [absorption,cross_section] = absorption_O2_770_PCA2(T,P,Spectrum,WV,Con
 %   -f: [m] Absorption lineshape function, dimensions (range x time x wavnumber)
 
 
-%load variables needed
-
+%==load variables needed
 % if length(nu_Range)==1
 %     load(fullfile('CalibrationData','PCA_1_11_21singleOnline.mat'),'M','muP','muT','muY','nu','sigmaP','sigmaT');
 % else

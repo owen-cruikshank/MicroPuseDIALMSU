@@ -1,7 +1,8 @@
 function [absorption,cross_section,lineshape,Line] = absorption_O2_770_modelSD(T,P,nu_Range,WV,Constant)
-%File: absorption_O2_770_model.m
-%Date: 02/28/2020
+%File: absorption_O2_770_modelSD.m
+%Date: 06/01/2024
 %Author: Owen Cruikshank
+%Description: Calculate Speed Dependent Voight profile
 %Inputs:
 %   -T:[K] scalar or (range x time) vector of atmopheric temperature as a function
 %   of range

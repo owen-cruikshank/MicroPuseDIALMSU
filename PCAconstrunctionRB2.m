@@ -16,7 +16,6 @@ Pmin = .1;
 Pmax = 1.2;
 P = linspace(Pmin,Pmax,N);%[atm]
 
-
 %Construct P and T as j vector
 TP = zeros(N*N,2);
 increment = 1;
@@ -48,7 +47,6 @@ FreqSpecOnline(Spectrum.online_index) = (FreqSpecOnline(Spectrum.online_index)-F
 FreqSpecOffline(Spectrum.offline_index) = (FreqSpecOffline(Spectrum.offline_index)-FreqSpecOffline(Spectrum.offline_index-1))/10;
 end
 
-
 yRBOff = zeros(length(TP(:,1)),length(FreqSpecOffline));
 yRBOn = zeros(length(TP(:,1)),length(FreqSpecOnline));
 %Calculate training Spectrum
@@ -63,11 +61,9 @@ for i = 1:length(Spectrum.nu_scan_3D_short)
     [~,yAOn(:,:,i)] = absorption_O2_770_model(TP(:,1),TP(:,2),Spectrum.nu_scan_3D_short(i),0,Constant);
 end
 yAOn=permute(yAOn,[1 3 2]);
-
 yRBOff=yRBOff';
 yRBOn=yRBOn';
 yAOn=yAOn';
-
 
 
 %Create theta based on T and P
@@ -85,15 +81,14 @@ for j = 1:N*N
     end
 end
 
+% == Create PCA variables Rayleigh brillion offline
 muY = mean(yRBOff,2);
 [U,S,V] = svd(yRBOff); %Varibles S and V MUST be specified. I am not sure why
 clear S V
 W = U'*(yRBOff-muY);
 C = W*pinv(theta);
 M = U*C;
-
 %Variables needed for PCA reconstruction
-
 Spectrum.RBoffline.muY =muY ;
 Spectrum.RBoffline.M = M;
 Spectrum.RBoffline.muT = muT;
@@ -101,7 +96,7 @@ Spectrum.RBoffline.muP = muP;
 Spectrum.RBoffline.sigmaT = sigmaT;
 Spectrum.RBoffline.sigmaP = sigmaP;
 %%
-
+% == Create PCA variables Rayleigh brillion online
 muY = mean(yRBOn,2);
 [U,S,V] = svd(yRBOn); %Varibles S and V MUST be specified. I am not sure why
 clear S V
@@ -115,6 +110,7 @@ Spectrum.RBonline.muP = muP;
 Spectrum.RBonline.sigmaT = sigmaT;
 Spectrum.RBonline.sigmaP = sigmaP;
 %%
+%== Create PCA variables for online absorption
 muY = mean(yAOn,2);
 [U,S,V] = svd(yAOn); %Varibles S and V MUST be specified. I am not sure why
 clear S V

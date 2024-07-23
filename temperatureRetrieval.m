@@ -25,7 +25,6 @@ function [T_final,Lapse,Ts_fit,P_final,mean_lapse_rate,exclusion,deltaT] =  temp
 %   whole day
 %   -exclusion: [none] (range x time x iteration) Points excluded from lapse rate fit
 
-
 %==Constants
 g0 = Constant.g0;
 M_air = Constant.M_air;
@@ -37,12 +36,9 @@ h = Constant.h;
 
 %g0=6.673e-11*5.98e24./(6.38e6+rm+1500).^2;
 
-
 T0 = 296;                   %[K] reference temperature
 
 loop = 30;%number of times to do iterative temperature retrieval loop
-
-
 
 gamma = g0 * M_air / R;     %[K/m]gravity molar mass of air and gas constant
 
@@ -68,7 +64,6 @@ L_t_window = 1;
 
 %Fit lapse rate bounds
 lower_alt_threshold = 400;  %[m] only preform a fit above
-
 upper_lapse_bound = -0.004;  %[K/m]
 lower_lapse_bound = -0.010;  %[K/m]
 
@@ -134,6 +129,7 @@ for i = 1:loop
          end
     end
 
+%     ==testing without fitting
 %     Lapse(:,:,i) = startLapse;
 %     Ts_fit(:,:,i) = Ts.*ones(80,1);
     
@@ -142,12 +138,16 @@ for i = 1:loop
     
     % === Pressure Profile ===
 
+    %Fitted pressure profiles
     %Pg = Ps.*(Ts_fit(1,1,i)./(Ts_fit(1,1,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
     % Pg = Ps.*(Ts_fit(1,:,i)./(Ts_fit(1,:,i)+Lapse(:,:,i).*rm)).^(gamma./Lapse(:,:,i));
     %  PgOld = Ps.*(Ts_fit(1,1,i)./Tg).^(gamma./Lapse(:,:,i));
+    %Old bad pressure profile
     %Pg = Ps.*(Ts./Tg).^(gamma./starting_lapse_rate);
+    %Constant pressure profile
     %Pg = Ps.*(Ts./(Ts+starting_lapse_rate.*rm)).^(gamma./starting_lapse_rate);
 
+    %==new best pressure profile
     Pg = Ps.*exp(-cumtrapz(rm,gamma./Tg,1));
 
 
@@ -160,6 +160,7 @@ for i = 1:loop
     %update lineshape function
     [~,~,~,Line] = absorption_O2_770_model(Tg,Pg,nu_scan,WV,Constant);%[m] lineshape function
 
+    %Use correct two lines from absorption function
     Line1 = Line{4};
     Line2 = Line{5};
     %Calculate Coefficient

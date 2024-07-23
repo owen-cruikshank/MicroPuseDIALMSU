@@ -33,8 +33,9 @@ Options.weatherPath = fullfile(Options.DataPath); %path for weather station data
 Options.sondepath = fullfile(Options.DataPath,'MSU data','Radiosondes'); %path for radiosonde data
 
 %length of data bins in range
-%Options.BinTotal = 560;
+Options.BinTotal = 560;
 Options.BinTotal = 490;
+Options.BinTotal = 499;
 
 %Load raw data from NetCDF files
 [Data, Options] = loadMSUNETcdf(span_days,Options);
@@ -86,6 +87,9 @@ disp('Loading weather Station Data')
 %weather_Temperature_interp = 272.310000000000*ones(1,length(ts)) -273.15;
 %weather_absPressure_interp = 0.836910930175179*ones(1,length(ts)).* 1013.25;
 %weather_WV_interp = zeros(1,Time.i_time);
+
+weather_absPressure_interp =0.8*1013.25*ones(1,Time.i_time);
+weather_Temperature_interp  = 23*ones(1,Time.i_time);
 
 
 disp('Calculating model')
@@ -601,30 +605,30 @@ if span_days(1)<datetime(2020,10,6,'TimeZone','UTC')
 
 %elseif span_days(1) >= datetime(2022,5,11,'TimeZone','UTC')
 
-    elseif span_days(1) >= datetime(2023,1,15,'TimeZone','UTC')
-
-    Atmosphere.Pressure = Model.P./0.009869233; 
-    Atmosphere.Temperature = Model.T;
-    Counts.Nc_on = Counts.o2on;%.*Counts.NBins;
-    Counts.Nc_off = Counts.o2off;%.*Counts.NBins;
-    Counts.Nm_on = Counts.o2on_mol;%.*Counts.NBins;
-    Counts.Nm_off = Counts.o2off_mol;%.*Counts.NBins;
-    Counts.sigma_Nm_off = sqrt(Counts.Nc_on);
-    Counts.sigma_Nm_on = sqrt(Counts.Nc_off);
-    Counts.sigma_Nc_off = sqrt(Counts.Nm_on);
-    Counts.sigma_Nc_on = sqrt(Counts.Nm_off);
-
-    Options.t_step = 1;
-    [HSRL] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
-
-   %HSRL.BSR = HSRL.BSR.*1.2;
-%HSRL.BSR = HSRL.BSR./mean(HSRL.BSR(end-5:end,:),1);
-
-HSRL.BSRf = nan(size(HSRL.BSR));
-
-        HSRL.Bm828 = HSRL.Bm *(770/828)^4;
-    HSRL.Ba828 = HSRL.Ba*(770/828);
-    HSRL.BSR828 = HSRL.Ba828./HSRL.Bm828+1;
+% %     elseif span_days(1) >= datetime(2023,1,15,'TimeZone','UTC')
+% % 
+% %     Atmosphere.Pressure = Model.P./0.009869233; 
+% %     Atmosphere.Temperature = Model.T;
+% %     Counts.Nc_on = Counts.o2on;%.*Counts.NBins;
+% %     Counts.Nc_off = Counts.o2off;%.*Counts.NBins;
+% %     Counts.Nm_on = Counts.o2on_mol;%.*Counts.NBins;
+% %     Counts.Nm_off = Counts.o2off_mol;%.*Counts.NBins;
+% %     Counts.sigma_Nm_off = sqrt(Counts.Nc_on);
+% %     Counts.sigma_Nm_on = sqrt(Counts.Nc_off);
+% %     Counts.sigma_Nc_off = sqrt(Counts.Nm_on);
+% %     Counts.sigma_Nc_on = sqrt(Counts.Nm_off);
+% % 
+% %     Options.t_step = 1;
+% %     [HSRL] = HSRL_retrieval_20230115(Counts,Atmosphere,Options);
+% % 
+% %    %HSRL.BSR = HSRL.BSR.*1.2;
+% % %HSRL.BSR = HSRL.BSR./mean(HSRL.BSR(end-5:end,:),1);
+% % 
+% % HSRL.BSRf = nan(size(HSRL.BSR));
+% % 
+% %         HSRL.Bm828 = HSRL.Bm *(770/828)^4;
+% %     HSRL.Ba828 = HSRL.Ba*(770/828);
+% %     HSRL.BSR828 = HSRL.Ba828./HSRL.Bm828+1;
 
 
     elseif span_days(1) >= datetime(2022,4,13,'TimeZone','UTC')
