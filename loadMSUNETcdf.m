@@ -80,6 +80,24 @@ end
                        {'-';'-'};
                        {'-';'-';'-';'-';'-';'-';'-';'-';'-'};
                        {'Double';'Double';'Double';'Double';'Double'}};
+    elseif strcmp(Options.MPDname,'000')
+            DataTypes = {'Etalon*.nc';'LL*.nc';'MCS*.nc';'Power*.nc'; 'UPS*.nc'};
+    DataNames = {'Etalon';'Laser';'MCS';'Power';'UPS'};
+    FileVarNames  = {{'time';'Temperature';'TempDiff';'IsLocked';'EtalonNum'};
+                     {'time';'Wavelength';'WaveDiff';'IsLocked';'TempDesired';'TempMeas';'Current';'SeedPower';'LaserName'};
+                     {'time';'ProfilesPerHist';'Channel';'nsPerBin';'NBins';'Data';'RTime'};
+                     {'time';'RTime';'Power';'AccumEx';'Demux'};
+                     {'time';'BatteryNominal';'BatteryReplace';'BatteryInUse';'BatteryLow';'BatteryCapacity';'BatteryTimeLeft';'UPSTemperature';'HoursOnBattery'}};  
+    CodeVarNames  = {{'TimeStamp';'TemperatureActual';'-';'-';'Type'};
+                     {'TimeStamp';'WavelengthActual';'-';'Locked';'TemperatureDesired';'TemperatureActual';'-';'-';'Type'};
+                     {'TimeStamp';'ProfilesPerHistogram';'ChannelNum';'RangeResolution';'-';'-';'-'};
+                     {'TimeStamp';'-';'LaserPower';'-';'-'};
+                     {'TimeStamp';'BatteryNominal';'BatteryReplace';'BatteryInUse';'BatteryLow';'BatteryCapacity';'BatteryTimeLeft';'UPSTemperature';'HoursOnBattery'}}; 
+    VarDesiredTypes = {{'-';'-';'-';'-';'String'};
+                       {'-';'-';'-';'-';'-';'-';'-';'-';'String'};
+                       {'-';'-';'-';'-';'-';'-';'-'};
+                       {'-';'-';'-';'-';'-'};
+                       {'-';'-';'-';'-';'-';'-';'-';'-';'-'}};
     else
     DataTypes = {'Etalon*.nc';'LL*.nc';'MCS*.nc';'Power*.nc'; 'HKeep*.nc'; 'UPS*.nc'};
     DataNames = {'Etalon';'Laser';'MCS';'Power';'Thermocouple';'UPS'};
@@ -160,24 +178,41 @@ end
     % Column where names are stored in raw data
     DemuxCol = [5 9 3 5 0 0 0];
     
-    else
-           % Data names
-    DemuxNames = {{'O2Etalon'};
-             {'O2Online';'O2Offline';'TWSOA'};
+    
+    elseif strcmp(Options.MPDname,'000')
+             DemuxNames = {{'HSRLEtalon'};
+             {'HSRL'};
              {'Channel0';'Channel2';'Channel8';'Channel10'};
              {'O2Online';'O2Offline'};
-             {'InsideCell','OutsideCell','TSOA','RoomTemp'};
+             {'all'};
              {'all'}}; 
-
-    Demux = {{'O2Etalon'};
-             {'O2Online';'O2Offline';'Unknown'};
+      % Channel labels
+       Demux = {{'HSRLEtalon'};
+             {'HSRL'};
              {0;2;8;10};
              {'O2Online';'Unknown';'Unknown';'Unknown';'Unknown';'Unknown';'O2Offline';'Unknown';'Unknown';'Unknown';'Unknown';'Unknown'};
-             {1;2;3;4};
-             {'UPS'}};
-             
+             {'UPS'};
+             {'WS'}};
         % Column where names are stored in raw data
-    DemuxCol = [5 9 3 5 0 0];
+        DemuxCol = [5 9 3 5 0 0 0];
+    else
+               % Data names
+        DemuxNames = {{'O2Etalon'};
+                 {'O2Online';'O2Offline';'TWSOA'};
+                 {'Channel0';'Channel2';'Channel8';'Channel10'};
+                 {'O2Online';'O2Offline'};
+                 {'InsideCell','OutsideCell','TSOA','RoomTemp'};
+                 {'all'}}; 
+    
+        Demux = {{'O2Etalon'};
+                 {'O2Online';'O2Offline';'Unknown'};
+                 {0;2;8;10};
+                 {'O2Online';'Unknown';'Unknown';'Unknown';'Unknown';'Unknown';'O2Offline';'Unknown';'Unknown';'Unknown';'Unknown';'Unknown'};
+                 {1;2;3;4};
+                 {'UPS'}};
+                 
+            % Column where names are stored in raw data
+        DemuxCol = [5 9 3 5 0 0];
     end
 
 
